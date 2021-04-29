@@ -16,7 +16,7 @@ sudo()
 
 local Branch = Mods.new()
 
--- Branch:Write(0, 5, Tweens.outexpo, {{100, 'Bumpy', 2000}, {100, 'Beat', 100}})
+--Branch:Write(0, 5, Tweens.outexpo, {{100, 'Bumpy', 20000}, {100, 'Beat', 100}, {0, 'Tiny', -1000}})
 
 Branch:AddToModTree()
 

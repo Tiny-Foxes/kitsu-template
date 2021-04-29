@@ -21,7 +21,7 @@ end
 local branches = {}
 local function UpdateMods()
     for _, b in ipairs(branches) do
-        for _, m in ipairs(b) do
+        for i, m in ipairs(b) do
             --[[
             if type(m.Modifiers[1][1]) == 'number' then
                 local t = m.Modifiers
@@ -29,20 +29,22 @@ local function UpdateMods()
                 m.Modifiers[1] = t
             end
             ]]
-            for i, v in ipairs(m.Modifiers) do
+            for j, v in ipairs(m.Modifiers) do
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
                     -- Get start percent
                     v[3] = v[3] or POptions[m.Player or 1][v[2]](POptions[m.Player or 1]) * 100
                     if v[2]:sub(2) == 'Mod' then
-                        v[3] = (v[3] * 0.01) + 1
+                        v[3] = (v[3] * 0.01) + 1 -- what even
                     end
                     local ease = m.Ease((BEAT - m.Start) / m.Length)
                     local perc = ease * (v[1] - v[3]) + v[3]
                     ApplyModifiers(v[2], perc, m.Player)
                 elseif BEAT >= (m.Start + m.Length) then
                     ApplyModifiers(v[2], v[1], m.Player)
+                    table.remove(m.Modifiers, j)
                 end
             end
+            if #b < 1 then table.remove(branches, i) end
         end
     end
 end
@@ -72,7 +74,7 @@ local function new()
     return t
 end
 -- Write to a mod branch.
-local function Write(self, start, len, ease, modpairs, pn)
+local function InsertMod(self, start, len, ease, modpairs, pn)
     --Trace('Mods:Write')
     local t = {
         Start = start,
@@ -86,7 +88,7 @@ local function Write(self, start, len, ease, modpairs, pn)
 end
 -- Alias for writing default mods
 local function Default(self, modpairs, pn)
-    self:Write(0, 9e9, function(x) return 1 end, modpairs, pn)
+    self:InsertMod(0, 9e9, function(x) return 1 end, modpairs, pn)
 end
 -- Add branch to the mod tree.
 local function AddToModTree(self)
@@ -108,7 +110,7 @@ end
 
 Mods = {
     new = new,
-    Write = Write,
+    InsertMod = InsertMod,
     Default = Default,
     AddToModTree = AddToModTree,
     RemoveFromModTree = RemoveFromModTree,

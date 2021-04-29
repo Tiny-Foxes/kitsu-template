@@ -8,14 +8,15 @@ sudo()
 --      scriptpath - Path to Lua script
 --      (MUST return a ready function and an update function)
 -- Node:AddToNodeTree() - Adds a node to the node tree
+-- Node.GetNodeTree() - Gets the node tree
 
 -- Nodes can be manipulated like normal actors, but most work
 -- should be done in a dedicated script to keep space clean.
 
-local QuadNode = Node.new('Quad')
+function ready()
+end
 
--- QuadNode:AttachScript('this/doesnt/actually/lead/to.lua')
-
-QuadNode:AddToNodeTree()
+function update(dt)
+end
 
 return Node.GetNodeTree()

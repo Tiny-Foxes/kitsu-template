@@ -44,7 +44,7 @@ local Corope = assert(loadfile(SongDir .. 'lib/corope.lua'))() -- Asynchronous
 Async = Corope({errhand = lua.ReportScriptError})
 
 return Def.ActorFrame {
-	OnCommand = function(self)
+	UpdateMessageCommand = function(self)
 		DT = self:GetEffectDelta() -- Set this to TICK for automagic frame limiting!!!! o A o
 		BEAT = GAMESTATE:GetSongPosition():GetSongBeat()
 		BPS = GAMESTATE:GetSongPosition():GetCurBPS()
@@ -53,11 +53,14 @@ return Def.ActorFrame {
 		SPB = 1 / BPS
 		TPB = SPB * TICKRATE
 		Async:update(DT)
-		MESSAGEMAN:Broadcast('Update')
-	end,
-	UpdateMessageCommand = function(self)
-		self:sleep(DT)
+		if sudo.update then
+			sudo.update(DT)
+		end
 		self:queuecommand('On')
+	end,
+	OnCommand = function(self)
+		self:sleep(DT)
+		MESSAGEMAN:Broadcast('Update')
 	end,
 	ReadyCommand = function(self)
 		-- Second set of global variables
@@ -68,5 +71,8 @@ return Def.ActorFrame {
 		C1, C2 = P1:GetChild('Combo'), P2:GetChild('Combo') -- combo 1 and 2
 		J1, J2 = P1:GetChild('Judgment'), P2:GetChild('Judgment') -- judgment 1 and 2
 		N1, N2 = P1:GetChild('NoteField'), P2:GetChild('NoteField') -- notefield 1 and 2
+		if sudo.ready then
+			sudo.ready()
+		end
 	end
 }
