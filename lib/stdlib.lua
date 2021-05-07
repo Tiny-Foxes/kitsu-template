@@ -37,12 +37,14 @@ BPM = BPS * 60 -- beats per minute
 BPT = TICK * BPS -- beats per tick
 SPB = 1 / BPS -- seconds per beat
 TPB = SPB * TICKRATE -- ticks per beat
+SRT_STYLE = false
 
 Node = assert(loadfile(SongDir .. 'lib/nodebuilder.lua'))() -- Nodebuilder
 Mods = assert(loadfile(SongDir .. 'lib/modsbuilder.lua'))() -- Modsbuilder
 local Corope = assert(loadfile(SongDir .. 'lib/corope.lua'))() -- Corope
 
 Async = Corope({errhand = lua.ReportScriptError})
+
 PL = {}
 
 return Def.ActorFrame {
@@ -72,7 +74,7 @@ return Def.ActorFrame {
 	ReadyCommand = function(self)
 		-- Second set of global variables
 		SCREEN = SCREENMAN:GetTopScreen() -- top screen
-		for k,v in pairs( GAMESTATE:GetEnabledPlayers() ) do
+		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
 
 			local pl = SCREEN:GetChild('Player'..ToEnumShortString(v))
@@ -81,7 +83,7 @@ return Def.ActorFrame {
 			info.Judgment = pl:GetChild('Judgment')
 			info.NoteField = pl:GetChild('NoteField')
 
-			PL[k] = info
+			PL[i] = info
 		end
 		--P1, P2 = SCREEN:GetChild('PlayerP1') or nil, SCREEN:GetChild('PlayerP2') or nil -- player 1 and 2
 		--L1, L2 = SCREEN:GetChild('LifeP1') or nil, SCREEN:GetChild('LifeP2') or nil -- life 1 and 2
@@ -89,18 +91,25 @@ return Def.ActorFrame {
 		--C1, C2 = PL[1]:GetChild('Combo') or nil, PL[2]:GetChild('Combo') or nil -- combo 1 and 2
 		--J1, J2 = PL[1]:GetChild('Judgment') or nil, PL[2]:GetChild('Judgment') or nil -- judgment 1 and 2
 		--N1, N2 = PL[1]:GetChild('NoteField') or nil, PL[2]:GetChild('NoteField') or nil -- notefield 1 and 2
-		PL = setmetatable(PL,{
+		PL = setmetatable(PL, {
 			__index = function(this, number)
 				if number < 1 or number > #this then
 					lua.ReportScriptError( string.format("[PL] No player was found on index %i, using first item instead.", number) )
 					return this[1]
 				end
-
 				return this
 			end
 		})
 		if sudo.ready then
 			sudo.ready()
+		end
+		if SRT_STYLE then
+			SCREEN:GetChild('Underlay'):visible(false)
+			for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
+				SCREEN:GetChild('LifeP'..i):visible(false)
+				SCREEN:GetChild('ScoreP'..i):visible(false)
+			end
+			SCREEN:GetChild('Overlay'):visible(false)
 		end
 		MESSAGEMAN:Broadcast('Update')
 	end
