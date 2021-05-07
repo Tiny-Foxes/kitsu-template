@@ -63,9 +63,9 @@ return Def.ActorFrame {
 		if sudo.update then
 			sudo.update(DT)
 		end
-		self:queuecommand('On')
+		self:queuecommand('EndFrame')
 	end,
-	OnCommand = function(self)
+	EndFrameCommand = function(self)
 		self:sleep(DT)
 		MESSAGEMAN:Broadcast('Update')
 	end,
@@ -102,5 +102,6 @@ return Def.ActorFrame {
 		if sudo.ready then
 			sudo.ready()
 		end
+		MESSAGEMAN:Broadcast('Update')
 	end
 }

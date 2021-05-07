@@ -5,6 +5,7 @@ local NodeTree = Def.ActorFrame { }
 
 
 local function new(obj)
+    --Trace('Node.new')
     local t
     if type(obj) == 'string' then
         t = { Type = obj }
@@ -15,6 +16,7 @@ local function new(obj)
     return t
 end
 local function AttachScript(self, scriptpath)
+    --Trace('Node:AttachScript')
     local ready, update = assert(loadfile(SongDir .. scriptpath))()
     self.ReadyCommand = function(self)
         ready(self)
@@ -24,12 +26,15 @@ local function AttachScript(self, scriptpath)
     end
 end
 local function DetachScript(self)
+    --Trace('Node:DetachScript')
     self.UpdateMessageCommand = nil
 end
 local function AddToNodeTree(self)
+    --Trace('Node:AddToNodeTree')
     table.insert(NodeTree, self)
 end
 local function GetNodeTree()
+    --Trace('Node.GetNodeTree')
     return NodeTree
 end
 
