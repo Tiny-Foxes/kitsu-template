@@ -86,6 +86,24 @@ local function InsertMod(self, start, len, ease, modpairs, pn)
     table.insert(self, t)
     return t
 end
+-- Writes a sequence of mods in an offset value.
+local function StackMod( self, start, len, ease, offset, modpairs, pn )
+    --Trace('Mods:StackMod')
+
+    -- In this case, the mod pairs set will be delayed by an ammount given from it.
+    for k,v in pairs(modpairs) do
+        local t = {
+            Start = start+(offset*k),
+            Length = len,
+            Ease = ease,
+            Modifiers = {v},
+            Player = pn or nil
+        }
+        table.insert( self, t )
+    end
+
+    return t
+end
 -- Alias for writing default mods
 local function Default(self, modpairs, pn)
     self:InsertMod(0, 9e9, function(x) return 1 end, modpairs, pn)
@@ -111,6 +129,7 @@ end
 Mods = {
     new = new,
     InsertMod = InsertMod,
+    StackMod = StackMod,
     Default = Default,
     AddToModTree = AddToModTree,
     RemoveFromModTree = RemoveFromModTree,
