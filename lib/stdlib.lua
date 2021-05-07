@@ -43,6 +43,7 @@ Mods = assert(loadfile(SongDir .. 'lib/modsbuilder.lua'))() -- Modsbuilder
 local Corope = assert(loadfile(SongDir .. 'lib/corope.lua'))() -- Corope
 
 Async = Corope({errhand = lua.ReportScriptError})
+PL = {}
 
 return Def.ActorFrame {
 	UpdateMessageCommand = function(self)
@@ -71,12 +72,33 @@ return Def.ActorFrame {
 	ReadyCommand = function(self)
 		-- Second set of global variables
 		SCREEN = SCREENMAN:GetTopScreen() -- top screen
-		P1, P2 = SCREEN:GetChild('PlayerP1'), SCREEN:GetChild('PlayerP2') -- player 1 and 2
-		L1, L2 = SCREEN:GetChild('LifeP1'), SCREEN:GetChild('LifeP2') -- life 1 and 2
-		S1, S2 = SCREEN:GetChild('ScoreP1'), SCREEN:GetChild('ScoreP2') -- life 1 and 2
-		C1, C2 = P1:GetChild('Combo'), P2:GetChild('Combo') -- combo 1 and 2
-		J1, J2 = P1:GetChild('Judgment'), P2:GetChild('Judgment') -- judgment 1 and 2
-		N1, N2 = P1:GetChild('NoteField'), P2:GetChild('NoteField') -- notefield 1 and 2
+		for k,v in pairs( GAMESTATE:GetEnabledPlayers() ) do
+			local info = {}
+
+			local pl = SCREEN:GetChild('Player'..ToEnumShortString(v))
+			info.Player = pl
+			info.Combo = pl:GetChild('Combo')
+			info.Judgment = pl:GetChild('Judgment')
+			info.NoteField = pl:GetChild('NoteField')
+
+			PL[k] = info
+		end
+		--P1, P2 = SCREEN:GetChild('PlayerP1') or nil, SCREEN:GetChild('PlayerP2') or nil -- player 1 and 2
+		--L1, L2 = SCREEN:GetChild('LifeP1') or nil, SCREEN:GetChild('LifeP2') or nil -- life 1 and 2
+		--S1, S2 = SCREEN:GetChild('ScoreP1') or nil, SCREEN:GetChild('ScoreP2') or nil -- life 1 and 2
+		--C1, C2 = PL[1]:GetChild('Combo') or nil, PL[2]:GetChild('Combo') or nil -- combo 1 and 2
+		--J1, J2 = PL[1]:GetChild('Judgment') or nil, PL[2]:GetChild('Judgment') or nil -- judgment 1 and 2
+		--N1, N2 = PL[1]:GetChild('NoteField') or nil, PL[2]:GetChild('NoteField') or nil -- notefield 1 and 2
+		PL = setmetatable(PL,{
+			__index = function(this, number)
+				if number < 1 or number > #this then
+					lua.ReportScriptError( string.format("[PL] No player was found on index %i, using first item instead.", number) )
+					return this[1]
+				end
+
+				return this
+			end
+		})
 		if sudo.ready then
 			sudo.ready()
 		end
