@@ -28,8 +28,6 @@ local branches = {}
 local function UpdateMods()
     for _, b in ipairs(branches) do
         for i, m in ipairs(b) do
-            -- If the player where we're trying to access is not available, then don't even update.
-            if m.Player and not POptions[ m.Player ] then break; end
             --[[
             if type(m.Modifiers[1][1]) == 'number' then
                 local t = m.Modifiers
@@ -38,6 +36,9 @@ local function UpdateMods()
             end
             ]]
             for j, v in ipairs(m.Modifiers) do
+                -- If the player where we're trying to access is not available, then don't even update.
+                if m.Player and not POptions[ m.Player ] then break; end
+
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
                     -- Get start percent
                     local pl = m.Player or 1
