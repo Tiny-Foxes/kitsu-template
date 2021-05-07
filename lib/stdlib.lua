@@ -27,9 +27,10 @@ SW, SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 SCX, SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
 
 TICKRATE = 60 -- tickrate
-TICK = 1 / TICKRATE -- seconds since last update
+TICK = 1 / TICKRATE -- seconds since last tick
+CONST_TICK = false -- set this to true for automagic frame limiting!!!! o A o
 
-DT = 0 -- actual seconds since last update
+DT = 0 -- seconds since last frame
 BEAT = GAMESTATE:GetSongPosition():GetSongBeat() -- current beat
 BPS = GAMESTATE:GetSongPosition():GetCurBPS() -- current beats per second
 BPM = BPS * 60 -- beats per minute
@@ -39,13 +40,18 @@ TPB = SPB * TICKRATE -- ticks per beat
 
 Node = assert(loadfile(SongDir .. 'lib/nodebuilder.lua'))() -- Nodebuilder
 Mods = assert(loadfile(SongDir .. 'lib/modsbuilder.lua'))() -- Modsbuilder
-local Corope = assert(loadfile(SongDir .. 'lib/corope.lua'))() -- Asynchronous
+local Corope = assert(loadfile(SongDir .. 'lib/corope.lua'))() -- Corope
 
 Async = Corope({errhand = lua.ReportScriptError})
 
 return Def.ActorFrame {
 	UpdateMessageCommand = function(self)
-		DT = self:GetEffectDelta() -- Set this to TICK for automagic frame limiting!!!! o A o
+		TICK = 1 / TICKRATE
+		if CONST_TICK then
+			DT = TICK
+		else
+			DT = self:GetEffectDelta()
+		end
 		BEAT = GAMESTATE:GetSongPosition():GetSongBeat()
 		BPS = GAMESTATE:GetSongPosition():GetCurBPS()
 		BPM = BPS * 60
