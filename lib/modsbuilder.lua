@@ -2,26 +2,34 @@ sudo()
 
 local Mods
 
-local POptions = {
-	GAMESTATE:GetPlayerState(0):GetPlayerOptions('ModsLevel_Song'),
-	GAMESTATE:GetPlayerState(1):GetPlayerOptions('ModsLevel_Song'),
-}
+-- Keep the player options from the enabled players that are available.
+local POptions = {}
+for k,v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
+    POptions[k] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
+end
+
 local function ApplyModifiers(mod, percent, pn)
     local amount = percent * 0.01
     if mod:sub(2) == 'Mod' then amount = percent end
     if pn then
-        POptions[pn][mod](POptions[pn], amount, 9e9)
+        if POptions[pn] then
+            POptions[pn][mod](POptions[pn], amount, 9e9)
+        end
     else
-        POptions[1][mod](POptions[1], amount, 9e9)
-        POptions[2][mod](POptions[2], amount, 9e9)
+        for p in ipairs(POptions) do
+            POptions[p][mod](POptions[p], amount, 9e9)
+        end
     end
 end
 
 -- TODO: Make this less painful to deal with before you die at age 80.
 local branches = {}
+--local masternum = tonumber(string.sub(GAMESTATE:GetMasterPlayerNumber(),-1))
 local function UpdateMods()
     for _, b in ipairs(branches) do
         for i, m in ipairs(b) do
+            -- If the player where we're trying to access is not available, then don't even update.
+            if m.Player and not POptions[ m.Player ] then break; end
             --[[
             if type(m.Modifiers[1][1]) == 'number' then
                 local t = m.Modifiers
@@ -32,7 +40,9 @@ local function UpdateMods()
             for j, v in ipairs(m.Modifiers) do
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
                     -- Get start percent
-                    v[3] = v[3] or POptions[m.Player or 1][v[2]](POptions[m.Player or 1]) * 100
+                    local pl = m.Player or 1
+                    --lua.ReportScriptError( type(pl) )
+                    v[3] = v[3] or (POptions[pl][v[2]](POptions[pl]) or 1) * 100
                     if v[2]:sub(2) == 'Mod' then
                         v[3] = (v[3] * 0.01) + 1 -- what even
                     end
