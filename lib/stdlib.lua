@@ -48,7 +48,7 @@ Async = Corope({errhand = lua.ReportScriptError})
 PL = {}
 
 return Def.ActorFrame {
-	UpdateMessageCommand = function(self)
+	BeginFrameCommand = function(self)
 		TICK = 1 / TICKRATE
 		if CONST_TICK then
 			DT = TICK
@@ -61,6 +61,9 @@ return Def.ActorFrame {
 		BPT = TICK * BPS
 		SPB = 1 / BPS
 		TPB = SPB * TICKRATE
+		MESSAGEMAN:Broadcast('Update')
+	end,
+	UpdateMessageCommand = function(self)
 		Async:update(DT)
 		if sudo.update then
 			sudo.update(DT)
@@ -69,7 +72,7 @@ return Def.ActorFrame {
 	end,
 	EndFrameCommand = function(self)
 		self:sleep(DT)
-		MESSAGEMAN:Broadcast('Update')
+		self:queuecommand('BeginFrame')
 	end,
 	ReadyCommand = function(self)
 		-- Second set of global variables
@@ -111,6 +114,6 @@ return Def.ActorFrame {
 			end
 			SCREEN:GetChild('Overlay'):visible(false)
 		end
-		MESSAGEMAN:Broadcast('Update')
+		self:queuecommand('BeginFrame')
 	end
 }

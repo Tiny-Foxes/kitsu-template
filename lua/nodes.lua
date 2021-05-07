@@ -13,7 +13,7 @@ sudo()
 -- Nodes can be manipulated like normal actors, but most work
 -- should be done in a dedicated script to keep space clean.
 
-SRT_STYLE = false -- Set to true for SRT style setup (no lifebar, score, or overlay)
+SRT_STYLE = true -- Set to true for SRT style setup (no lifebar, score, or overlay)
 
 function ready()
 end

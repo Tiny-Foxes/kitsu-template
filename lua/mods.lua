@@ -21,7 +21,7 @@ local Branch = Mods.new()
 --local modtable = {{100, 'Bumpy', 20000}, {100, 'Beat', 100}, {0, 'Tiny', -1000}}
 --Branch:InsertMod(0, 5, Tweens.outexpo, modtable)
 
---local mirinstyle = {5, 10, Tweens.inoutexpo, 100, 'Tipsy', 100, 'Drunk'}
+--local mirinstyle = {5, 5, Tweens.inoutexpo, 50, 'Tipsy', 50, 'Drunk'}
 --Branch:FromTable(mirinstyle)
 
 Branch:AddToModTree()
