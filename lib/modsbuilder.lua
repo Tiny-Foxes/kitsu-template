@@ -67,6 +67,8 @@ local ModTree = Def.ActorFrame {
     deleted under any desired circumstance.
 ]]
 
+Tweens.instant = function(x) return 1 end -- fite me
+
 -- Create a new mod branch.
 local function new()
     --Trace('Mods.new')
@@ -78,7 +80,7 @@ end
 local function InsertMod(self, start, len, ease, modpairs, offset, pn)
     --Trace('Mods:InsertMod')
     local t = {}
-    if not offset then
+    if not offset or offset == 0 then
         t = {
             Start = start,
             Length = len,
@@ -102,8 +104,8 @@ local function InsertMod(self, start, len, ease, modpairs, offset, pn)
     return t
 end
 -- Write to a mod branch now Mirin approved!
-local function FromTable(self, t, offset, pn)
-    --Trace('Mods:FromTable')
+local function MirinMod(self, t, offset, pn)
+    --Trace('Mods:MirinMod')
     local tmods = {}
     for i = 4, #t, 2 do
         if t[i] and t[i + 1] then
@@ -111,6 +113,15 @@ local function FromTable(self, t, offset, pn)
         end
     end
     local res = self:InsertMod(t[1], t[2], t[3], tmods, offset, pn)
+    return res
+end
+-- Write to a mod branch but you like extra wasabi~
+local function ExschMod(self, start, len, str1, str2, mod, timing, ease, offset, pn)
+    --Trace('Mods:ExschMod')
+    if timing == 'end' then
+        len = len - start
+    end
+    local res = self:InsertMod(start, len, ease, {{str1, mod, str2}}, offset, pn)
     return res
 end
 -- Alias for writing default mods
@@ -139,7 +150,8 @@ end
 Mods = {
     new = new,
     InsertMod = InsertMod,
-    FromTable = FromTable,
+    MirinMod = MirinMod,
+    ExschMod = ExschMod,
     Default = Default,
     AddToModTree = AddToModTree,
     RemoveFromModTree = RemoveFromModTree,
