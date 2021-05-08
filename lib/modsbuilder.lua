@@ -140,7 +140,6 @@ Mods = {
     new = new,
     InsertMod = InsertMod,
     FromTable = FromTable,
-    DesyncMod = DesyncMod,
     Default = Default,
     AddToModTree = AddToModTree,
     RemoveFromModTree = RemoveFromModTree,
