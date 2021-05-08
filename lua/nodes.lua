@@ -48,8 +48,9 @@ nummy:AddToNodeTree()
 
 SRT_STYLE = false
 
+-- Set up nodes here
 
-
+-- Modify pre-existing actors here
 function ready()
 end
 
