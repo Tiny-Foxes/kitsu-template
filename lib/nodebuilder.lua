@@ -41,7 +41,6 @@ local function SetUpdate(self, func)
 end
 local function AddToNodeTree(self)
 	--Trace('Node:AddToNodeTree')
-	setmetatable(self, Def[self.Type](self))
 	table.insert(NodeTree, self)
 end
 local function GetNodeTree()
