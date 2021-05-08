@@ -1,6 +1,6 @@
 # Kitsu Template
 #### For Outfox
-The Kitsu Template is an Outfox template designed to make modcharting in Outfox feel more friendly to the object-oriented mindset. If also aims to make minigame creation fun, easy, and accessible to those used to making games in Love2D or most other high-level languaged, update-loop focused game engines.
+The Kitsu Template is an Outfox template designed to make modcharting in Outfox feel more friendly to the object-oriented mindset. It also aims to make minigame creation fun, easy, and accessible to those used to making games in Love2D or most other high-level languaged, update-loop focused game engines.
 
 ## Creating a Node
 Nodes are Kitsu's form of actors with embedded scripts or functions. To create one, simply call the `Node.new` function.
