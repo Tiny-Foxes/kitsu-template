@@ -116,12 +116,12 @@ local function MirinMod(self, t, offset, pn)
     return res
 end
 -- Write to a mod branch but you like extra wasabi~
-local function ExschMod(self, start, len, str1, str2, mod, timing, ease, offset, pn)
+local function ExschMod(self, start, len, str1, str2, mod, timing, ease, pn)
     --Trace('Mods:ExschMod')
     if timing == 'end' then
         len = len - start
     end
-    local res = self:InsertMod(start, len, ease, {{str1, mod, str2}}, offset, pn)
+    local res = self:InsertMod(start, len, ease, {{str2, mod, str1}}, 0, pn)
     return res
 end
 -- Alias for writing default mods

@@ -30,11 +30,13 @@ local function AttachScript(self, scriptpath)
 	end
 end
 local function SetReady(self, func)
+	--Trace('Node:SetReady')
 	self.ReadyCommand = function(self)
 		return func(self)
 	end
 end
 local function SetUpdate(self, func)
+	--Trace('Node:SetUpdate')
 	self.UpdateMessageCommand = function(self)
 		return func(self, DT)
 	end

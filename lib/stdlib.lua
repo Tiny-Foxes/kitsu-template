@@ -37,6 +37,7 @@ BPM = BPS * 60 -- beats per minute
 BPT = TICK * BPS -- beats per tick
 SPB = 1 / BPS -- seconds per beat
 TPB = SPB * TICKRATE -- ticks per beat
+CENTER_PLAYERS = false
 SRT_STYLE = false
 
 Node = assert(loadfile(SongDir .. 'lib/nodebuilder.lua'))() -- Nodebuilder
@@ -105,6 +106,11 @@ return Def.ActorFrame {
 		})
 		if sudo.ready then
 			sudo.ready()
+		end
+		if CENTER_PLAYERS then
+			for pn = 1, #PL do
+				PL[pn].Player:x(SCX)
+			end
 		end
 		if SRT_STYLE then
 			SCREEN:GetChild('Underlay'):visible(false)

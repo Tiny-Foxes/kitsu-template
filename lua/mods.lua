@@ -29,21 +29,27 @@ sudo()
 --[[
 local Branch = Mods.new()
 
-Branch:InsertMod(0, 2, Tweens.outexpo, {
-    {100, 'Bumpy', 20000},
-    {100, 'Beat', 100},
-    {0, 'Tiny', -1000}
-})
+Branch:MirinMod {0, 1, Tweens.inoutback, 20, 'Drunk', 20, 'Tipsy', 100, 'Bumpy', 100, 'Invert'}
 
-local mirinstyle = {5, 3, Tweens.outbounce, 100, 'Reverse1', 100, 'Reverse2', 100, 'Reverse3', 100, 'Reverse4'}
-Branch:MirinMod(mirinstyle, 0.25)
+local modtable = {
+    {100, 'Reverse1'},
+    {100, 'Reverse2'},
+    {100, 'Reverse3'},
+    {100, 'Reverse4'},
+}
+Branch:InsertMod(5, 3, Tweens.outbounce, modtable, 0.25)
 
-Branch:MirinMod {10, 2, Tweens.outelastic, 0, 'Reverse1', 0, 'Reverse2', 0, 'Reverse3', 0, 'Reverse4'}
+Branch:ExschMod(10.0, 14, 100, 0, 'Reverse1', 'end', Tweens.outelastic)
+Branch:ExschMod(10.5, 14, 100, 0, 'Reverse2', 'end', Tweens.outelastic)
+Branch:ExschMod(11.0, 14, 100, 0, 'Reverse3', 'end', Tweens.outelastic)
+Branch:ExschMod(11.5, 14, 100, 0, 'Reverse4', 'end', Tweens.outelastic)
+
+Branch:InsertMod(15, 2, Tweens.outelastic, {{0, 'Invert'}})
 
 Branch:AddToModTree()
 --]]
 ---------------------------
 
--- Insert mods here
+-- Insert mods here --
 
 return Mods.GetModTree()

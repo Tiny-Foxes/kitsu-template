@@ -46,11 +46,16 @@ nummy:AddToNodeTree()
 --]]
 ---------------------------
 
-SRT_STYLE = false
+-- This centers the player if there's only one
+if #PL == 1 then
+    CENTER_PLAYERS = true
+end
+-- This hides the song overlay and underlay like common SRT modfiles do
+SRT_STYLE = true
 
--- Set up nodes here
+-- Set up nodes here --
 
--- Modify pre-existing actors here
+-- Modify pre-existing actors here --
 function ready()
 end
 
