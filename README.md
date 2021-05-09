@@ -1,11 +1,11 @@
 # Kitsu Template
 #### For Outfox
-The Kitsu Template is an Outfox template designed to make modcharting in Outfox feel more friendly to the object-oriented mindset. It also aims to make minigame creation fun, easy, and accessible to those used to making games in Love2D or most other high-level languaged, update-loop focused game engines.
+The Kitsu Template is a template designed to make modcharting in Outfox feel more friendly to the object-oriented mindset. It also aims to make minigame creation fun, easy, and accessible to those used to making games in Love2D or most other high-level languaged, update-loop focused game engines.
 
 ## Creating a Node
 Nodes are Kitsu's form of actors with embedded scripts or functions. To create one, simply call the `Node.new` function.
 ```lua
-local MyNode = Node.new('Quad') -- You can optionally pass in a string for the type, or an entire Outfox actor for convenience.
+local MyNode = Node.new('Quad') -- You can optionally pass in a string for the type, or an entire Outfox-style actor for convenience.
 ```
 Once you've created your node, you can attach a script with `AttachScript`.
 ```lua
@@ -37,13 +37,13 @@ You can insert mods into a mod branch using three different functions.
 ```lua
 -- In-house method
 MyMods:InsertMod(0, 4, Tweens.inoutexpo, {
- {20, 'Drunk'},
- {20, 'Tipsy'}
+ {20, 'drunk'},
+ {20, 'tipsy'}
 })
 -- Mirin Method
-MyMods:MirinMod {4, 4, Tweens.inoutcircle, 100, 'Invert'}
+MyMods:MirinMod {4, 4, Tweens.inoutcircle, 100, 'invert'}
 -- Exschwasion Method
-MyMods:ExschMod(8, 4, Tweens.inoutback, 100, 0, 'Invert')
+MyMods:ExschMod(8, 4, 100, 0, 'invert', 'len', Tweens.inoutback)
 ```
 And just like with nodes, you can add your mod branches to the mod tree.
 ```lua
