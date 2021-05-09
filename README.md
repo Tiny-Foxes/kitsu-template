@@ -37,13 +37,13 @@ You can insert mods into a mod branch using three different functions.
 ```lua
 -- In-house method
 MyMods:InsertMod(0, 4, Tweens.inoutexpo, {
- {20, 'Drunk'},
- {20, 'Tipsy'}
+ {20, 'drunk'},
+ {20, 'tipsy'}
 })
 -- Mirin Method
-MyMods:MirinMod {4, 4, Tweens.inoutcircle, 100, 'Invert'}
+MyMods:MirinMod {4, 4, Tweens.inoutcircle, 100, 'invert'}
 -- Exschwasion Method
-MyMods:ExschMod(8, 4, Tweens.inoutback, 100, 0, 'Invert')
+MyMods:ExschMod(8, 4, Tweens.inoutback, 100, 0, 'invert')
 ```
 And just like with nodes, you can add your mod branches to the mod tree.
 ```lua
