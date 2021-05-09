@@ -6,4 +6,7 @@ end
 local function update(self, dt)
 end
 
-return ready, update
+local function input(self, event)
+end
+
+return ready, update, input

@@ -48,6 +48,10 @@ Async = Corope({errhand = printerr})
 
 PL = {}
 
+local InputHandler = function(event)
+	MESSAGEMAN:Broadcast('Input', {event})
+end
+
 return Def.ActorFrame {
 	BeginFrameCommand = function(self)
 		TICK = 1 / TICKRATE
@@ -78,6 +82,7 @@ return Def.ActorFrame {
 	ReadyCommand = function(self)
 		-- Second set of global variables
 		SCREEN = SCREENMAN:GetTopScreen() -- top screen
+		SCREEN:AddInputCallback(InputHandler)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
 
@@ -120,5 +125,13 @@ return Def.ActorFrame {
 			SCREEN:GetChild('Overlay'):visible(false)
 		end
 		self:queuecommand('BeginFrame')
+	end,
+	InputMessageCommand = function(self, args)
+		if sudo.input then
+			sudo.input(args[1])
+		end
+	end,
+	OffCommand = function(self)
+		SCREEN:RemoveInputCallback(InputHandler)
 	end
 }

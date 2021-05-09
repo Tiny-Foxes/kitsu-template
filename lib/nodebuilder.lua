@@ -21,12 +21,15 @@ local function new(obj)
 end
 local function AttachScript(self, scriptpath)
 	--Trace('Node:AttachScript')
-	local ready, update = assert(loadfile(SongDir .. scriptpath))()
+	local ready, update, input = assert(loadfile(SongDir .. scriptpath))()
 	self.ReadyCommand = function(self)
 		return ready(self)
 	end
 	self.UpdateMessageCommand = function(self)
 		return update(self, DT)
+	end
+	self.InputMessageCommand = function(self, args)
+		return input(self, args[1])
 	end
 end
 local function SetReady(self, func)
@@ -39,6 +42,11 @@ local function SetUpdate(self, func)
 	--Trace('Node:SetUpdate')
 	self.UpdateMessageCommand = function(self)
 		return func(self, DT)
+	end
+end
+local function SetInput(self, func)
+	self.InputMessageCommand = function(self, args)
+		return func(self, args[1])
 	end
 end
 local function AddToNodeTree(self)
@@ -55,6 +63,7 @@ Node = {
 	AttachScript = AttachScript,
 	SetReady = SetReady,
 	SetUpdate = SetUpdate,
+	SetInput = SetInput,
 	AddToNodeTree = AddToNodeTree,
 	GetNodeTree = GetNodeTree
 }
