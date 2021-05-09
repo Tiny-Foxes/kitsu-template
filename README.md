@@ -11,15 +11,20 @@ Once you've created your node, you can attach a script with `AttachScript`.
 ```lua
 MyNode:AttachScript('lua/script/empty.lua') -- You can use the empty script here for an example of setup
 ```
-If you don't want to create a script, you can directly set the ready and update functions.
+If you don't want to create a script, you can directly set the ready, update, and input functions instead.
 ```lua
 MyNode:SetReady(function(self)
- self:Center()
- self:SetWidth(64)
- self:SetHeight(64)
+  self:Center()
+  self:SetWidth(64)
+  self:SetHeight(64)
 end)
 MyNode:SetUpdate(function(self, dt)
- self:addrotationz(360 * dt) -- dt stands for "delta time" - the amount of seconds since last frame.
+  self:addrotationz(360 * dt) -- dt stands for "delta time" - the amount of seconds since last frame.
+end)
+MyNode:SetInput(function(self, event)
+  if event.type == "InputEventType_FirstPress" then
+    SCREENMAN:SystemMessage(event.button)
+  end
 end)
 ```
 Finally, you can add your node to the node tree.
@@ -36,12 +41,12 @@ local MyMods = Mods.new()
 You can insert mods into a mod branch using three different functions.
 ```lua
 -- In-house method
-MyMods:InsertMod(0, 4, Tweens.inoutexpo, {
- {20, 'drunk'},
- {20, 'tipsy'}
+MyMods:InsertMod(0, 4, Tweens.outelastic, {
+  {20, 'drunk'},
+  {20, 'tipsy'}
 })
 -- Mirin Method
-MyMods:MirinMod {4, 4, Tweens.inoutcircle, 100, 'invert'}
+MyMods:MirinMod({4, 4, Tweens.inoutcircle, 100, 'invert'})
 -- Exschwasion Method
 MyMods:ExschMod(8, 4, 100, 0, 'invert', 'len', Tweens.inoutback)
 ```
