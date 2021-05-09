@@ -43,7 +43,7 @@ MyMods:InsertMod(0, 4, Tweens.inoutexpo, {
 -- Mirin Method
 MyMods:MirinMod {4, 4, Tweens.inoutcircle, 100, 'invert'}
 -- Exschwasion Method
-MyMods:ExschMod(8, 4, Tweens.inoutback, 100, 0, 'invert')
+MyMods:ExschMod(8, 4, 100, 0, 'invert', 'len', Tweens.inoutback)
 ```
 And just like with nodes, you can add your mod branches to the mod tree.
 ```lua
