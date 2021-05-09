@@ -26,7 +26,7 @@ sudo()
 ---------------------------
 -- Uncomment for example --
 ---------------------------
---[[
+---[[
 local Branch = Mods.new()
 
 Branch:MirinMod {0, 1, Tweens.inoutback, 20, 'Drunk', 20, 'Tipsy', 100, 'Bumpy', 100, 'Invert'}

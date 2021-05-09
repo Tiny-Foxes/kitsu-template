@@ -8,22 +8,23 @@ for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
     POptions[i] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
 end
 
-local function ApplyModifiers(mod, percent, pn)
-    local amount = percent * 0.01
-    if mod:sub(2) == 'Mod' then amount = percent end
+local function ApplyMods(mod, percent, pn)
+    local modstring = '*-1 '..percent..' '..mod:lower()
+    if mod:sub(2):lower() == 'mod' then
+        modstring = '*-1 '..percent..mod:sub(1, 1):lower()
+    end
     if pn then
-        if POptions[pn] then
-            POptions[pn][mod](POptions[pn], amount, 9e9)
-        end
+        POptions[pn]:FromString(modstring)
     else
-        for p in ipairs(POptions) do
-            POptions[p][mod](POptions[p], amount, 9e9)
+        for p = 1, #PL do
+            POptions[p]:FromString(modstring)
         end
     end
 end
 
 -- TODO: Make this less painful to deal with before you die at age 80.
 local branches = {}
+local mod_percents = {}
 local function UpdateMods()
     for _, b in ipairs(branches) do
         for i, m in ipairs(b) do
@@ -33,15 +34,14 @@ local function UpdateMods()
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
                     -- Get start percent
                     local pl = m.Player or 1
-                    v[3] = v[3] or (POptions[pl][v[2]](POptions[pl]) or 1) * 100
-                    if v[2]:sub(2) == 'Mod' then
-                        v[3] = (v[3] * 0.01) + 1 -- what even
-                    end
+                    v[3] = v[3] or mod_percents[v[2]] or 0
                     local ease = m.Ease((BEAT - m.Start) / m.Length)
                     local perc = ease * (v[1] - v[3]) + v[3]
-                    ApplyModifiers(v[2], perc, m.Player)
+                    ApplyMods(v[2], perc, m.Player)
+                    mod_percents[v[2]] = perc
                 elseif BEAT >= (m.Start + m.Length) then
-                    ApplyModifiers(v[2], v[1], m.Player)
+                    ApplyMods(v[2], v[1], m.Player)
+                    mod_percents[v[2]] = v[1]
                     table.remove(m.Modifiers, j)
                 end
             end

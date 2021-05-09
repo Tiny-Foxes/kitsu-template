@@ -44,7 +44,7 @@ Node = assert(loadfile(SongDir .. 'lib/nodebuilder.lua'))() -- Nodebuilder
 Mods = assert(loadfile(SongDir .. 'lib/modsbuilder.lua'))() -- Modsbuilder
 local Corope = assert(loadfile(SongDir .. 'lib/corope.lua'))() -- Corope
 
-Async = Corope({errhand = lua.ReportScriptError})
+Async = Corope({errhand = printerr})
 
 PL = {}
 
@@ -98,7 +98,7 @@ return Def.ActorFrame {
 		PL = setmetatable(PL, {
 			__index = function(this, number)
 				if number < 1 or number > #this then
-					lua.ReportScriptError( string.format("[PL] No player was found on index %i, using first item instead.", number) )
+					printerr( string.format("[PL] No player was found on index %i, using first item instead.", number) )
 					return this[1]
 				end
 				return this
@@ -113,8 +113,7 @@ return Def.ActorFrame {
 			end
 		end
 		if SRT_STYLE then
-			SCREEN:GetChild('Underlay'):visible(false)
-			for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
+			for i = 1, #PL do
 				SCREEN:GetChild('LifeP'..i):visible(false)
 				SCREEN:GetChild('ScoreP'..i):visible(false)
 			end
