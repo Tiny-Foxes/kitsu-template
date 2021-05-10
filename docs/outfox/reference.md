@@ -1,4 +1,5 @@
 ## Mods
+
 | Methods | Description |
 | --- | --- |
 | InsertMod(*start*: float, *len*: float, *ease*: function, \{modpair, ...\}, *\[offset\]*: float, *\[pn\]*: int) | Inserts a mod into a branch |
@@ -7,6 +8,7 @@
 | AddToModTree() | Add a mod branch to the mod tree |
 
 ## Node
+
 | Methods | Description |
 | --- | --- |
 | AttachScript(*path*: string) | Attach a script to a node |
