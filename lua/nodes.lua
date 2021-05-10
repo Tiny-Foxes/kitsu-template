@@ -31,7 +31,7 @@
 ---------------------------
 -- Uncomment for example --
 ---------------------------
---[[
+---[[
 local QuadPad = {}
 local PadDirs = {"Left", "Down", "Up", "Right"}
 for i = 1, 4 do
@@ -53,7 +53,7 @@ for i = 1, 4 do
 	QuadPad[i]:SetInput(function(self, event)
 		if event.button == PadDirs[i] then
 			local col = event.DeviceInput.level
-			if event.PlayerNumber == PLAYER_1 and not SCREEN:IsPaused() then
+			if event.PlayerNumber == PLAYER_1 and (SCREEN and SCREEN:GetName() ~= 'ScreenGameplay' or not SCREEN:IsPaused()) then
 				if event.type == 'InputEventType_Release' then
 					self:diffuse(1, 1, 1, 1)
 				else

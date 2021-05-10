@@ -38,6 +38,7 @@ end
 -- First set of global variables
 printerr = lua.ReportScriptError
 
+SCREEN = SCREENMAN:GetTopScreen() -- top screen
 SW, SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 SCX, SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
 
@@ -96,12 +97,14 @@ return Def.ActorFrame {
 	end,
 	ReadyCommand = function(self)
 		-- Second set of global variables
-		SCREEN = SCREENMAN:GetTopScreen() -- top screen
 		SCREEN:AddInputCallback(InputHandler)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
 
 			local pl = SCREEN:GetChild('Player'..ToEnumShortString(v))
+			if not pl and SCREEN:GetName() == 'ScreenEdit' then
+				pl = SCREEN:GetChildAt(7)
+			end
 			info.Player = pl
 			info.Life = SCREEN:GetChild('Life'..ToEnumShortString(v))
 			info.Score = SCREEN:GetChild('Score'..ToEnumShortString(v))
@@ -130,8 +133,8 @@ return Def.ActorFrame {
 		end
 		if SRT_STYLE then
 			for i = 1, #PL do
-				PL[i].Life:visible(false)
-				PL[i].Score:visible(false)
+				if PL[i].Life then PL[i].Life:visible(false) end
+				if PL[i].Score then PL[i].Score:visible(false) end
 			end
 			SCREEN:GetChild('Overlay'):visible(false)
 		end

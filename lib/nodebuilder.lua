@@ -26,6 +26,7 @@ local function AttachScript(self, scriptpath)
 		ready = nil,
 		update = nil,
 		input = nil,
+		draw = nil,
 	}
 	sudo(assert(loadfile(SongDir .. scriptpath)))()
 	local src = deepcopy(kitsu)
@@ -37,6 +38,9 @@ local function AttachScript(self, scriptpath)
 	end
 	self.InputMessageCommand = function(self, args)
 		if src.input then return src.input(self, args[1]) end
+	end
+	self.DrawMessageCommand = function(self)
+		if src.draw then self:SetDrawFunction(src.draw) end
 	end
 end
 local function SetReady(self, func)
@@ -57,6 +61,12 @@ local function SetInput(self, func)
 		return func(self, args[1])
 	end
 end
+local function SetDraw(self, func)
+	--printerr('Node:SetDraw')
+	self.DrawMessageCommand = function(self)
+		self:SetDrawFunction(func)
+	end
+end
 local function AddToNodeTree(self)
 	--printerr('Node:AddToNodeTree')
 	table.insert(NodeTree, self)
@@ -72,6 +82,7 @@ Node = {
 	SetReady = SetReady,
 	SetUpdate = SetUpdate,
 	SetInput = SetInput,
+	SetDraw = SetDraw,
 	AddToNodeTree = AddToNodeTree,
 	GetNodeTree = GetNodeTree
 }
