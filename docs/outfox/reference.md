@@ -1,3 +1,5 @@
+# Kitsu for Outfox API Reference
+---
 ## Global
 
 | SCREEN: *ActorFrame* - Top screen |
