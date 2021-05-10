@@ -5,7 +5,7 @@ local NodeTree = Def.ActorFrame { }
 
 
 -- This would be used for extending the metatable of the node, I hope? For whatever reason...
-function extends(self, nodeType)
+local function extends(self, nodeType)
 	self = Def[nodeType](self)
 end
 
