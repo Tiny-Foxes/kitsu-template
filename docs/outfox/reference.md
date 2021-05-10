@@ -23,18 +23,18 @@
 
 ## Mods
 
-| InsertMod(*start*: float, *len*: float, *ease*: function, \{modpair, ...\}, *\[offset\]*: float, *\[pn\]*: int) - Insert a mod into a branch |
-| MirinMod(\{*start*: float, *len*: float, *ease*: function, *percent*: float, *mod*: string, ...\}, *\[offset\]*: float, *\[pn\]*: int) - Use Mirin style to insert mod |
-| ExschMod(*start*: float, *end*: float, *start_percent*: float, *end_percent*: float, *mod*: string, *timing*: string, *ease*: function, *\[pn\]*: int) - Use Exschwasion style to insert mod |
+| InsertMod(start: *float*, len: *float*, ease: *function*, \{modpair, ...\}, \[offset\]: *float*, \[pn\]: *int*) - Insert a mod into a branch |
+| MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*) - Use Mirin style to insert mod |
+| ExschMod(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*) - Use Exschwasion style to insert mod |
 | AddToModTree() - Add a mod branch to the mod tree |
 
 ## Node
 
-| AttachScript(*path*: string) - Attach a script to a node |
-| SetReady(*func*: function) - Set a node's ready function |
-| SetUpdate(*func*: function) - Set a node's update function |
-| SetInput(*func*: function) - Set a node's input function |
-| SetDraw(*func*: function) - Set a node's draw function (untested!) |
+| AttachScript(path: *string*) - Attach a script to a node |
+| SetReady(func: *function*) - Set a node's ready function |
+| SetUpdate(func: *function*) - Set a node's update function |
+| SetInput(func: *function*) - Set a node's input function |
+| SetDraw(func: *function*) - Set a node's draw function (untested!) |
 | AddToNodeTree() - Add a node to the node tree |
 
 
