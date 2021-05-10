@@ -1,3 +1,58 @@
-html {
-    background-color: #F0F0F0
+@import url('https://fonts.googleapis.com/css2?family=Itim&family=Roboto&display=swap');
+
+body {
+	display: flex;
+	flex-flow: column wrap;
+	align-items: center;
+	background-color: #1F1F1F;
+	color: #FFFFFF;
+}
+h1, h2 {
+	font-family: 'Itim', cursive;
+	text-align: center;
+	filter: drop-shadow(0px 0px 10px #FFFFFF)
+}
+h3, h4, h5, h6, p {
+	font-family: 'Roboto', sans-serif;
+}
+header > h1 {
+	font-size: 64px;
+}
+legend, fieldset {
+	background: #F0F0F0;
+}
+legend {
+	font-family: 'Itim', cursive;
+	font-size: 24px;
+	padding: 6px 12px;
+	margin-left: 12px;
+	border: 1px solid black;
+}
+fieldset {
+	filter: drop-shadow(0px 5px 3px #00000088)
+}
+footer > h6 {
+	text-align: center;
+	margin: 0px;
+}
+main {
+	width: 100%;
+	max-width: 650px;
+	padding: 24px;
+	background: #F0F0F0;
+	color: #1F1F1F;
+}
+section {
+	padding: 24px;
+}
+header, footer {
+	padding-top: 48px;
+	padding-bottom: 48px;
+}
+footer {
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: space-evenly;
+	width: 100%;
+	max-width: 650px;
 }
