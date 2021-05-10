@@ -103,18 +103,14 @@ return Def.ActorFrame {
 
 			local pl = SCREEN:GetChild('Player'..ToEnumShortString(v))
 			info.Player = pl
+			info.Life = SCREEN:GetChild('Life'..ToEnumShortString(v))
+			info.Score = SCREEN:GetChild('Score'..ToEnumShortString(v))
 			info.Combo = pl:GetChild('Combo')
 			info.Judgment = pl:GetChild('Judgment')
 			info.NoteField = pl:GetChild('NoteField')
 
 			PL[i] = info
 		end
-		--P1, P2 = SCREEN:GetChild('PlayerP1') or nil, SCREEN:GetChild('PlayerP2') or nil -- player 1 and 2
-		--L1, L2 = SCREEN:GetChild('LifeP1') or nil, SCREEN:GetChild('LifeP2') or nil -- life 1 and 2
-		--S1, S2 = SCREEN:GetChild('ScoreP1') or nil, SCREEN:GetChild('ScoreP2') or nil -- life 1 and 2
-		--C1, C2 = PL[1]:GetChild('Combo') or nil, PL[2]:GetChild('Combo') or nil -- combo 1 and 2
-		--J1, J2 = PL[1]:GetChild('Judgment') or nil, PL[2]:GetChild('Judgment') or nil -- judgment 1 and 2
-		--N1, N2 = PL[1]:GetChild('NoteField') or nil, PL[2]:GetChild('NoteField') or nil -- notefield 1 and 2
 		PL = setmetatable(PL, {
 			__index = function(this, number)
 				if number < 1 or number > #this then
@@ -134,8 +130,8 @@ return Def.ActorFrame {
 		end
 		if SRT_STYLE then
 			for i = 1, #PL do
-				SCREEN:GetChild('LifeP'..i):visible(false)
-				SCREEN:GetChild('ScoreP'..i):visible(false)
+				PL[i].Life:visible(false)
+				PL[i].Score:visible(false)
 			end
 			SCREEN:GetChild('Overlay'):visible(false)
 		end
