@@ -5,7 +5,8 @@ local NodeTree = Def.ActorFrame { }
 
 
 -- This would be used for extending the metatable of the node, I hope? For whatever reason...
-local function extends(self, nodeType)
+function extends(self, nodeType)
+	self = Def[nodeType](self)
 end
 
 local function new(obj)
@@ -26,7 +27,7 @@ local function AttachScript(self, scriptpath)
 		update = nil,
 		input = nil,
 	}
-	assert(loadfile(SongDir .. scriptpath))()
+	sudo(assert(loadfile(SongDir .. scriptpath)))()
 	local src = deepcopy(kitsu)
 	self.ReadyCommand = function(self)
 		if src.ready then return src.ready(self) end

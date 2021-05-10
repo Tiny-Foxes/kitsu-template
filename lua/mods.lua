@@ -21,8 +21,6 @@
 -- a new branch using Mods.new() branch and stuff all of your mods into it.
 ---------------------------
 
-sudo()
-
 ---------------------------
 -- Uncomment for example --
 ---------------------------

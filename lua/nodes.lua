@@ -28,8 +28,6 @@
 -- They will not work with nodes. Use the set functions for them instead.
 ---------------------------
 
-sudo()
-
 ---------------------------
 -- Uncomment for example --
 ---------------------------
@@ -54,11 +52,21 @@ for i = 1, 4 do
 	end)
 	QuadPad[i]:SetInput(function(self, event)
 		if event.button == PadDirs[i] then
+			local col = event.DeviceInput.level
+			if event.PlayerNumber == PLAYER_1 and not SCREEN:IsPaused() then
+				if event.type == 'InputEventType_Release' then
+					self:diffuse(1, 1, 1, 1)
+				else
+					self:diffuse(col, 0, 1 - col, 1)
+				end
+			end
+			--[[
 			if event.type == "InputEventType_FirstPress" then
 				self:diffuse(0, 1, 0, 1)
 			elseif event.type == "InputEventType_Release" then
 				self:diffuse(1, 1, 1, 1)
 			end
+			--]]
 		end
 	end)
 	QuadPad[i]:AddToNodeTree()

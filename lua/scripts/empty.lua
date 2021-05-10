@@ -1,4 +1,4 @@
-sudo()
+extends "Quad"
 
 function kitsu.ready(self)
 end
