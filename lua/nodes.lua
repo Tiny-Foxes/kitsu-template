@@ -6,14 +6,13 @@
 --      'Actor' - Alternatively, use a type name
 -- Node:AttachScript(scriptpath) - Attaches a script to a node
 --      scriptpath - Path to Lua script
---      (MUST return ready, update, and input functions, update and input both require 1 parameter!)
---		(See 'lua/scripts/empty.lua' for example)
+--		(See 'lua/scripts/empty.lua' for example script)
 -- Node:SetReady(func) - Attaches a function to the ready command
 --      func - Function to attach
 -- Node:SetUpdate(func) - Attaches a function to the update command
 --      func - Function to attach (requires 1 parameter!)
 -- Node:SetInput(func) - Attaches a function to the input command
---		func - Function to attach( requires 1 parameter!)
+--		func - Function to attach (requires 1 parameter!)
 -- Node:AddToNodeTree() - Adds a node to the node tree
 -- Node.GetNodeTree() - Gets the node tree
 
@@ -35,35 +34,35 @@ sudo()
 -- Uncomment for example --
 ---------------------------
 --[[
-local nummy = Node.new('Quad')
-
-nummy:SetReady(function(self)
-	self:Center()
-	self:SetWidth(64)
-	self:SetHeight(64)
-end)
-nummy:SetUpdate(function(self, dt)
-	self:addrotationz(360 * dt)
-end)
-nummy:SetInput(function(self, event)
-	local offset = {0, 0}
-	if event.button == "Left" then offset[1] = -1
-	elseif event.button == "Right" then offset[1] = 1
-	elseif event.button == "Up" then offset[2] = -1
-	elseif event.button == "Down" then offset[2] = 1
-	end
-	if not SCREEN:IsPaused() then
-		if event.type == "InputEventType_FirstPress" then
-			self:addx(offset[1] * 32)
-			self:addy(offset[2] * 32)
-		elseif event.type == "InputEventType_Release" then
-			self:addx(offset[1] * -32)
-			self:addy(offset[2] * -32)
+local QuadPad = {}
+local PadDirs = {"Left", "Down", "Up", "Right"}
+for i = 1, 4 do
+	QuadPad[i] = Node.new('Quad')
+	QuadPad[i]:SetReady(function(self)
+		self:Center()
+		self:SetWidth(64)
+		self:SetHeight(64)
+		if i == 1 then
+			self:addx(-64) -- Left
+		elseif i == 2 then
+			self:addy(64) -- Down
+		elseif i == 3 then
+			self:addy(-64) -- Up
+		else
+			self:addx(64) -- Right
 		end
-	end
-end)
-
-nummy:AddToNodeTree()
+	end)
+	QuadPad[i]:SetInput(function(self, event)
+		if event.button == PadDirs[i] then
+			if event.type == "InputEventType_FirstPress" then
+				self:diffuse(0, 1, 0, 1)
+			elseif event.type == "InputEventType_Release" then
+				self:diffuse(1, 1, 1, 1)
+			end
+		end
+	end)
+	QuadPad[i]:AddToNodeTree()
+end
 --]]
 ---------------------------
 

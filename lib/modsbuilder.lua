@@ -71,14 +71,14 @@ Tweens.instant = function(x) return 1 end -- fite me
 
 -- Create a new mod branch.
 local function new()
-    --Trace('Mods.new')
+    --printerr('Mods.new')
     local t = {}
     setmetatable(t, Mods)
     return t
 end
 -- Write to a mod branch.
 local function InsertMod(self, start, len, ease, modpairs, offset, pn)
-    --Trace('Mods:InsertMod')
+    --printerr('Mods:InsertMod')
     local t = {}
     if not offset or offset == 0 then
         t = {
@@ -105,7 +105,7 @@ local function InsertMod(self, start, len, ease, modpairs, offset, pn)
 end
 -- Write to a mod branch now Mirin approved!
 local function MirinMod(self, t, offset, pn)
-    --Trace('Mods:MirinMod')
+    --printerr('Mods:MirinMod')
     local tmods = {}
     for i = 4, #t, 2 do
         if t[i] and t[i + 1] then
@@ -117,7 +117,7 @@ local function MirinMod(self, t, offset, pn)
 end
 -- Write to a mod branch but you like extra wasabi~
 local function ExschMod(self, start, len, str1, str2, mod, timing, ease, pn)
-    --Trace('Mods:ExschMod')
+    --printerr('Mods:ExschMod')
     if timing == 'end' then
         len = len - start
     end
@@ -126,24 +126,24 @@ local function ExschMod(self, start, len, str1, str2, mod, timing, ease, pn)
 end
 -- Alias for writing default mods
 local function Default(self, modpairs)
-    --Trace('Mods:Default')
+    --printerr('Mods:Default')
     self:InsertMod(0, 9e9, function(x) return 1 end, modpairs)
 end
 -- Add branch to the mod tree.
 local function AddToModTree(self)
-    --Trace('Mods:AddToModTree')
+    --printerr('Mods:AddToModTree')
     table.insert(branches, self)
 end
 -- Remove branch from the mod tree.
 local function RemoveFromModTree(self)
-    --Trace('Mods:RemoveFromModTree')
+    --printerr('Mods:RemoveFromModTree')
     for i, v in ipairs(branches) do
         if v == self then table.remove(branches, i) end
     end
 end
 -- Get the mod tree.
 local function GetModTree()
-    --Trace('Mods:GetModTree')
+    --printerr('Mods:GetModTree')
     return ModTree
 end
 

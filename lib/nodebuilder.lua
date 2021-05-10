@@ -9,7 +9,7 @@ local function extends(self, nodeType)
 end
 
 local function new(obj)
-	--Trace('Node.new')
+	--printerr('Node.new')
 	local t
 	if type(obj) == 'string' then
 		t = { Type = obj }
@@ -20,41 +20,48 @@ local function new(obj)
 	return t
 end
 local function AttachScript(self, scriptpath)
-	--Trace('Node:AttachScript')
-	local ready, update, input = assert(loadfile(SongDir .. scriptpath))()
+	--printerr('Node:AttachScript')
+	kitsu = {
+		ready = nil,
+		update = nil,
+		input = nil,
+	}
+	assert(loadfile(SongDir .. scriptpath))()
+	local src = deepcopy(kitsu)
 	self.ReadyCommand = function(self)
-		return ready(self)
+		if src.ready then return src.ready(self) end
 	end
 	self.UpdateMessageCommand = function(self)
-		return update(self, DT)
+		if src.update then return src.update(self, DT) end
 	end
 	self.InputMessageCommand = function(self, args)
-		return input(self, args[1])
+		if src.input then return src.input(self, args[1]) end
 	end
 end
 local function SetReady(self, func)
-	--Trace('Node:SetReady')
+	--printerr('Node:SetReady')
 	self.ReadyCommand = function(self)
 		return func(self)
 	end
 end
 local function SetUpdate(self, func)
-	--Trace('Node:SetUpdate')
+	--printerr('Node:SetUpdate')
 	self.UpdateMessageCommand = function(self)
 		return func(self, DT)
 	end
 end
 local function SetInput(self, func)
+	--printerr('Node:SetInput')
 	self.InputMessageCommand = function(self, args)
 		return func(self, args[1])
 	end
 end
 local function AddToNodeTree(self)
-	--Trace('Node:AddToNodeTree')
+	--printerr('Node:AddToNodeTree')
 	table.insert(NodeTree, self)
 end
 local function GetNodeTree()
-	--Trace('Node.GetNodeTree')
+	--printerr('Node.GetNodeTree')
 	return NodeTree
 end
 
