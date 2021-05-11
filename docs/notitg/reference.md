@@ -1,4 +1,4 @@
-# Kitsu for Outfox API Reference
+# Kitsu for NotITG API Reference
 ---
 ## Global
 
@@ -20,6 +20,7 @@
 | printerr - Print error to console |
 | Mods.new() - Create a new mod branch |
 | Node.new() - Create a new node |
+| event: *InputEvent* - Game input event |
 
 ## Mods
 
@@ -36,3 +37,32 @@
 | SetInput(func: *function(self, event)*) - Set a node's input function |
 | SetDraw(func: *function(self)*) - Set a node's draw function (untested!) |
 | AddToNodeTree() - Add a node to the node tree |
+
+## InputEvent
+
+| button: *InputEventButton* - Button pressed |
+| type: *InputEventType* - Button activation type |
+| PlayerNumber: *int* - Player number (zero-index) |
+| controller: *GameController* - Game Controller |
+| DeviceInput.level: *int* -  Analog input level |
+
+## Enums
+### InputEventButton
+
+| "Left" - Left Button |
+| "Down" - Left Button |
+| "Up" - Left Button |
+| "Right" - Left Button |
+| "Start" - Start Button |
+| "Back" - Back Button |
+
+### InputEventType
+
+| "InputEventType_FirstPress" - First Press |
+| "InputEventType_Repeat" - Repeat |
+| "InputEventType_Release" - Release |
+
+### GameController
+
+| "GameController_1" - Game Controller 1 |
+| "GameController_2" - Game Controller 2 |
