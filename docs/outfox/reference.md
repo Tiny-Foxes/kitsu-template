@@ -1,7 +1,9 @@
 # Kitsu for Outfox API Reference
 ---
-## Global
+## Standard Lib
 
+| **Global** |
+| --- |
 | SCREEN: *ActorFrame* - Top screen |
 | SW, SH: *float*, *float* - Screen width, screen height |
 | SCX, SCY: *float*, *float* - Screen center X, screen center Y |
@@ -18,23 +20,41 @@
 | CENTER_PLAYERS: *bool* - If players should be centered on the screen |
 | SRT_STYLE: *bool* - If file should hide screen elements and leave only playfields |
 | printerr(msg: *string*): *function* - Print error to console |
-| Mods.new(): *ModBranch (table)* - Creates and returns a new ModBranch |
-| Node.new(type: *string*): *Node (table)* - Creates and returns a new Node |
+| deepcopy(t: *table*): *table* - Deep copies a table to a variable |
+| require(library: *string*): *variant* - Loads and returns a library from the `lib` folder |
 
-## ModBranch
+## Modsbuilder
 
+| **Base** |
+| --- |
+| Mods.new(): *ModBranch (table)* - Create and return a new ModBranch. |
+
+| **ModBranch** |
+| --- |
 | InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* - Insert a mod into a ModBranch. Returns mod inserted. |
 | MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* - Use Mirin style to insert mod. Returns mod inserted. |
 | ExschMod(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*): *table* - Use Exschwasion style to insert mod. Returns mod inserted. |
-| AddToModTree() - Add a ModBranch to the mod tree.|
+| AddToModTree() - Add a ModBranch to the mod tree. |
 
-## Node
+## Nodebuilder
 
+| **Base** |
+| --- |
+| Node.new(type: *string*): *Node (table)* - Create and return a new Node. |
+
+| **Node** |
+| --- |
 | AttachScript(path: *string*) - Attach a script to a Node. |
 | SetReady(func: *function(self)*) - Set a Node's ready function to run when Node is ready. |
 | SetUpdate(func: *function(self, dt)*) - Set a Node's update function to run on every update. |
-| SetInput(func: *function(self, event)*) - Set a Node's input function to run on every `InputHandler` event. |
+| SetInput(func: *function(self, event)*) - Set a Node's input function to run on every `InputEvent`. |
 | SetDraw(func: *function(self)*) - Set a Node's draw function to run on every draw. (untested!) |
 | AddToNodeTree() - Add a Node to the node tree. |
+
+## Corope
+
+[Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)
+
+| **WIP** |
 
 ###### [Return to Home](/kitsu-template)

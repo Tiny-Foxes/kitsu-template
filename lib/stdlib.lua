@@ -20,6 +20,10 @@ end
 
 sudo()
 
+function require(lib)
+	return sudo(assert(loadfile('lib/'..lib..'.lua')))()
+end
+
 function deepcopy(orig)
     local orig_type = type(orig)
     local copy
@@ -56,9 +60,9 @@ TPB = SPB * TICKRATE -- ticks per beat
 CENTER_PLAYERS = false
 SRT_STYLE = false
 
-Node = assert(loadfile(SongDir .. 'lib/nodebuilder.lua'))() -- Nodebuilder
-Mods = assert(loadfile(SongDir .. 'lib/modsbuilder.lua'))() -- Modsbuilder
-local Corope = assert(loadfile(SongDir .. 'lib/corope.lua'))() -- Corope
+Node = require "nodebuilder" -- Nodebuilder
+Mods = require "modsbuilder" -- Modsbuilder
+local Corope = require "corope" -- Corope
 
 Async = Corope({errhand = printerr})
 

@@ -1,5 +1,3 @@
-sudo()
-
 local Node
 local NodeTree = Def.ActorFrame { }
 

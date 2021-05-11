@@ -1,7 +1,9 @@
 # Kitsu for NotITG API Reference
 ---
-## Global
+## Standard Lib
 
+| **Global** |
+| --- |
 | SCREEN: *ActorFrame* - Top screen |
 | SW, SH: *float*, *float* - Screen width, screen height |
 | SCX, SCY: *float*, *float* - Screen center X, screen center Y |
@@ -18,19 +20,39 @@
 | CENTER_PLAYERS: *bool* - If players should be centered on the screen |
 | SRT_STYLE: *bool* - If file should hide screen elements and leave only playfields |
 | printerr(msg: *string*): *function* - Print error to console |
-| Mods.new(): *ModBranch (table)* - Creates and return a new ModBranch |
-| Node.new(type: *string*): *Node (table)* - Creates and return a new Node |
 | event: *InputEvent (table)* - Game input event |
+| deepcopy(t: *table*): *table* - Deep copies a table to a variable |
+| require(library: *string*): *variant* - Loads and returns a library from the `lib` folder |
 
-## ModBranch
+| **InputEvent** |
+| --- |
+| button: *InputEventButton (string)* - Button pressed |
+| type: *InputEventType (string)* - Button activation type |
+| PlayerNumber: *int* - Player number (zero-index) |
+| controller: *GameController (string)* - Game Controller |
+| DeviceInput.level: *int* -  Analog input level |
 
+## Modsbuilder
+
+| **Base** |
+| --- |
+| Mods.new(): *ModBranch (table)* - Create and return a new ModBranch. |
+
+| **ModBranch** |
+| --- |
 | InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* - Insert a mod into a ModBranch. Returns mod inserted. |
 | MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* - Use Mirin style to insert mod. Returns mod inserted. |
 | ExschMod(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*): *table* - Use Exschwasion style to insert mod. Returns mod inserted. |
 | AddToModTree() - Add a ModBranch to the mod tree. |
 
-## Node
+## Nodebuilder
 
+| **Base** |
+| --- |
+| Node.new(type: *string*): *Node (table)* - Create and return a new Node. |
+
+| **Node** |
+| --- |
 | AttachScript(path: *string*) - Attach a script to a Node. |
 | SetReady(func: *function(self)*) - Set a Node's ready function to run when Node is ready. |
 | SetUpdate(func: *function(self, dt)*) - Set a Node's update function to run on every update. |
@@ -38,17 +60,16 @@
 | SetDraw(func: *function(self)*) - Set a Node's draw function to run on every draw. (untested!) |
 | AddToNodeTree() - Add a Node to the node tree. |
 
-## InputEvent
+## Corope
 
-| button: *InputEventButton (string)* - Button pressed |
-| type: *InputEventType (string)* - Button activation type |
-| PlayerNumber: *int* - Player number (zero-index) |
-| controller: *GameController (string)* - Game Controller |
-| DeviceInput.level: *int* -  Analog input level |
+[Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)
+
+| **WIP** |
 
 ## Enums
-### InputEventButton
 
+| **InputEventButton** |
+| --- |
 | "Left" - Left Button |
 | "Down" - Left Button |
 | "Up" - Left Button |
@@ -56,14 +77,14 @@
 | "Start" - Start Button |
 | "Back" - Back Button |
 
-### InputEventType
-
+| **InputEventType** |
+| --- |
 | "InputEventType_FirstPress" - First Press |
 | "InputEventType_Repeat" - Repeat |
 | "InputEventType_Release" - Release |
 
-### GameController
-
+| **GameController** |
+| --- |
 | "GameController_1" - Game Controller 1 |
 | "GameController_2" - Game Controller 2 |
 

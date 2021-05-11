@@ -53,8 +53,8 @@ And just like with nodes, you can add your mod branches to the mod tree.
 MyMods:AddToModTree()
 ```
 
-Full references avaiable for:  
-[Outfox](/kitsu-template/outfox/reference)  
-[NotITG](/kitsu-template/notitg/reference)  
+Full API references:
+
+| [Outfox](/kitsu-template/outfox/reference) | [NotITG](/kitsu-template/notitg/reference) |
 
 ###### [Return to Home](/kitsu-template)
