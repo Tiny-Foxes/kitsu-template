@@ -1,4 +1,4 @@
-## Getting Started
+# Getting Started
 To make a simple modfile, open the `mods.lua` file in a text editor and type the following:
 ```lua
 local Intro = Mods.new()
@@ -24,3 +24,5 @@ This will create a new quad, center it on the screen, and set its size to 64x64.
 Full references avaiable for:  
 [NotITG](/kitsu-template/notitg/reference)  
 [Outfox](/kitsu-template/outfox/reference)  
+
+###### [Return to Home](/kitsu-template)

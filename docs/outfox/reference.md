@@ -36,3 +36,5 @@
 | SetInput(func: *function(self, event)*) - Set a Node's input function to run on every `InputHandler` event. |
 | SetDraw(func: *function(self)*) - Set a Node's draw function to run on every draw. (untested!) |
 | AddToNodeTree() - Add a Node to the node tree. |
+
+###### [Return to Home](/kitsu-template)

@@ -66,3 +66,5 @@
 
 | "GameController_1" - Game Controller 1 |
 | "GameController_2" - Game Controller 2 |
+
+###### [Return to Home](/kitsu-template)
