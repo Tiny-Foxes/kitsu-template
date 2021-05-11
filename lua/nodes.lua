@@ -1,20 +1,20 @@
 ---------------------------
 -- Use this file for your nodes
 
--- Node.new({Actor}/'Actor') - Creates a new node
+--	Node.new({Actor}/'Actor') - Creates a new node
 --      {Actor} - OutFox actor table
 --      'Actor' - Alternatively, use a type name
--- Node:AttachScript(scriptpath) - Attaches a script to a node
+--	Node:AttachScript(scriptpath) - Attaches a script to a node
 --      scriptpath - Path to Lua script
 --		(See 'lua/scripts/empty.lua' for example script)
--- Node:SetReady(func) - Attaches a function to the ready command
+--	Node:SetReady(func) - Attaches a function to the ready command
 --      func - Function to attach
--- Node:SetUpdate(func) - Attaches a function to the update command
+--	Node:SetUpdate(func) - Attaches a function to the update command
 --      func - Function to attach (requires 1 parameter!)
--- Node:SetInput(func) - Attaches a function to the input command
+--	Node:SetInput(func) - Attaches a function to the input command
 --		func - Function to attach (requires 1 parameter!)
--- Node:AddToNodeTree() - Adds a node to the node tree
--- Node.GetNodeTree() - Gets the node tree
+--	Node:AddToNodeTree() - Adds a node to the node tree
+--	Node.GetNodeTree() - Gets the node tree
 
 -- Nodes can be manipulated like normal actors, but most work
 -- should be done in a dedicated script to keep space clean.
