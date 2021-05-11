@@ -36,16 +36,16 @@
 
 | **Base** |
 | --- | --- |
-| Node.new(type: *string*): *Node (table)* - Create and return a new Node. |
+| Node.new(type: *string*): *Node (table)* | Create and return a new Node. |
 | --- |
 | **Node** |
 | --- | --- |
-| AttachScript(path: *string*) - Attach a script to a Node. |
-| SetReady(func: *function(self)*) - Set a Node's ready function to run when Node is ready. |
-| SetUpdate(func: *function(self, dt)*) - Set a Node's update function to run on every update. |
-| SetInput(func: *function(self, event)*) - Set a Node's input function to run on every `InputEvent`. |
-| SetDraw(func: *function(self)*) - Set a Node's draw function to run on every draw. (untested!) |
-| AddToNodeTree() - Add a Node to the node tree. |
+| AttachScript(path: *string*) | Attach a script to a Node. |
+| SetReady(func: *function(self)*) | Set a Node's ready function to run when Node is ready. |
+| SetUpdate(func: *function(self, dt)*) | Set a Node's update function to run on every update. |
+| SetInput(func: *function(self, event)*) | Set a Node's input function to run on every `InputEvent`. |
+| SetDraw(func: *function(self)*) | Set a Node's draw function to run on every draw. (untested!) |
+| AddToNodeTree() | Add a Node to the node tree. |
 
 ## Corope
 
