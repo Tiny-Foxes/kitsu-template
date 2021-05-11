@@ -3,7 +3,7 @@
 ## Standard Lib
 
 | Global | |
-| ---:|:--- |
+|:--- |:--- |
 | SCREEN: *ActorFrame* | Top screen |
 | SW, SH: *float*, *float* | Screen width, screen height |
 | SCX, SCY: *float*, *float* | Screen center X, screen center Y |
@@ -25,7 +25,7 @@
 | require(library: *string*): *variant* | Loads and returns a library from the `lib` folder |
 
 | InputEvent | |
-| ---:|:--- |
+|:--- |:--- |
 | button: *InputEventButton (string)* | Button pressed |
 | type: *InputEventType (string)* | Button activation type |
 | PlayerNumber: *int* | Player number (zero-index) |
@@ -35,11 +35,11 @@
 ## Modsbuilder
 
 | Base | |
-| ---:|:--- |
+|:--- |:--- |
 | Mods.new(): *ModBranch* | Create and return a new ModBranch. |
 
 | ModBranch | |
-| ---:|:--- |
+|:--- |:--- |
 | InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Insert a mod into a ModBranch. Returns mod inserted. |
 | MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Use Mirin style to insert mod. Returns mod inserted. |
 | ExschMod(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*): *table* | Use Exschwasion style to insert mod. Returns mod inserted. |
@@ -48,11 +48,11 @@
 ## Nodebuilder
 
 | Base | |
-| ---:|:--- |
+|:--- |:--- |
 | Node.new(type: *string*): *Node* | Create and return a new Node. |
 
 | Node | |
-| ---:|:--- |
+|:--- |:--- |
 | AttachScript(path: *string*) | Attach a script to a Node. |
 | SetReady(func: *function(self)*) | Set a Node's ready function to run when Node is ready. |
 | SetUpdate(func: *function(self, dt)*) | Set a Node's update function to run on every update. |
@@ -64,13 +64,12 @@
 
 [Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)
 
-| WIP |
-| --- |
+**WIP**
 
 ## Enums
 
 | InputEventButton | |
-| ---:|:--- |
+|:--- |:--- |
 | "Left" | Left Button |
 | "Down" | Left Button |
 | "Up" | Left Button |
@@ -79,13 +78,13 @@
 | "Back" | Back Button |
 
 | InputEventType | |
-| ---:|:--- |
+|:--- |:--- |
 | "InputEventType_FirstPress" | First Press |
 | "InputEventType_Repeat" | Repeat |
 | "InputEventType_Release" | Release |
 
 | GameController | |
-| ---:|:--- |
+|:--- |:--- |
 | "GameController_1" | Game Controller 1 |
 | "GameController_2" | Game Controller 2 |
 
