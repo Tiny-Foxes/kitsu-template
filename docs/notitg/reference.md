@@ -39,7 +39,7 @@
 **Base**
 
 | ---:|:--- |
-| Mods.new(): *ModBranch* - Create and return a new ModBranch. |
+| Mods.new(): *ModBranch* | Create and return a new ModBranch. |
 
 **ModBranch**
 
