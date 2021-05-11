@@ -2,6 +2,7 @@
 ---
 ## Standard Lib
 
+| --- |
 | **Global** |
 | --- |
 | SCREEN: *ActorFrame* - Top screen |
@@ -34,6 +35,7 @@
 
 ## Modsbuilder
 
+| --- |
 | **Base** |
 | --- |
 | Mods.new(): *ModBranch (table)* - Create and return a new ModBranch. |
@@ -47,6 +49,7 @@
 
 ## Nodebuilder
 
+| --- |
 | **Base** |
 | --- |
 | Node.new(type: *string*): *Node (table)* - Create and return a new Node. |
@@ -64,10 +67,12 @@
 
 [Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)
 
+| --- |
 | **WIP** |
 
 ## Enums
 
+| --- |
 | **InputEventButton** |
 | --- |
 | "Left" - Left Button |

@@ -1,8 +1,8 @@
-Node = require "nodebuilder" -- Nodebuilder
-Mods = require "modsbuilder" -- Modsbuilder
+Node = import "nodebuilder" -- Nodebuilder
+Mods = import "modsbuilder" -- Modsbuilder
 
 -- Corope
-local Corope = require "corope"
+local Corope = import "corope"
 Async = Corope({errhand = printerr})
 
 -- Add libraries here

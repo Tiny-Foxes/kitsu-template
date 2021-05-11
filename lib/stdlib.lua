@@ -20,7 +20,7 @@ end
 
 sudo()
 
-function require(lib)
+function import(lib)
 	return sudo(assert(loadfile(SongDir..'lib/'..lib..'.lua')))()
 end
 
