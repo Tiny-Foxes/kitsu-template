@@ -6,14 +6,12 @@ body {
 	align-items: center;
 	background-color: #1F1F1F;
 	color: #FFFFFF;
+	font-family: 'Roboto', sans-serif;
 }
 h1, h2 {
 	font-family: 'Itim', cursive;
 	text-align: center;
 	filter: drop-shadow(0px 0px 10px #FFFFFF)
-}
-h3, h4, h5, h6, p {
-	font-family: 'Roboto', sans-serif;
 }
 header > h1 {
 	font-size: 64px;
@@ -29,6 +27,7 @@ legend {
 	border: 1px solid black;
 }
 fieldset {
+	margin: 24px;
 	filter: drop-shadow(0px 5px 3px #00000088)
 }
 footer > h6 {
@@ -41,9 +40,6 @@ main {
 	padding: 24px;
 	background: #F0F0F0;
 	color: #1F1F1F;
-}
-section {
-	padding: 24px;
 }
 header, footer {
 	padding-top: 48px;
