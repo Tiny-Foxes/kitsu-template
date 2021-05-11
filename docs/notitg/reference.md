@@ -23,7 +23,7 @@
 | event: *InputEvent (table)* - Game input event |
 | deepcopy(t: *table*): *table* - Deep copies a table to a variable |
 | require(library: *string*): *variant* - Loads and returns a library from the `lib` folder |
-
+| --- |
 | **InputEvent** |
 | --- |
 | button: *InputEventButton (string)* - Button pressed |
@@ -37,7 +37,7 @@
 | **Base** |
 | --- |
 | Mods.new(): *ModBranch (table)* - Create and return a new ModBranch. |
-
+| --- |
 | **ModBranch** |
 | --- |
 | InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* - Insert a mod into a ModBranch. Returns mod inserted. |
@@ -50,7 +50,7 @@
 | **Base** |
 | --- |
 | Node.new(type: *string*): *Node (table)* - Create and return a new Node. |
-
+| --- |
 | **Node** |
 | --- |
 | AttachScript(path: *string*) - Attach a script to a Node. |
@@ -76,7 +76,7 @@
 | "Right" - Left Button |
 | "Start" - Start Button |
 | "Back" - Back Button |
-
+| --- |
 | **InputEventType** |
 | --- |
 | "InputEventType_FirstPress" - First Press |
