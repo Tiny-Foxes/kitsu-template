@@ -37,6 +37,7 @@
 | Base | |
 |:--- |:--- |
 | Mods.new(): *ModBranch* | Create and return a new ModBranch. |
+| Mods.GetModTree(): *table* | Returns the mod tree. |
 
 | ModBranch | |
 |:--- |:--- |
@@ -50,6 +51,7 @@
 | Base | |
 |:--- |:--- |
 | Node.new(type: *string*): *Node* | Create and return a new Node. |
+| Node.GetNodeTree(): *table* | Returns the node tree. |
 
 | Node | |
 |:--- |:--- |

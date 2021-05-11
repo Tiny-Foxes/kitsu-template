@@ -29,12 +29,6 @@ return Def.ActorFrame {
     but the idea of this template is making modfiles with minigames
     and interactive features much easier to manage.
 
-    Next major update is planned to add template-side input support,
-    which includes PRESSURE SENSITIVE input.
-
-    I mean, the shit to grab the analog input from is there thanks
-    to OutFox fixing up the MIDI drivers.
-
     Have your Lua manual handy, this is some entry game engine shit.
 
     ~ Sudo
