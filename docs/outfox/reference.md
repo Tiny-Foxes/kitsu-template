@@ -53,7 +53,7 @@
 
 ## Corope
 
-[Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)
+[Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)  
 **WIP**
 
 ###### [Return to Home](/kitsu-template)
