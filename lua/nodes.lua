@@ -31,7 +31,7 @@
 ---------------------------
 -- Uncomment for example --
 ---------------------------
----[[
+--[[
 local QuadPad = {}
 local PadDirs = {"Left", "Down", "Up", "Right"}
 for i = 1, 4 do

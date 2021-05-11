@@ -17,22 +17,22 @@
 | TPB: *float* - Current ticks per beat |
 | CENTER_PLAYERS: *bool* - If players should be centered on the screen |
 | SRT_STYLE: *bool* - If file should hide screen elements and leave only playfields |
-| printerr - Print error to console |
-| Mods.new() - Create a new mod branch |
-| Node.new() - Create a new node |
+| printerr: *function* - Print error to console |
+| Mods.new(): *ModBranch (table)* - Creates and returns a new ModBranch |
+| Node.new(): *Node (table)* - Creates and returns a new Node |
 
-## Mods
+## ModBranch
 
-| InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*) - Insert a mod into a branch |
-| MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*) - Use Mirin style to insert mod |
-| ExschMod(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*) - Use Exschwasion style to insert mod |
-| AddToModTree() - Add a mod branch to the mod tree |
+| InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* - Insert a mod into a ModBranch. Returns mod inserted. |
+| MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* - Use Mirin style to insert mod. Returns mod inserted. |
+| ExschMod(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*): *table* - Use Exschwasion style to insert mod. Returns mod inserted. |
+| AddToModTree() - Add a ModBranch to the mod tree.|
 
 ## Node
 
-| AttachScript(path: *string*) - Attach a script to a node |
-| SetReady(func: *function(self)*) - Set a node's ready function |
-| SetUpdate(func: *function(self, dt)*) - Set a node's update function |
-| SetInput(func: *function(self, event)*) - Set a node's input function |
-| SetDraw(func: *function(self)*) - Set a node's draw function (untested!) |
-| AddToNodeTree() - Add a node to the node tree |
+| AttachScript(path: *string*) - Attach a script to a Node. |
+| SetReady(func: *function(self)*) - Set a Node's ready function to run when Node is ready. |
+| SetUpdate(func: *function(self, dt)*) - Set a Node's update function to run on every update. |
+| SetInput(func: *function(self, event)*) - Set a Node's input function to run on every `InputHandler` event. |
+| SetDraw(func: *function(self)*) - Set a Node's draw function to run on every draw. (untested!) |
+| AddToNodeTree() - Add a Node to the node tree. |
