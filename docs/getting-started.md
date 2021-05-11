@@ -1,4 +1,5 @@
 # Getting Started
+---
 To make a simple modfile, open the `mods.lua` file in a text editor and type the following:
 ```lua
 local Intro = Mods.new()
