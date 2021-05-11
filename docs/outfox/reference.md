@@ -17,9 +17,9 @@
 | TPB: *float* - Current ticks per beat |
 | CENTER_PLAYERS: *bool* - If players should be centered on the screen |
 | SRT_STYLE: *bool* - If file should hide screen elements and leave only playfields |
-| printerr: *function* - Print error to console |
+| printerr(msg: *string*): *function* - Print error to console |
 | Mods.new(): *ModBranch (table)* - Creates and returns a new ModBranch |
-| Node.new(): *Node (table)* - Creates and returns a new Node |
+| Node.new(type: *string*): *Node (table)* - Creates and returns a new Node |
 
 ## ModBranch
 
