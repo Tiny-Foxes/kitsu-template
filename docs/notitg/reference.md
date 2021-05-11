@@ -2,8 +2,7 @@
 ---
 ## Standard Lib
 
-**Global**
-| | |
+| Global | |
 | ---:|:--- |
 | SCREEN: *ActorFrame* | Top screen |
 | SW, SH: *float*, *float* | Screen width, screen height |
@@ -25,9 +24,7 @@
 | deepcopy(t: *table*): *table* | Deep copies a table to a variable |
 | require(library: *string*): *variant* | Loads and returns a library from the `lib` folder |
 
-**InputEvent**
-
-| | |
+| InputEvent | |
 | ---:|:--- |
 | button: *InputEventButton (string)* | Button pressed |
 | type: *InputEventType (string)* | Button activation type |
@@ -37,15 +34,11 @@
 
 ## Modsbuilder
 
-**Base**
-
-| | |
+| Base | |
 | ---:|:--- |
 | Mods.new(): *ModBranch* | Create and return a new ModBranch. |
 
-**ModBranch**
-
-| | |
+| ModBranch | |
 | ---:|:--- |
 | InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Insert a mod into a ModBranch. Returns mod inserted. |
 | MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Use Mirin style to insert mod. Returns mod inserted. |
@@ -54,15 +47,11 @@
 
 ## Nodebuilder
 
-**Base**
-
-| | |
+| Base | |
 | ---:|:--- |
 | Node.new(type: *string*): *Node* | Create and return a new Node. |
 
-**Node**
-
-| | |
+| Node | |
 | ---:|:--- |
 | AttachScript(path: *string*) | Attach a script to a Node. |
 | SetReady(func: *function(self)*) | Set a Node's ready function to run when Node is ready. |
@@ -75,13 +64,12 @@
 
 [Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)
 
-**WIP**
+| WIP |
+| --- |
 
 ## Enums
 
-**InputEventButton**
-
-| | |
+| InputEventButton | |
 | ---:|:--- |
 | "Left" | Left Button |
 | "Down" | Left Button |
@@ -90,17 +78,13 @@
 | "Start" | Start Button |
 | "Back" | Back Button |
 
-**InputEventType**
-
-| | |
+| InputEventType | |
 | ---:|:--- |
 | "InputEventType_FirstPress" | First Press |
 | "InputEventType_Repeat" | Repeat |
 | "InputEventType_Release" | Release |
 
-**GameController**
-
-| | |
+| GameController | |
 | ---:|:--- |
 | "GameController_1" | Game Controller 1 |
 | "GameController_2" | Game Controller 2 |

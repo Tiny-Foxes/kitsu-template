@@ -2,9 +2,7 @@
 ---
 ## Standard Lib
 
-**Global**
-
-| | |
+| Global | |
 | ---:|:--- |
 | SCREEN: *ActorFrame* | Top screen |
 | SW, SH: *float*, *float* | Screen width, screen height |
@@ -27,15 +25,11 @@
 
 ## Modsbuilder
 
-**Base**
-
-| | |
+| Base | |
 | ---:|:--- |
 | Mods.new(): *ModBranch* | Create and return a new ModBranch. |
 
-**ModBranch**
-
-| | |
+| ModBranch | |
 | ---:|:--- |
 | InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Insert a mod into a ModBranch. Returns mod inserted. |
 | MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Use Mirin style to insert mod. Returns mod inserted. |
@@ -44,15 +38,11 @@
 
 ## Nodebuilder
 
-**Base**
-
-| | |
+| Base | |
 | ---:|:--- |
 | Node.new(type: *string*): *Node* | Create and return a new Node. |
 
-**Node**
-
-| | |
+| Node | |
 | ---:|:--- |
 | AttachScript(path: *string*) | Attach a script to a Node. |
 | SetReady(func: *function(self)*) | Set a Node's ready function to run when Node is ready. |
@@ -65,6 +55,7 @@
 
 [Official Docs](https://github.com/bakpakin/corope/blob/master/README.md)
 
-**WIP**
+| WIP |
+| --- |
 
 ###### [Return to Home](/kitsu-template)
