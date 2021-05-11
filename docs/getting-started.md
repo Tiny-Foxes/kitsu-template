@@ -21,6 +21,6 @@ SquareBoy:AddToNodeTree()
 ```
 This will create a new quad, center it on the screen, and set its size to 64x64. Again, we can name this new node anything we want, but it's good to choose a name that makes it easy to tell what it's being used for.
 
-Full references avaiable for:
-[NotITG](/notitg/reference)
-[Outfox](/outfox/reference)
+Full references avaiable for:  
+[NotITG](/kitsu-template/notitg/reference)  
+[Outfox](/kitsu-template/outfox/reference)  
