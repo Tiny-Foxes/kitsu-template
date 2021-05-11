@@ -24,7 +24,7 @@
 ---------------------------
 -- Uncomment for example --
 ---------------------------
----[[
+--[[
 local Branch = Mods.new()
 
 Branch:MirinMod {0, 1, Tweens.inoutback, 20, 'drunk', 20, 'tipsy', 100, 'bumpy', 100, 'invert'}

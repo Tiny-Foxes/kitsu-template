@@ -21,7 +21,7 @@ end
 sudo()
 
 function require(lib)
-	return sudo(assert(loadfile('lib/'..lib..'.lua')))()
+	return sudo(assert(loadfile(SongDir..'lib/'..lib..'.lua')))()
 end
 
 function deepcopy(orig)
@@ -42,7 +42,6 @@ end
 -- First set of global variables
 printerr = lua.ReportScriptError
 
-SCREEN = SCREENMAN:GetTopScreen() -- top screen
 SW, SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 SCX, SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
 
@@ -60,11 +59,7 @@ TPB = SPB * TICKRATE -- ticks per beat
 CENTER_PLAYERS = false
 SRT_STYLE = false
 
-Node = require "nodebuilder" -- Nodebuilder
-Mods = require "modsbuilder" -- Modsbuilder
-local Corope = require "corope" -- Corope
-
-Async = Corope({errhand = printerr})
+sudo(assert(loadfile(SongDir..'main/libloader.lua')))() -- Libloader
 
 PL = {}
 
@@ -101,6 +96,7 @@ return Def.ActorFrame {
 	end,
 	ReadyCommand = function(self)
 		-- Second set of global variables
+		SCREEN = SCREENMAN:GetTopScreen() -- top screen
 		SCREEN:AddInputCallback(InputHandler)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
@@ -142,6 +138,7 @@ return Def.ActorFrame {
 			end
 			SCREEN:GetChild('Overlay'):visible(false)
 		end
+		MESSAGEMAN:Broadcast('Draw')
 		self:queuecommand('BeginFrame')
 	end,
 	InputMessageCommand = function(self, args)
