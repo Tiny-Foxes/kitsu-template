@@ -14,6 +14,7 @@
 --      plr - Player to apply mods (optional)
 --	Mods:MirinMod({start, len, ease, perc, mod, ...}, [offset], [plr]) - Writes mods to branch Mirin style
 --	Mods:ExschMod(start, len, begin_p, end_p, mod, timing, ease, [offset], [plr]) - Write mods to branch Exschwasion style
+--	Mods:Default(modpairs) - Writes default mods to branch
 --	Mods:AddToModTree() - Adds branch to mod tree
 --	Mods.GetModTree() - Gets mod tree
 
@@ -24,7 +25,7 @@
 ---------------------------
 -- Uncomment for example --
 ---------------------------
---[[
+---[[
 local Intro = Mods.new()
 
 local modtable = {
@@ -35,6 +36,7 @@ local modtable = {
 }
 
 Intro
+	:Default({{1.5, 'xmod'}})
 	:MirinMod {0, 1, Tweens.inoutback, 20, 'drunk', 20, 'tipsy', 100, 'bumpy', 100, 'invert'}
 	:InsertMod(5, 3, Tweens.outbounce, modtable, 0.25)
 	:ExschMod(10.0, 14, 100, 0, 'reverse1', 'end', Tweens.outelastic)

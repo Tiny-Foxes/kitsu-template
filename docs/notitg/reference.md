@@ -42,6 +42,7 @@
 | ModBranch | |
 |:--- |:--- |
 | InsertMod(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Insert a mod into a ModBranch. Returns mod inserted. |
+| Default(\{\{percent: *float*, mod: *string*\}, ...\}) | Insert default mods into a ModBranch. |
 | MirinMod(\{start: *float*, len: *float*, ease: *function*, percent: *float*, mod: *string*, ...\}, \[offset\]: *float*, \[pn\]: *int*): *table* | Use Mirin style to insert mod. Returns mod inserted. |
 | ExschMod(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*): *table* | Use Exschwasion style to insert mod. Returns mod inserted. |
 | AddToModTree() | Add a ModBranch to the mod tree. |
