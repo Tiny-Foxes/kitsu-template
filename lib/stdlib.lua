@@ -95,6 +95,12 @@ return Def.ActorFrame {
 		self:queuecommand('BeginFrame')
 	end,
 	ReadyCommand = function(self)
+		if sudo.ready then
+			sudo.ready()
+		end
+		self:queuecommand('Start')
+	end,
+	StartCommand = function(self)
 		-- Second set of global variables
 		SCREEN = SCREENMAN:GetTopScreen() -- top screen
 		SCREEN:AddInputCallback(InputHandler)
@@ -123,15 +129,13 @@ return Def.ActorFrame {
 				return this
 			end
 		})
-		if sudo.ready then
-			sudo.ready()
-		end
 		if CENTER_PLAYERS then
 			for pn = 1, #PL do
 				PL[pn].Player:x(SCX)
 			end
 		end
 		if SRT_STYLE then
+			SCREEN:GetChild('Underlay'):visible(false)
 			for i = 1, #PL do
 				if PL[i].Life then PL[i].Life:visible(false) end
 				if PL[i].Score then PL[i].Score:visible(false) end
