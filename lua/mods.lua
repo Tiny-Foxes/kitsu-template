@@ -25,7 +25,7 @@
 ---------------------------
 -- Uncomment for example --
 ---------------------------
----[[
+--[[
 local Intro = Mods.new()
 
 local modtable = {
