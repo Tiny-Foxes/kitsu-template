@@ -25,9 +25,7 @@
 -- Uncomment for example --
 ---------------------------
 --[[
-local Branch = Mods.new()
-
-Branch:MirinMod {0, 1, Tweens.inoutback, 20, 'drunk', 20, 'tipsy', 100, 'bumpy', 100, 'invert'}
+local Intro = Mods.new()
 
 local modtable = {
     {100, 'reverse1'},
@@ -35,16 +33,16 @@ local modtable = {
     {100, 'reverse3'},
     {100, 'reverse4'},
 }
-Branch:InsertMod(5, 3, Tweens.outbounce, modtable, 0.25)
 
-Branch:ExschMod(10.0, 14, 100, 0, 'reverse1', 'end', Tweens.outelastic)
-Branch:ExschMod(10.5, 14, 100, 0, 'reverse2', 'end', Tweens.outelastic)
-Branch:ExschMod(11.0, 14, 100, 0, 'reverse3', 'end', Tweens.outelastic)
-Branch:ExschMod(11.5, 14, 100, 0, 'reverse4', 'end', Tweens.outelastic)
-
-Branch:InsertMod(15, 2, Tweens.outelastic, {{0, 'invert'}})
-
-Branch:AddToModTree()
+Intro
+	:MirinMod {0, 1, Tweens.inoutback, 20, 'drunk', 20, 'tipsy', 100, 'bumpy', 100, 'invert'}
+	:InsertMod(5, 3, Tweens.outbounce, modtable, 0.25)
+	:ExschMod(10.0, 14, 100, 0, 'reverse1', 'end', Tweens.outelastic)
+	:ExschMod(10.5, 14, 100, 0, 'reverse2', 'end', Tweens.outelastic)
+	:ExschMod(11.0, 14, 100, 0, 'reverse3', 'end', Tweens.outelastic)
+	:ExschMod(11.5, 14, 100, 0, 'reverse4', 'end', Tweens.outelastic)
+	:InsertMod(15, 2, Tweens.outelastic, {{0, 'invert'}})
+	:AddToModTree()
 --]]
 ---------------------------
 

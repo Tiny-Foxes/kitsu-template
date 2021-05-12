@@ -99,7 +99,7 @@ local function InsertMod(self, start, len, ease, modpairs, offset, pn)
             table.insert(self, t[i])
         end
     end
-    return t
+    return self
 end
 -- Write to a mod branch now Mirin approved!
 local function MirinMod(self, t, offset, pn)
@@ -126,6 +126,7 @@ end
 local function Default(self, modpairs)
     --printerr('Mods:Default')
     self:InsertMod(0, 9e9, function(x) return 1 end, modpairs)
+	return self
 end
 -- Add branch to the mod tree.
 local function AddToModTree(self)
