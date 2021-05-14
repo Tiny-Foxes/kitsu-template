@@ -22,12 +22,13 @@
 -- a new branch using Mods.new() branch and stuff all of your mods into it.
 ---------------------------
 
----------------------------
--- Uncomment for example --
----------------------------
---[[
-local Intro = Mods.new()
-local test = Mods.new()
+---------------------------------
+-- Add to mod tree for example --
+---------------------------------
+
+local example1 = Mods.new()
+local example2 = Mods.new()
+local example3 = Mods.new()
 
 local modtable = {
     {100, 'reverse1'},
@@ -37,7 +38,7 @@ local modtable = {
 }
 
 -- Standard mods
-Intro
+example1
 	:Default({{1.5, 'xmod'}})
 	:MirinMod {0, 1, Tweens.inoutback, 20, 'drunk', 20, 'tipsy', 100, 'bumpy', 100, 'invert'}
 	:InsertMod(5, 3, Tweens.outbounce, modtable, 0.25)
@@ -46,23 +47,31 @@ Intro
 	:ExschMod(11.0, 14, 100, 0, 'reverse3', 'end', Tweens.outelastic)
 	:ExschMod(11.5, 14, 100, 0, 'reverse4', 'end', Tweens.outelastic)
 	:InsertMod(15, 2, Tweens.outelastic, {{0, 'invert'}})
-	:AddToModTree()
+	--:AddToModTree()
 
 -- Note-specific mods
-test
+example2
 	:Default({{100, 'tinyusesminicalc'}})
 	-- Brush your notes, kids.
+	:MirinMod {0, 1, Tweens.inoutback, 100, 'invert'}
+	:MirinMod {5, 1, Tweens.inoutback, 0, 'invert'}
 	:InsertNoteMod(0, 3, Tweens.inoutsine, {{5, 4, 100, 'movey'}}, 0, 1)
 	:InsertNoteMod(3, 2, Tweens.outelastic, {{5, 4, 0, 'movey'}}, 0, 1)
 	:InsertNoteMod(2, 2, Tweens.inoutcircle, {
+	--	{beat, column, percent, mod}
 		{5, 4, 400, 'dizzy'},
 		{6, 2, 300, 'bumpy'},
 		{7, 3, 100, 'tornado'},
 		{8, 1, 200, 'wave'},
 		{9, 4, 300, 'beat'}
 	})
-	:AddToModTree()
---]]
+	--:AddToModTree()
+example3
+	:InsertNoteMod(0, 0.25, Tweens.instant, {{4, 1, 100, 'flip'}, {4, 1, 180 * math.pi/1.8, 'confusionoffset'}, {4, 1, 90, 'stealth'}})
+	:InsertNoteMod(2, 2, Tweens.inoutquad, {{4, 1, 0, 'flip'}, {4, 1, 0, 'confusionoffset'}})
+	--:AddToModTree()
+
+
 ---------------------------
 
 -- Insert mods here --
