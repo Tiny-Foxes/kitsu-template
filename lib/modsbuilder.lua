@@ -19,10 +19,20 @@ local function ApplyMods(mod, percent, pn)
         end
     end
 end
+local function ApplyNotes(beat, col, mod, percent, pn)
+	if pn then
+		PL[pn].Player:AddNoteMod(beat, col, mod, percent * 0.01)
+	else
+		for p = 1, #PL do
+			PL[p].Player:AddNoteMod(beat, col, mod, percent * 0.01)
+		end
+	end
+end
 
--- TODO: Make this less painful to deal with before you die at age 80.
 local branches = {}
 local mod_percents = {}
+local note_percents = {}
+
 local function UpdateMods()
     for _, b in ipairs(branches) do
         for i, m in ipairs(b) do
@@ -31,16 +41,30 @@ local function UpdateMods()
                 if m.Player and not POptions[ m.Player ] then break end
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
                     -- Get start percent
-                    local pl = m.Player or 1
-                    v[3] = v[3] or mod_percents[v[2]] or 0
-                    local ease = m.Ease((BEAT - m.Start) / m.Length)
-                    local perc = ease * (v[1] - v[3]) + v[3]
-                    ApplyMods(v[2], perc, m.Player)
-                    mod_percents[v[2]] = perc
+					if m.Type == 'Player' then
+						v[3] = v[3] or mod_percents[v[2]] or 0
+						local ease = m.Ease((BEAT - m.Start) / m.Length)
+						local perc = ease * (v[1] - v[3]) + v[3]
+						ApplyMods(v[2], perc, m.Player)
+						mod_percents[v[2]] = perc
+					elseif m.Type == 'Note' then
+						note_percents[v[1]] = note_percents[v[1]] or {}
+						note_percents[v[1]][v[2]] = note_percents[v[1]][v[2]] or {}
+						v[5] = v[5] or note_percents[v[1]][v[2]][v[4]] or 0
+						local ease = m.Ease((BEAT - m.Start) / m.Length)
+						local perc = ease * (v[3] - v[5]) + v[5]
+						ApplyNotes(v[1], v[2], v[4], perc, m.Player)
+						note_percents[v[1]][v[2]][v[4]] = perc
+					end
                 elseif BEAT >= (m.Start + m.Length) then
-                    ApplyMods(v[2], v[1], m.Player)
-                    mod_percents[v[2]] = v[1]
-                    table.remove(m.Modifiers, j)
+					if m.Type == 'Player' then
+						ApplyMods(v[2], v[1], m.Player)
+						mod_percents[v[2]] = v[1]
+					elseif m.Type == 'Note' then
+						ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
+						note_percents[v[1]][v[2]][v[4]] = v[3]
+					end
+					table.remove(m.Modifiers, j)
                 end
             end
             if #b < 1 then table.remove(branches, i) end
@@ -75,7 +99,7 @@ local function new()
     return t
 end
 -- Write to a mod branch.
-local function InsertMod(self, start, len, ease, modpairs, offset, pn)
+local function InsertMod(self, start, len, ease, modtable, offset, pn)
     --printerr('Mods:InsertMod')
     local t = {}
     if not offset or offset == 0 then
@@ -83,23 +107,52 @@ local function InsertMod(self, start, len, ease, modpairs, offset, pn)
             Start = start,
             Length = len,
             Ease = ease,
-            Modifiers = modpairs,
+            Modifiers = modtable,
+			Type = 'Player',
             Player = pn or nil
         }
         table.insert(self, t)
     else
-        for i, v in ipairs(modpairs) do
+        for i, v in ipairs(modtable) do
             t[i] = {
                 Start = start + (offset * (i - 1)),
                 Length = len,
                 Ease = ease,
                 Modifiers = {v},
+				Type = 'Player',
                 Player = pn or nil
             }
             table.insert(self, t[i])
         end
     end
     return self
+end
+local function InsertNoteMod(self, start, len, ease, notetable, offset, pn)
+	local t = {}
+	if not offset or offset == 0 then
+		t = {
+			Start = start,
+			Length = len,
+			Ease = ease,
+			Modifiers = notetable,
+			Type = 'Note',
+			Player = pn or nil
+		}
+		table.insert(self, t)
+	else
+		for i, v in ipairs(notetable) do
+			t[i] = {
+				Start = start + (offset * (i - 1)),
+				Length = len,
+				Ease = ease,
+				Modifiers = {v},
+				Type = 'Note',
+				Player = pn or nil
+			}
+			table.insert(self, t[i])
+		end
+	end
+	return self
 end
 -- Write to a mod branch now Mirin approved!
 local function MirinMod(self, t, offset, pn)
@@ -149,6 +202,7 @@ end
 Mods = {
     new = new,
     InsertMod = InsertMod,
+	InsertNoteMod = InsertNoteMod,
     MirinMod = MirinMod,
     ExschMod = ExschMod,
     Default = Default,

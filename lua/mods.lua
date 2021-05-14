@@ -27,6 +27,7 @@
 ---------------------------
 --[[
 local Intro = Mods.new()
+local test = Mods.new()
 
 local modtable = {
     {100, 'reverse1'},
@@ -35,6 +36,7 @@ local modtable = {
     {100, 'reverse4'},
 }
 
+-- Standard mods
 Intro
 	:Default({{1.5, 'xmod'}})
 	:MirinMod {0, 1, Tweens.inoutback, 20, 'drunk', 20, 'tipsy', 100, 'bumpy', 100, 'invert'}
@@ -45,9 +47,25 @@ Intro
 	:ExschMod(11.5, 14, 100, 0, 'reverse4', 'end', Tweens.outelastic)
 	:InsertMod(15, 2, Tweens.outelastic, {{0, 'invert'}})
 	:AddToModTree()
+
+-- Note-specific mods
+test
+	:Default({{100, 'tinyusesminicalc'}})
+	-- Brush your notes, kids.
+	:InsertNoteMod(0, 3, Tweens.inoutsine, {{5, 4, 100, 'movey'}}, 0, 1)
+	:InsertNoteMod(3, 2, Tweens.outelastic, {{5, 4, 0, 'movey'}}, 0, 1)
+	:InsertNoteMod(2, 2, Tweens.inoutcircle, {
+		{5, 4, 400, 'dizzy'},
+		{6, 2, 300, 'bumpy'},
+		{7, 3, 100, 'tornado'},
+		{8, 1, 200, 'wave'},
+		{9, 4, 300, 'beat'}
+	})
+	:AddToModTree()
 --]]
 ---------------------------
 
 -- Insert mods here --
+
 
 return Mods.GetModTree()
