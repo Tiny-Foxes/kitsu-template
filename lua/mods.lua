@@ -53,8 +53,6 @@ example1
 example2
 	:Default({{100, 'tinyusesminicalc'}})
 	-- Brush your notes, kids.
-	:MirinMod {0, 1, Tweens.inoutback, 100, 'invert'}
-	:MirinMod {5, 1, Tweens.inoutback, 0, 'invert'}
 	:InsertNoteMod(0, 3, Tweens.inoutsine, {{5, 4, 100, 'movey'}}, 0, 1)
 	:InsertNoteMod(3, 2, Tweens.outelastic, {{5, 4, 0, 'movey'}}, 0, 1)
 	:InsertNoteMod(2, 2, Tweens.inoutcircle, {
@@ -70,6 +68,26 @@ example3
 	:InsertNoteMod(0, 0.25, Tweens.instant, {{4, 1, 100, 'flip'}, {4, 1, 180 * math.pi/1.8, 'confusionoffset'}, {4, 1, 90, 'stealth'}})
 	:InsertNoteMod(2, 2, Tweens.inoutquad, {{4, 1, 0, 'flip'}, {4, 1, 0, 'confusionoffset'}})
 	--:AddToModTree()
+
+local notedata = {
+	{10, 1, 1},
+	{11, 2, 1},
+	{12, 3, 1},
+	{13, 4, 1},
+	{14, 1, 1},
+	{15, 4, 1},
+	{16, 2, 1},
+	{17, 3, 1},
+	{18, 1, 1},
+	{19, 4, 1},
+}
+local brush = Mods.new()
+for i = 1, #notedata do
+	brush
+		:InsertNoteMod(notedata[i][1] - 5, 3, Tweens.inoutsine, {{notedata[i][1], notedata[i][2], 150, 'movey'}})
+		:InsertNoteMod(notedata[i][1] - 2, 2, Tweens.outelastic, {{notedata[i][1], notedata[i][2], 0, 'movey'}})
+end
+brush:AddToModTree()
 
 
 ---------------------------

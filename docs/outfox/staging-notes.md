@@ -8,3 +8,5 @@ Some notes during the addition of notemod support:
 1. Kid is correct; they are additive to notefield mods, but not column mods.
 1. Since notepaths are column based, notemods do not affect the notepath at all.
 1. All of the above may share the same reasoning as how the notemods are applied to the player.
+1. If we are able to obtain notedata from the game through Lua, adding beat-specific activated notemods would be as easy as a for-loop.  
+[![remember to brush your notes kids](http://img.youtube.com/vi/fuzIcjOU-n4/0.jpg)](http://www.youtube.com/watch?v=fuzIcjOU-n4 "remember to brush your notes kids")
