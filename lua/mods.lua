@@ -81,13 +81,33 @@ local notedata = {
 	{18, 1, 1},
 	{19, 4, 1},
 }
-local brush = Mods.new()
+local notedata2 = {
+	{6, 1, 1},
+	{6.5, 3, 1},
+	{7, 2, 1},
+	{7.5, 4, 1},
+	{8, 1, 1},
+	{8.5, 3, 1},
+	{9, 2, 1},
+	{9.5, 4, 1},
+	{10, 1, 1},
+	{10.5, 3, 1},
+	{11, 2, 1},
+	{11.5, 4, 1},
+}
+
+local test = Mods.new()
 for i = 1, #notedata do
-	brush
-		:InsertNoteMod(notedata[i][1] - 5, 3, Tweens.inoutsine, {{notedata[i][1], notedata[i][2], 150, 'movey'}})
-		:InsertNoteMod(notedata[i][1] - 2, 2, Tweens.outelastic, {{notedata[i][1], notedata[i][2], 0, 'movey'}})
+	test
+		:Default {{100, 'tinyusesminicalc'}}
+		:InsertNoteMod(0, 0.1, Tweens.instant, {{notedata[i][1], notedata[i][2], 100, 'flip'}, {notedata[i][1], notedata[i][2], 180 * math.pi/1.8, 'confusionoffset'}})
+		:InsertNoteMod(notedata[i][1] - 5, 2, Tweens.inoutexpo, {{notedata[i][1], notedata[i][2], -5000, 'tinyz'}})
+		:InsertNoteMod(notedata[i][1] - 4, 2, Tweens.inoutexpo, {{notedata[i][1], notedata[i][2], 0, 'flip'}, {notedata[i][1], notedata[i][2], 0, 'confusionoffset'}})
+		:InsertNoteMod(notedata[i][1] - 3, 2, Tweens.inoutexpo, {{notedata[i][1], notedata[i][2], 0, 'tinyz'}})
 end
-brush:AddToModTree()
+test:AddToModTree()
+
+
 
 
 ---------------------------
