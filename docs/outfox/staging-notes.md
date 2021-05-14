@@ -1,8 +1,7 @@
 # Staging Notes
 
 ### May 14, 2021 6:45am
-#### Note-specific Mods
-This actually wasn't hard to implement. A bit tricky, but most of the work involved making higher dimension table to hold all of the mods for all of the specified notes.
+Note-specific mod support actually wasn't hard to implement. A bit tricky, but most of the work involved making higher dimension table to hold all of the mods for all of the specified notes.
 
 Some notes during the addition of notemod support:
 1. Notemods seem to work very similar to normal mods in the sense of how easing can be applied to them.
