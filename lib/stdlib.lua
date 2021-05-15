@@ -151,5 +151,5 @@ return Def.ActorFrame {
 	end,
 	OffCommand = function(self)
 		SCREEN:RemoveInputCallback(InputHandler)
-	end
+	end,
 }

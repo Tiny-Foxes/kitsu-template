@@ -34,6 +34,7 @@
 --[[
 local QuadPad = {}
 local PadDirs = {"Left", "Down", "Up", "Right"}
+
 for i = 1, 4 do
 	QuadPad[i] = Node.new('Quad')
 	QuadPad[i]:SetReady(function(self)
@@ -48,6 +49,11 @@ for i = 1, 4 do
 			self:addy(-64) -- Up
 		else
 			self:addx(64) -- Right
+		end
+	end)
+	QuadPad[i]:SetUpdate(function(self, dt)
+		if BEAT > -2 then
+			self:hidden(1)
 		end
 	end)
 	QuadPad[i]:SetInput(function(self, event)

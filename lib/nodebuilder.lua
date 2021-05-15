@@ -1,9 +1,5 @@
-local Node = {}
-local NodeTree = Def.ActorFrame {
-	InitCommand = function(self)
-		sudo(assert(loadfile(SongDir .. 'lua/nodes.lua')))()
-	end
-}
+Node = {}
+local NodeTree = Def.ActorFrame { }
 
 -- This would be used for extending the metatable of the node, I hope? For whatever reason...
 local function extends(self, nodeType)
@@ -77,19 +73,18 @@ local function GetNodeTree()
 	return NodeTree
 end
 
-return Def.ActorFrame {
-	InitCommand = sudo(function(self)
-		Node = {
-			new = new,
-			AttachScript = AttachScript,
-			SetReady = SetReady,
-			SetUpdate = SetUpdate,
-			SetInput = SetInput,
-			SetDraw = SetDraw,
-			AddToNodeTree = AddToNodeTree,
-			GetNodeTree = GetNodeTree
-		}
-		Node.__index = Node
-	end),
-	NodeTree
+Node = {
+	new = new,
+	AttachScript = AttachScript,
+	SetReady = SetReady,
+	SetUpdate = SetUpdate,
+	SetInput = SetInput,
+	SetDraw = SetDraw,
+	AddToNodeTree = AddToNodeTree,
+	GetNodeTree = GetNodeTree
 }
+Node.__index = Node
+
+sudo(assert(loadfile(SongDir .. 'lua/nodes.lua')))()
+
+return NodeTree

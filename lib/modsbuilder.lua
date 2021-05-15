@@ -45,16 +45,20 @@ local function UpdateMods()
 						v[3] = v[3] or mod_percents[v[2]] or 0
 						local ease = m.Ease((BEAT - m.Start) / m.Length)
 						local perc = ease * (v[1] - v[3]) + v[3]
-						ApplyMods(v[2], perc, m.Player)
-						mod_percents[v[2]] = perc
+						if mod_percents[v[2]] ~= perc then
+							ApplyMods(v[2], perc, m.Player)
+							mod_percents[v[2]] = perc
+						end
 					elseif m.Type == 'Note' then
 						note_percents[v[1]] = note_percents[v[1]] or {}
 						note_percents[v[1]][v[2]] = note_percents[v[1]][v[2]] or {}
 						v[5] = v[5] or note_percents[v[1]][v[2]][v[4]] or 0
 						local ease = m.Ease((BEAT - m.Start) / m.Length)
 						local perc = ease * (v[3] - v[5]) + v[5]
-						ApplyNotes(v[1], v[2], v[4], perc, m.Player)
-						note_percents[v[1]][v[2]][v[4]] = perc
+						if note_percents[v[1]][v[2]][v[4]] ~= perc then
+							ApplyNotes(v[1], v[2], v[4], perc, m.Player)
+							note_percents[v[1]][v[2]][v[4]] = perc
+						end
 					end
                 elseif BEAT >= (m.Start + m.Length) then
 					if m.Type == 'Player' then
