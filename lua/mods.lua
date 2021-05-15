@@ -77,10 +77,10 @@ example3
 local notedata = PL[1].NoteData
 
 local test = Mods.new()
+test:Default {{100, 'tinyusesminicalc'}}
 for i = 1, #notedata do
 	if notedata[i][1] >= 5 then
 		test
-			:Default {{100, 'tinyusesminicalc'}}
 			:InsertNoteMod(0, 0.1, Tweens.instant, {
 				{notedata[i][1], notedata[i][2], 100, 'flip'},
 				{notedata[i][1], notedata[i][2], 180 * math.pi/1.8, 'confusionoffset'}
