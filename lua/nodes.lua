@@ -81,7 +81,18 @@ end
 SRT_STYLE = true
 
 -- Set up nodes here --
+local noteproxy = {
+	Node.new('ActorProxy'),
+	Node.new('ActorProxy')
+}
 
+for pn = 1, #PL do
+	noteproxy[pn]:SetReady(function(self)
+		self:xy(scx, scy)
+		self:SetTarget(PL[pn].NoteField)
+		PL[pn].Player:visible(false)
+	end)
+end
 
 -- Modify pre-existing actors here --
 function ready()
@@ -91,4 +102,25 @@ function update(dt)
 end
 
 function input(event)
+	if event.type == "InputEventType_FirstPress" then
+		local rotx = 0
+		local roty = 0
+		for pn = 1, #PL do
+			if event.button == "Left" then
+				roty = 1
+			elseif event.button == "Right" then
+				roty = -1
+			elseif event.button == "Up" then
+				rotx = -1
+			elseif event.button == "Down" then
+				rotx = 1
+			end
+			PL[pn].Player:stoptweening()
+			PL[pn].Player:rotationx(rotx * 0)
+			PL[pn].Player:rotationy(roty * 0)
+			PL[pn].Player:easeoutcircle(0.5)
+			PL[pn].Player:rotationx(0)
+			PL[pn].Player:rotationy(0)
+		end
+	end
 end

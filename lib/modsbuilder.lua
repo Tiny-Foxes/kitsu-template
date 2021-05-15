@@ -14,7 +14,7 @@ local function ApplyMods(mod, percent, pn)
     if pn then
         POptions[pn]:FromString(modstring)
     else
-        for p = 1, #PL do
+        for p = 1, #POptions do
             POptions[p]:FromString(modstring)
         end
     end
@@ -23,7 +23,7 @@ local function ApplyNotes(beat, col, mod, percent, pn)
 	if pn then
 		PL[pn].Player:AddNoteMod(beat, col, mod, percent * 0.01)
 	else
-		for p = 1, #PL do
+		for p = 1, #POptions do
 			PL[p].Player:AddNoteMod(beat, col, mod, percent * 0.01)
 		end
 	end
@@ -32,6 +32,11 @@ end
 local branches = {}
 local mod_percents = {}
 local note_percents = {}
+
+for i = 1, #POptions do
+	mod_percents[i] = {}
+	note_percents[i] = {}
+end
 
 local function UpdateMods()
     for _, b in ipairs(branches) do
@@ -42,31 +47,73 @@ local function UpdateMods()
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
                     -- Get start percent
 					if m.Type == 'Player' then
-						v[3] = v[3] or mod_percents[v[2]] or 0
-						local ease = m.Ease((BEAT - m.Start) / m.Length)
-						local perc = ease * (v[1] - v[3]) + v[3]
-						if mod_percents[v[2]] ~= perc then
-							ApplyMods(v[2], perc, m.Player)
-							mod_percents[v[2]] = perc
+						if m.Player then
+							local last_perc = v[3] or mod_percents[m.Player][v[2]] or 0
+							local ease = m.Ease((BEAT - m.Start) / m.Length)
+							local perc = ease * (v[1] - last_perc) + last_perc
+							if mod_percents[m.Player][v[2]] ~= perc then
+								ApplyMods(v[2], perc, m.Player)
+								mod_percents[m.Player][v[2]] = perc
+								mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
+							end
+						else
+							for pn = 1, #POptions do
+								local last_perc = v[3] or mod_percents[pn][v[2]] or 0
+								local ease = m.Ease((BEAT - m.Start) / m.Length)
+								local perc = ease * (v[1] - last_perc) + last_perc
+								if mod_percents[pn][v[2]] ~= perc then
+									ApplyMods(v[2], perc, pn)
+									mod_percents[pn][v[2]] = perc
+								end
+							end
 						end
 					elseif m.Type == 'Note' then
-						note_percents[v[1]] = note_percents[v[1]] or {}
-						note_percents[v[1]][v[2]] = note_percents[v[1]][v[2]] or {}
-						v[5] = v[5] or note_percents[v[1]][v[2]][v[4]] or 0
-						local ease = m.Ease((BEAT - m.Start) / m.Length)
-						local perc = ease * (v[3] - v[5]) + v[5]
-						if note_percents[v[1]][v[2]][v[4]] ~= perc then
-							ApplyNotes(v[1], v[2], v[4], perc, m.Player)
-							note_percents[v[1]][v[2]][v[4]] = perc
+						local notemod = v[4]..'|'..v[1]..'|'..v[2]
+						if m.Player then
+							local last_perc = v[5] or note_percents[m.Player][notemod] or 0
+							local ease = m.Ease((BEAT - m.Start) / m.Length)
+							local perc = ease * (v[3] - last_perc) + last_perc
+							if note_percents[m.Player][notemod] ~= perc then
+								ApplyNotes(v[1], v[2], v[4], perc, m.Player)
+								note_percents[m.Player][notemod] = perc
+								note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
+							end
+						else
+							for pn = 1, #POptions do
+								local last_perc = v[5] or note_percents[pn][notemod] or 0
+								local ease = m.Ease((BEAT - m.Start) / m.Length)
+								local perc = ease * (v[3] - last_perc) + last_perc
+								if note_percents[pn][notemod] ~= perc then
+									ApplyNotes(v[1], v[2], v[4], perc, pn)
+									note_percents[pn][notemod] = perc
+								end
+							end
 						end
 					end
                 elseif BEAT >= (m.Start + m.Length) then
 					if m.Type == 'Player' then
-						ApplyMods(v[2], v[1], m.Player)
-						mod_percents[v[2]] = v[1]
+						if m.Player then
+							ApplyMods(v[2], v[1], m.Player)
+							mod_percents[m.Player][v[2]] = v[1]
+							mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
+						else
+							for pn = 1, #POptions do
+								ApplyMods(v[2], v[1], pn)
+								mod_percents[pn][v[2]] = v[1]
+							end
+						end
 					elseif m.Type == 'Note' then
-						ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
-						note_percents[v[1]][v[2]][v[4]] = v[3]
+						local notemod = v[4]..'|'..v[1]..'|'..v[2]
+						if m.Player then
+							ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
+							note_percents[m.Player][notemod] = v[3]
+							note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
+						else
+							for pn = 1, #POptions do
+								ApplyNotes(v[1], v[2], v[4], v[3], pn)
+								note_percents[pn][notemod] = v[3]
+							end
+						end
 					end
 					table.remove(m.Modifiers, j)
                 end
