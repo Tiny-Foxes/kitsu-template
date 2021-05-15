@@ -76,6 +76,7 @@ SRT_STYLE = true
 
 -- Set up nodes here --
 
+
 -- Modify pre-existing actors here --
 function ready()
 end
@@ -85,5 +86,3 @@ end
 
 function input(event)
 end
-
-return Node.GetNodeTree()

@@ -1,4 +1,4 @@
-local Mods
+Mods = {}
 
 -- Keep the player options from the enabled players that are available.
 local POptions = {}
@@ -74,6 +74,9 @@ end
 
 local ModTree = Def.ActorFrame {
     Branches = {},
+	ReadyCommand = function(self)
+		sudo(assert(loadfile(SongDir .. 'lua/mods.lua')))()
+	end,
     UpdateMessageCommand = function(self)
         UpdateMods()
     end
@@ -199,16 +202,20 @@ local function GetModTree()
     return ModTree
 end
 
-Mods = {
-    new = new,
-    InsertMod = InsertMod,
-	InsertNoteMod = InsertNoteMod,
-    MirinMod = MirinMod,
-    ExschMod = ExschMod,
-    Default = Default,
-    AddToModTree = AddToModTree,
-    RemoveFromModTree = RemoveFromModTree,
-    GetModTree = GetModTree
+return Def.ActorFrame {
+	InitCommand = sudo(function(self)
+		Mods = {
+			new = new,
+			InsertMod = InsertMod,
+			InsertNoteMod = InsertNoteMod,
+			MirinMod = MirinMod,
+			ExschMod = ExschMod,
+			Default = Default,
+			AddToModTree = AddToModTree,
+			RemoveFromModTree = RemoveFromModTree,
+			GetModTree = GetModTree
+		}
+		Mods.__index = Mods
+	end),
+	ModTree
 }
-Mods.__index = Mods
-return Mods

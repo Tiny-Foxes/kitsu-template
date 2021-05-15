@@ -64,55 +64,37 @@ example2
 		{9, 4, 300, 'beat'}
 	})
 	--:AddToModTree()
+-- Spo('v')oky Notes
 example3
 	:InsertNoteMod(0, 0.25, Tweens.instant, {{4, 1, 100, 'flip'}, {4, 1, 180 * math.pi/1.8, 'confusionoffset'}, {4, 1, 90, 'stealth'}})
 	:InsertNoteMod(2, 2, Tweens.inoutquad, {{4, 1, 0, 'flip'}, {4, 1, 0, 'confusionoffset'}})
 	--:AddToModTree()
 
-local notedata = {
-	{10, 1, 1},
-	{11, 2, 1},
-	{12, 3, 1},
-	{13, 4, 1},
-	{14, 1, 1},
-	{15, 4, 1},
-	{16, 2, 1},
-	{17, 3, 1},
-	{18, 1, 1},
-	{19, 4, 1},
-}
-local notedata2 = {
-	{6, 1, 1},
-	{6.5, 3, 1},
-	{7, 2, 1},
-	{7.5, 4, 1},
-	{8, 1, 1},
-	{8.5, 3, 1},
-	{9, 2, 1},
-	{9.5, 4, 1},
-	{10, 1, 1},
-	{10.5, 3, 1},
-	{11, 2, 1},
-	{11.5, 4, 1},
-}
-
-local test = Mods.new()
-for i = 1, #notedata do
-	test
-		:Default {{100, 'tinyusesminicalc'}}
-		:InsertNoteMod(0, 0.1, Tweens.instant, {{notedata[i][1], notedata[i][2], 100, 'flip'}, {notedata[i][1], notedata[i][2], 180 * math.pi/1.8, 'confusionoffset'}})
-		:InsertNoteMod(notedata[i][1] - 5, 2, Tweens.inoutexpo, {{notedata[i][1], notedata[i][2], -5000, 'tinyz'}})
-		:InsertNoteMod(notedata[i][1] - 4, 2, Tweens.inoutexpo, {{notedata[i][1], notedata[i][2], 0, 'flip'}, {notedata[i][1], notedata[i][2], 0, 'confusionoffset'}})
-		:InsertNoteMod(notedata[i][1] - 3, 2, Tweens.inoutexpo, {{notedata[i][1], notedata[i][2], 0, 'tinyz'}})
-end
-test:AddToModTree()
-
-
-
-
 ---------------------------
 
 -- Insert mods here --
 
+local notedata = PL[1].NoteData
 
-return Mods.GetModTree()
+local test = Mods.new()
+for i = 1, #notedata do
+	if notedata[i][1] >= 5 then
+		test
+			:Default {{100, 'tinyusesminicalc'}}
+			:InsertNoteMod(0, 0.1, Tweens.instant, {
+				{notedata[i][1], notedata[i][2], 100, 'flip'},
+				{notedata[i][1], notedata[i][2], 180 * math.pi/1.8, 'confusionoffset'}
+			})
+			:InsertNoteMod(notedata[i][1] - 5, 2, Tweens.inoutexpo, {
+				{notedata[i][1], notedata[i][2], -5000, 'tinyz'}
+			})
+			:InsertNoteMod(notedata[i][1] - 4, 2, Tweens.inoutexpo, {
+				{notedata[i][1], notedata[i][2], 0, 'flip'},
+				{notedata[i][1], notedata[i][2], 0, 'confusionoffset'}
+			})
+			:InsertNoteMod(notedata[i][1] - 3, 2, Tweens.inoutexpo, {
+				{notedata[i][1], notedata[i][2], 0, 'tinyz'}
+			})
+	end
+end
+test:AddToModTree()

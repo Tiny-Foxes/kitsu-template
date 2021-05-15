@@ -1,8 +1,20 @@
 Node = import "nodebuilder" -- Nodebuilder
 Mods = import "modsbuilder" -- Modsbuilder
 
--- Corope
-local Corope = import "corope"
-Async = Corope({errhand = printerr})
+-- Corope needs a Def.Actor wrapper
+local Corope = Def.Actor {
+	InitCommand = sudo(function(self)
+		Async = import("corope")({errhand = printerr})
+	end)
+}
 
--- Add libraries here
+-- Add libraries using import "[library_name]"
+
+
+
+-- Return your libraries as an Actor and add here
+return Def.ActorFrame {
+	Node,
+	Mods,
+	Corope
+}

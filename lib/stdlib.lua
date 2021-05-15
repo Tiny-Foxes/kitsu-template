@@ -59,8 +59,6 @@ TPB = SPB * TICKRATE -- ticks per beat
 CENTER_PLAYERS = false
 SRT_STYLE = false
 
-sudo(assert(loadfile(SongDir..'main/libloader.lua')))() -- Libloader
-
 PL = {}
 
 local InputHandler = function(event)
@@ -95,18 +93,12 @@ return Def.ActorFrame {
 		self:queuecommand('BeginFrame')
 	end,
 	ReadyCommand = function(self)
-		if sudo.ready then
-			sudo.ready()
-		end
-		self:queuecommand('Start')
-	end,
-	StartCommand = function(self)
 		-- Second set of global variables
 		SCREEN = SCREENMAN:GetTopScreen() -- top screen
 		SCREEN:AddInputCallback(InputHandler)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
-
+	
 			local pl = SCREEN:GetChild('Player'..ToEnumShortString(v))
 			if not pl and SCREEN:GetName() == 'ScreenEdit' then
 				pl = SCREEN:GetChildAt(7)
@@ -117,7 +109,8 @@ return Def.ActorFrame {
 			info.Combo = pl:GetChild('Combo')
 			info.Judgment = pl:GetChild('Judgment')
 			info.NoteField = pl:GetChild('NoteField')
-
+			info.NoteData = pl:GetNoteData()
+	
 			PL[i] = info
 		end
 		PL = setmetatable(PL, {
@@ -129,6 +122,12 @@ return Def.ActorFrame {
 				return this
 			end
 		})
+		if sudo.ready then
+			sudo.ready()
+		end
+		self:queuecommand('Start')
+	end,
+	StartCommand = function(self)
 		if CENTER_PLAYERS then
 			for pn = 1, #PL do
 				PL[pn].Player:x(SCX)
