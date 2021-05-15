@@ -47,7 +47,7 @@ example1
 	:ExschMod(11.0, 14, 100, 0, 'reverse3', 'end', Tweens.outelastic)
 	:ExschMod(11.5, 14, 100, 0, 'reverse4', 'end', Tweens.outelastic)
 	:InsertMod(15, 2, Tweens.outelastic, {{0, 'invert'}})
-	--:AddToModTree()
+--example1:AddToModTree()
 
 -- Note-specific mods
 example2
@@ -63,85 +63,25 @@ example2
 		{8, 1, 200, 'wave'},
 		{9, 4, 300, 'beat'}
 	})
-	--:AddToModTree()
+--example2:AddToModTree()
+
 -- Spo('v')oky Notes
-example3
-	:InsertNoteMod(0, 0.25, Tweens.instant, {{4, 1, 100, 'flip'}, {4, 1, 180 * math.pi/1.8, 'confusionoffset'}, {4, 1, 90, 'stealth'}})
-	:InsertNoteMod(2, 2, Tweens.inoutquad, {{4, 1, 0, 'flip'}, {4, 1, 0, 'confusionoffset'}})
-	--:AddToModTree()
+local nd = {}
+for pn = 1, #PL do
+	nd[pn] = PL[pn].NoteData
+	for i = 1, #nd[pn] do
+		local beat = nd[pn][i][1]
+		local col = nd[pn][i][2]
+		if beat % 5 == 4 then
+			example3
+				:InsertNoteMod(0, 0.25, Tweens.instant, {{beat, col, 100, 'flip'}, {beat, col, 180 * math.pi/1.8, 'confusionoffset'}, {beat, col, 90, 'stealth'}})
+				:InsertNoteMod(2, 2, Tweens.inoutquad, {{beat, col, 0, 'flip'}, {beat, col, 0, 'confusionoffset'}})
+		end
+	end
+end
+--example3:AddToModTree()
 
 ---------------------------
 
--- Insert mods here --
-
-local notedata = PL[1].NoteData
-
-local test = Mods.new()
-test:InsertMod(-10, 0.1, Tweens.instant, {{100, 'tinyusesminicalc'}, {1, 'xmod'}})
-test:InsertMod(notedata[#notedata][1] - 10, 0.1, Tweens.instant, {{2, 'xmod'}})
-for i = 1, #notedata - 1 do
-	local beat = notedata[i][1]
-	local col = notedata[i][2]
-	if beat >= 84 and beat < 88 then
-		test
-			:InsertNoteMod(-10, 0.1, Tweens.instant, {
-				{beat, col, 50, 'reverse'},
-				{beat, col, -100, 'movey'},
-				{beat, col, 100, 'stealth'},
-				{beat, 1, 200, 'movex'},
-				{beat, 2, 100, 'movex'},
-				{beat, 3, 0, 'movex'},
-				{beat, 4, -100, 'movex'},
-			})
-			:InsertNoteMod(82, 2, Tweens.inoutexpo, {
-				{beat, col, 0, 'reverse'},
-				{beat, col, 0, 'movey'},
-				{beat, col, 0, 'stealth'},
-				{beat, 1, 0, 'movex'},
-				{beat, 2, 0, 'movex'},
-				{beat, 3, 0, 'movex'},
-				{beat, 4, 0, 'movex'},
-			})
-	end
-	test
-		:InsertNoteMod(beat - 10, 0.1, Tweens.instant, {
-			{beat, col, 125, 'invert'},
-			{beat, col, 25, 'flip'},
-			{beat, col, 90 * math.pi/1.8, 'confusionoffset'},
-			{beat, col, 200, 'holdtinyx'}
-		})
-		:InsertNoteMod(beat - 10, 0.1, Tweens.instant, {
-			{beat, col, math.random(-2, 1) * 100, 'movey'},
-			{beat, col, 645, 'movex'}
-		}, nil, 1)
-		:InsertNoteMod(beat - 10, 0.1, Tweens.instant, {
-			{beat, col, math.random(-2, 1) * 100, 'movey'},
-			{beat, col, -645, 'movex'}
-		}, nil, 2)
-		:InsertNoteMod(beat - 6, 3, Tweens.outelastic, {
-			{beat, col, 200, 'movez'},
-			{beat, col, -1000, 'tinyz'},
-		})
-		:InsertNoteMod(beat - 6, 2, Tweens.inoutexpo, {
-			{beat, col, 0, 'invert'},
-			{beat, col, 0, 'flip'},
-			{beat, col, 0, 'confusionoffset'},
-			{beat, col, 0, 'movex'}
-		})
-		:InsertNoteMod(beat - 5, 2, Tweens.inoutexpo, {
-			{beat, col, 0, 'movey'}
-		})
-		:InsertNoteMod(beat - 4, 2, Tweens.inoutexpo, {
-			{beat, col, 0, 'movez'},
-			{beat, col, 0, 'tinyz'},
-		})
-		:InsertNoteMod(beat - 3, 2, Tweens.outexpo, {
-			{beat, col, 0, 'holdtinyx'}
-		})
-end
-test:InsertNoteMod(-10, 0.1, Tweens.instant, {
-	{notedata[#notedata][1], notedata[#notedata][2], 50, 'flip'},
-	{notedata[#notedata][1], notedata[#notedata][2], -750, 'tiny'},
-})
-test:AddToModTree()
-
+--Mods.AttachFile('notemod-stress')
+Mods.AttachFile('benchmark')

@@ -51,20 +51,16 @@ local function UpdateMods()
 							local last_perc = v[3] or mod_percents[m.Player][v[2]] or 0
 							local ease = m.Ease((BEAT - m.Start) / m.Length)
 							local perc = ease * (v[1] - last_perc) + last_perc
-							if mod_percents[m.Player][v[2]] ~= perc then
-								ApplyMods(v[2], perc, m.Player)
-								mod_percents[m.Player][v[2]] = perc
-								mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
-							end
+							ApplyMods(v[2], perc, m.Player)
+							mod_percents[m.Player][v[2]] = perc
+							mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
 						else
 							for pn = 1, #POptions do
 								local last_perc = v[3] or mod_percents[pn][v[2]] or 0
 								local ease = m.Ease((BEAT - m.Start) / m.Length)
 								local perc = ease * (v[1] - last_perc) + last_perc
-								if mod_percents[pn][v[2]] ~= perc then
-									ApplyMods(v[2], perc, pn)
-									mod_percents[pn][v[2]] = perc
-								end
+								ApplyMods(v[2], perc, pn)
+								mod_percents[pn][v[2]] = perc
 							end
 						end
 					elseif m.Type == 'Note' then
@@ -73,20 +69,16 @@ local function UpdateMods()
 							local last_perc = v[5] or note_percents[m.Player][notemod] or 0
 							local ease = m.Ease((BEAT - m.Start) / m.Length)
 							local perc = ease * (v[3] - last_perc) + last_perc
-							if note_percents[m.Player][notemod] ~= perc then
-								ApplyNotes(v[1], v[2], v[4], perc, m.Player)
-								note_percents[m.Player][notemod] = perc
-								note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
-							end
+							ApplyNotes(v[1], v[2], v[4], perc, m.Player)
+							note_percents[m.Player][notemod] = perc
+							note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
 						else
 							for pn = 1, #POptions do
 								local last_perc = v[5] or note_percents[pn][notemod] or 0
 								local ease = m.Ease((BEAT - m.Start) / m.Length)
 								local perc = ease * (v[3] - last_perc) + last_perc
-								if note_percents[pn][notemod] ~= perc then
-									ApplyNotes(v[1], v[2], v[4], perc, pn)
-									note_percents[pn][notemod] = perc
-								end
+								ApplyNotes(v[1], v[2], v[4], perc, pn)
+								note_percents[pn][notemod] = perc
 							end
 						end
 					end
@@ -143,7 +135,7 @@ local ModTree = Def.ActorFrame {
     deleted under any desired circumstance.
 ]]
 
-Tweens.instant = function(x) return 1 end -- fite me
+--Tweens.instant = function(x) return 1 end -- fite me
 
 -- Create a new mod branch.
 local function new()
@@ -151,6 +143,10 @@ local function new()
     local t = {}
     setmetatable(t, Mods)
     return t
+end
+local function AttachFile(scriptpath)
+	--printerr('Mods.AttachFile')
+	sudo(assert(loadfile(SongDir..'lua/'..scriptpath..'.lua')))()
 end
 -- Write to a mod branch.
 local function InsertMod(self, start, len, ease, modtable, offset, pn)
@@ -257,6 +253,7 @@ return Def.ActorFrame {
 	InitCommand = sudo(function(self)
 		Mods = {
 			new = new,
+			AttachFile = AttachFile,
 			InsertMod = InsertMod,
 			InsertNoteMod = InsertNoteMod,
 			MirinMod = MirinMod,
