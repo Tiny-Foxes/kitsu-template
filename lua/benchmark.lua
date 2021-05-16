@@ -1,6 +1,6 @@
-local nd = PL[1].NoteData
 local test = Mods.new()
-local mod = 'attenuatey'
+local nd = PL[1].NoteData
+local mod = 'beat'
 
 --[[
 	-- FPS BENCHMARKS --
@@ -92,60 +92,71 @@ local mod = 'attenuatey'
 	TanPulseOuten
 ]]
 
-
+---[[
 for i = 1, #nd do
 	local beat = nd[i][1]
 	local col = nd[i][2]
 	for modbeat = beat - 10, beat - 2, 2 do
 		test
 			:InsertNoteMod(modbeat, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat + 0.25, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat + 0.5, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat + 0.75, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat + 1, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat + 1.25, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat + 1.5, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat + 1.75, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 1)
 			:InsertNoteMod(modbeat, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 			:InsertNoteMod(modbeat + 0.25, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 			:InsertNoteMod(modbeat + 0.5, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 			:InsertNoteMod(modbeat + 0.75, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 			:InsertNoteMod(modbeat + 1, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 			:InsertNoteMod(modbeat + 1.25, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 			:InsertNoteMod(modbeat + 1.5, 0.25, Tweens.linear, {
-				{beat, col, -50, mod}
+				{beat, col, -50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 			:InsertNoteMod(modbeat + 1.75, 0.25, Tweens.linear, {
-				{beat, col, 50, mod}
+				{beat, col, 50 * ((beat * col) % 10), mod}
 			}, nil, 2)
 	end
 end
+--]]
+
+--[[
+for i = 1, #nd do
+	local beat = nd[i][1]
+	local col = nd[i][2]
+	test:InsertNoteMod(-10, 0.1, Tweens.instant, {
+		{beat, col, 100, mod}
+	})
+end
+--]]
 test:AddToModTree()

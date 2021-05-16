@@ -59,6 +59,10 @@ TPB = SPB * TICKRATE -- ticks per beat
 CENTER_PLAYERS = false
 SRT_STYLE = false
 
+if not _G.Tweens.instant then
+	Tweens.instant = function(x) return 1 end
+end
+
 PL = {}
 
 local InputHandler = function(event)
