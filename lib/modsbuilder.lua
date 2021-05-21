@@ -254,7 +254,7 @@ return Def.ActorFrame {
 	InitCommand = sudo(function(self)
 		Mods = {
 			new = new,
-			AttachFile = AttachFile,
+			LoadFromFile = LoadFromFile,
 			InsertMod = InsertMod,
 			InsertNoteMod = InsertNoteMod,
 			MirinMod = MirinMod,
