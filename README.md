@@ -3,7 +3,7 @@
 The Kitsu Template is a template designed to make modcharting feel more friendly to the object-oriented mindset. It also aims to make minigame creation fun, easy, and accessible to those used to making games in Love2D or most other high-level languaged, update-loop focused game engines.
 
 You can view the docs [here](https://tiny-foxes.github.io/kitsu-template).  
-NotITG version [here](https://github.com/sudospective/kitsu-template)
+NotITG version [here](https://github.com/sudospective/kitsu-template-notitg)
 
 # Getting Started
 ## Creating a Node
