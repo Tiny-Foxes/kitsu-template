@@ -19,19 +19,21 @@
 -- Nodes can be manipulated like normal actors, but most work
 -- should be done in a dedicated script to keep space clean.
 
--- Update functions require a 'dt' parameter, even if you don't plan to use it.
+-- Update and Input functions all require 1 parameter, even if you don't plan to use them.
+
+-- Use CENTER_PLAYERS to place all players in the center of the screen.
 
 -- Set SRT_STYLE to true to hide overlays and underlays like in common SRT files.
 
 -- Use the ready and update functions in this script for already established actors
 -- (like players and other screen elements)
--- They will not work with nodes. Use the set functions for them instead.
+-- They will not work with nodes. Use the set functions above for them instead.
 ---------------------------
 
 ---------------------------
 -- Uncomment for example --
 ---------------------------
---[[
+---[[
 local QuadPad = {}
 local PadDirs = {"Left", "Down", "Up", "Right"}
 
@@ -52,9 +54,6 @@ for i = 1, 4 do
 		end
 	end)
 	QuadPad[i]:SetUpdate(function(self, dt)
-		if BEAT > -2 then
-			self:hidden(1)
-		end
 	end)
 	QuadPad[i]:SetInput(function(self, event)
 		if event.button == PadDirs[i] then
@@ -81,18 +80,7 @@ end
 SRT_STYLE = true
 
 -- Set up nodes here --
-local noteproxy = {
-	Node.new('ActorProxy'),
-	Node.new('ActorProxy')
-}
 
-for pn = 1, #PL do
-	noteproxy[pn]:SetReady(function(self)
-		self:xy(scx, scy)
-		self:SetTarget(PL[pn].NoteField)
-		PL[pn].Player:visible(false)
-	end)
-end
 
 -- Modify pre-existing actors here --
 function ready()
@@ -102,25 +90,4 @@ function update(dt)
 end
 
 function input(event)
-	if event.type == "InputEventType_FirstPress" then
-		local rotx = 0
-		local roty = 0
-		for pn = 1, #PL do
-			if event.button == "Left" then
-				roty = 1
-			elseif event.button == "Right" then
-				roty = -1
-			elseif event.button == "Up" then
-				rotx = -1
-			elseif event.button == "Down" then
-				rotx = 1
-			end
-			PL[pn].Player:stoptweening()
-			PL[pn].Player:rotationx(rotx * 0)
-			PL[pn].Player:rotationy(roty * 0)
-			PL[pn].Player:easeoutcircle(0.5)
-			PL[pn].Player:rotationx(0)
-			PL[pn].Player:rotationy(0)
-		end
-	end
 end

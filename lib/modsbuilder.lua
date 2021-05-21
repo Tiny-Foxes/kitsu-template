@@ -144,8 +144,9 @@ local function new()
     setmetatable(t, Mods)
     return t
 end
-local function AttachFile(scriptpath)
-	--printerr('Mods.AttachFile')
+-- Load a mod file.
+local function LoadFromFile(scriptpath)
+	--printerr('Mods.LoadFromFile')
 	sudo(assert(loadfile(SongDir..'lua/'..scriptpath..'.lua')))()
 end
 -- Write to a mod branch.

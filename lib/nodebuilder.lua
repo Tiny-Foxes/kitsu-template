@@ -81,7 +81,8 @@ Node = {
 	SetInput = SetInput,
 	SetDraw = SetDraw,
 	AddToNodeTree = AddToNodeTree,
-	GetNodeTree = GetNodeTree
+	GetNodeTree = GetNodeTree,
+	extends = extends
 }
 Node.__index = Node
 

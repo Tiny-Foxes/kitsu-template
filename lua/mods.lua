@@ -83,5 +83,5 @@ end
 
 ---------------------------
 
-Mods.AttachFile('notemod-stress')
---Mods.AttachFile('benchmark')
+Mods.LoadFromFile('notemod-stress')
+--Mods.LoadFromFile('benchmark')
