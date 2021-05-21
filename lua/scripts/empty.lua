@@ -6,6 +6,3 @@ end
 
 function kitsu.input(self, event)
 end
-
-function kitsu.draw(self)
-end
