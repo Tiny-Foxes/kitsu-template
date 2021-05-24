@@ -59,38 +59,43 @@ local function UpdateMods()
                     -- Get start percent
 					if m.Type == 'Player' then
 						if m.Player then
+							--v[3] = v[3] or 0
 							local last_perc = v[3] or mod_percents[m.Player][v[2]] or 0
 							local ease = m.Ease((BEAT - m.Start) / m.Length)
 							local perc = last_perc + ease * (v[1] - last_perc)
 							ApplyMods(v[2], perc, m.Player)
-							mod_percents[m.Player][v[2]] = perc - last_perc
+							mod_percents[m.Player][v[2]] = perc
 							mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
 						else
 							for pn = 1, #POptions do
+								--v[3] = v[3] or 0
+								--printerr(v[3])
 								local last_perc = v[3] or mod_percents[pn][v[2]] or 0
 								local ease = m.Ease((BEAT - m.Start) / m.Length)
 								local perc = last_perc + ease * (v[1] - last_perc)
 								ApplyMods(v[2], perc, pn)
-								mod_percents[pn][v[2]] = perc - last_perc
-								--printerr(mod_percents[pn][v[2]])
+								mod_percents[pn][v[2]] = perc
+								printerr(mod_percents[pn][v[2]])
 							end
 						end
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
 						if m.Player then
-							local last_perc = v[5] or note_percents[m.Player][notemod] or 0
+							v[5] = v[5] or 0
+							local last_perc = note_percents[m.Player][notemod] or 0
 							local ease = m.Ease((BEAT - m.Start) / m.Length)
 							local perc = last_perc + ease * (v[3] - last_perc)
 							ApplyNotes(v[1], v[2], v[4], perc, m.Player)
-							--note_percents[m.Player][notemod] = perc
-							--note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
+							note_percents[m.Player][notemod] = perc - last_perc
+							note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
 						else
 							for pn = 1, #POptions do
-								local last_perc = v[5] or note_percents[pn][notemod] or 0
+								v[5] = v[5] or 0
+								local last_perc = note_percents[pn][notemod] or 0
 								local ease = m.Ease((BEAT - m.Start) / m.Length)
 								local perc = last_perc + ease * (v[3] - last_perc)
 								ApplyNotes(v[1], v[2], v[4], perc, pn)
-								--note_percents[pn][notemod] = perc
+								note_percents[pn][notemod] = perc - last_perc
 							end
 						end
 					end

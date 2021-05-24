@@ -98,7 +98,7 @@ custom
 	:InsertMod(0, 10, Tweens.linear, {
 		{360, 'swingx'}
 	})
-	--[[
+	---[[
 	:InsertMod(5, 5, Tweens.inoutexpo, {
 		{0, 'swingx'}
 	})
