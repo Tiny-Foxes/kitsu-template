@@ -67,27 +67,29 @@ local function UpdateMods()
 							v[3] = {}
 							v[3][pn] = v3
 						end
+						local last_perc = mod_percents[pn][v[2]] or 0
 						local ease = m.Ease((BEAT - m.Start) / m.Length)
 						local perc = v[3][pn] + ease * (v[1] - v[3][pn])
-						ApplyMods(v[2], perc, pn)
 						mod_percents[pn][v[2]] = perc
+						ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 					elseif m.Type == 'Note' then
 						v[5] = v[5] or {}
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
 						v[5][pn] = v[5][pn] or note_percents[pn][notemod] or 0
+						local last_perc = note_percents[pn][notemod] or 0
 						local ease = m.Ease((BEAT - m.Start) / m.Length)
 						local perc = v[5][pn] + ease * (v[3] - v[5][pn])
-						ApplyNotes(v[1], v[2], v[4], perc, pn)
 						note_percents[pn][notemod] = perc
+						ApplyNotes(v[1], v[2], v[4], perc, pn)
 					end
                 elseif BEAT >= (m.Start + m.Length) then
 					if m.Type == 'Player' then
-						ApplyMods(v[2], v[1], m.Player)
 						mod_percents[m.Player][v[2]] = v[1]
+						ApplyMods(v[2], v[1], m.Player)
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
-						ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
 						note_percents[m.Player][notemod] = v[3]
+						ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
 					end
 					table.remove(m.Modifiers, j)
                 end
