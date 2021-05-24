@@ -1,5 +1,8 @@
 Mods = {}
 
+local custom_mods = {}
+local default_mods = {}
+
 -- Keep the player options from the enabled players that are available.
 local POptions = {}
 for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
@@ -7,17 +10,25 @@ for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 end
 
 local function ApplyMods(mod, percent, pn)
-    local modstring = '*-1 '..percent..' '..mod:lower()
-    if mod:sub(2):lower() == 'mod' then
-        modstring = '*-1 '..percent..mod:sub(1, 1):lower()
-    end
-    if pn then
-        POptions[pn]:FromString(modstring)
-    else
-        for p = 1, #POptions do
-            POptions[p]:FromString(modstring)
-        end
-    end
+	if custom_mods[mod] ~= nil then
+		local new_perc = custom_mods[mod].Function(percent)
+		local new_mod = custom_mods[mod].Return
+		percent = new_perc
+		mod = new_mod
+	end
+    if mod then
+		local modstring = '*-1 '..percent..' '..mod:lower()
+		if mod:sub(2):lower() == 'mod' then
+			modstring = '*-1 '..percent..mod:sub(1, 1):lower()
+		end
+		if pn then
+			POptions[pn]:FromString(modstring)
+		else
+			for p = 1, #POptions do
+				POptions[p]:FromString(modstring)
+			end
+		end
+	end
 end
 local function ApplyNotes(beat, col, mod, percent, pn)
 	if pn then
@@ -50,17 +61,18 @@ local function UpdateMods()
 						if m.Player then
 							local last_perc = v[3] or mod_percents[m.Player][v[2]] or 0
 							local ease = m.Ease((BEAT - m.Start) / m.Length)
-							local perc = ease * (v[1] - last_perc) + last_perc
+							local perc = last_perc + ease * (v[1] - last_perc)
 							ApplyMods(v[2], perc, m.Player)
-							mod_percents[m.Player][v[2]] = perc
+							mod_percents[m.Player][v[2]] = perc - last_perc
 							mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
 						else
 							for pn = 1, #POptions do
 								local last_perc = v[3] or mod_percents[pn][v[2]] or 0
 								local ease = m.Ease((BEAT - m.Start) / m.Length)
-								local perc = ease * (v[1] - last_perc) + last_perc
+								local perc = last_perc + ease * (v[1] - last_perc)
 								ApplyMods(v[2], perc, pn)
-								mod_percents[pn][v[2]] = perc
+								mod_percents[pn][v[2]] = perc - last_perc
+								--printerr(mod_percents[pn][v[2]])
 							end
 						end
 					elseif m.Type == 'Note' then
@@ -68,17 +80,17 @@ local function UpdateMods()
 						if m.Player then
 							local last_perc = v[5] or note_percents[m.Player][notemod] or 0
 							local ease = m.Ease((BEAT - m.Start) / m.Length)
-							local perc = ease * (v[3] - last_perc) + last_perc
+							local perc = last_perc + ease * (v[3] - last_perc)
 							ApplyNotes(v[1], v[2], v[4], perc, m.Player)
-							note_percents[m.Player][notemod] = perc
-							note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
+							--note_percents[m.Player][notemod] = perc
+							--note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
 						else
 							for pn = 1, #POptions do
 								local last_perc = v[5] or note_percents[pn][notemod] or 0
 								local ease = m.Ease((BEAT - m.Start) / m.Length)
-								local perc = ease * (v[3] - last_perc) + last_perc
+								local perc = last_perc + ease * (v[3] - last_perc)
 								ApplyNotes(v[1], v[2], v[4], perc, pn)
-								note_percents[pn][notemod] = perc
+								--note_percents[pn][notemod] = perc
 							end
 						end
 					end
@@ -137,6 +149,8 @@ local ModTree = Def.ActorFrame {
 
 --Tweens.instant = function(x) return 1 end -- fite me
 
+-- TODO: Create a GetPercent function to get the current mod percent
+
 -- Create a new mod branch.
 local function new()
     --printerr('Mods.new')
@@ -148,6 +162,21 @@ end
 local function LoadFromFile(scriptpath)
 	--printerr('Mods.LoadFromFile')
 	sudo(assert(loadfile(SongDir..'lua/'..scriptpath..'.lua')))()
+end
+local function Default(self, modtable)
+	--printerr('Mods:Default')
+	default_mods = modtable
+	return self
+end
+local function DefineMod(self, name, func, ret)
+	--printerr('Mods:DefineMod')
+	local t = {}
+	t = {
+		Function = func,
+		Return = ret
+	}
+	custom_mods[name] = t
+	return self
 end
 -- Write to a mod branch.
 local function InsertMod(self, start, len, ease, modtable, offset, pn)
@@ -255,6 +284,7 @@ return Def.ActorFrame {
 		Mods = {
 			new = new,
 			LoadFromFile = LoadFromFile,
+			DefineMod = DefineMod,
 			InsertMod = InsertMod,
 			InsertNoteMod = InsertNoteMod,
 			MirinMod = MirinMod,

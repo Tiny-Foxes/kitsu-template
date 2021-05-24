@@ -23,7 +23,7 @@
 
 -- Use CENTER_PLAYERS to place all players in the center of the screen.
 
--- Set SRT_STYLE to true to hide overlays and underlays like in common SRT files.
+-- Use Node.SetSRTStyle to hide overlays and underlays and set player-related proxies like in modern modfiles.
 
 -- Use the ready and update functions in this script for already established actors
 -- (like players and other screen elements)
@@ -76,11 +76,10 @@ end
 if #PL == 1 then
 	CENTER_PLAYERS = true
 end
--- This hides the song overlay and underlay like common SRT modfiles do
-SRT_STYLE = true
+-- This hides the song overlay and underlay like modern modfiles do
+Node.SetSRTStyle(true)
 
 -- Set up nodes here --
-
 
 -- Modify pre-existing actors here --
 function ready()

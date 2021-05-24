@@ -97,8 +97,7 @@ return Def.ActorFrame {
 		self:queuecommand('BeginFrame')
 	end,
 	ReadyCommand = function(self)
-		-- Second set of global variables
-		SCREEN = SCREENMAN:GetTopScreen() -- top screen
+		SCREEN = SCREENMAN:GetTopScreen()
 		SCREEN:AddInputCallback(InputHandler)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
@@ -140,8 +139,13 @@ return Def.ActorFrame {
 		if SRT_STYLE then
 			SCREEN:GetChild('Underlay'):visible(false)
 			for i = 1, #PL do
-				if PL[i].Life then PL[i].Life:visible(false) end
-				if PL[i].Score then PL[i].Score:visible(false) end
+				PL[i].Life:visible(false)
+				PL[i].Score:visible(false)
+				PL[i].Player:visible(false)
+				PL[i].Combo:visible(false)
+				PL[i].Combo:sleep(9e9)
+				PL[i].Judgment:visible(false)
+				PL[i].Judgment:sleep(9e9)
 			end
 			SCREEN:GetChild('Overlay'):visible(false)
 		end

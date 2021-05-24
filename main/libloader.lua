@@ -12,7 +12,7 @@ local Corope = Def.Actor {
 
 
 
--- Return your libraries as an Actor and add here
+-- Return your libraries as an Actor or ActorFrame and add here
 return Def.ActorFrame {
 	Node,
 	Mods,

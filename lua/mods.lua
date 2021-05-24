@@ -83,5 +83,27 @@ end
 
 ---------------------------
 
-Mods.LoadFromFile('notemod-stress')
+local custom = Mods.new()
+custom
+	:DefineMod(
+		'swingx',
+		function(n)
+			for pn = 1, #PL do
+				PL[pn].Player:rotationx(n)
+			end
+			return -n * math.pi/1.8
+		end,
+		'confusionxoffset'
+	)
+	:InsertMod(0, 10, Tweens.linear, {
+		{360, 'swingx'}
+	})
+	--[[
+	:InsertMod(5, 5, Tweens.inoutexpo, {
+		{0, 'swingx'}
+	})
+	--]]
+custom:AddToModTree()
+
+--Mods.LoadFromFile('notemod-stress')
 --Mods.LoadFromFile('benchmark')
