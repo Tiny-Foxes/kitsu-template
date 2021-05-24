@@ -87,10 +87,8 @@ local custom = Mods.new()
 custom
 	:DefineMod(
 		'swingx',
-		function(n)
-			for pn = 1, #PL do
-				PL[pn].Player:rotationx(n)
-			end
+		function(n, pn)
+			PL[pn].Player:rotationx(n)
 			return -n * math.pi/1.8
 		end,
 		'confusionxoffset'

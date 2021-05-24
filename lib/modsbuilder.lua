@@ -1,18 +1,28 @@
 Mods = {}
 
-local custom_mods = {}
-local default_mods = {}
-
 -- Keep the player options from the enabled players that are available.
 local POptions = {}
 for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
     POptions[i] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
 end
 
+local branches = {}
+local mod_percents = {}
+local note_percents = {}
+local custom_mods = {}
+local default_mods = {}
+
+for pn = 1, #POptions do
+	mod_percents[pn] = {}
+	note_percents[pn] = {}
+	custom_mods[pn] = {}
+	default_mods[pn] = {}
+end
+
 local function ApplyMods(mod, percent, pn)
-	if custom_mods[mod] ~= nil then
-		local new_perc = custom_mods[mod].Function(percent)
-		local new_mod = custom_mods[mod].Return
+	if custom_mods[pn][mod] ~= nil then
+		local new_perc = custom_mods[pn][mod].Function(percent, pn)
+		local new_mod = custom_mods[pn][mod].Return
 		percent = new_perc
 		mod = new_mod
 	end
@@ -40,15 +50,6 @@ local function ApplyNotes(beat, col, mod, percent, pn)
 	end
 end
 
-local branches = {}
-local mod_percents = {}
-local note_percents = {}
-
-for i = 1, #POptions do
-	mod_percents[i] = {}
-	note_percents[i] = {}
-end
-
 local function UpdateMods()
     for _, b in ipairs(branches) do
         for i, m in ipairs(b) do
@@ -56,73 +57,37 @@ local function UpdateMods()
                 -- If the player where we're trying to access is not available, then don't even update.
                 if m.Player and not POptions[ m.Player ] then break end
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
-                    -- Get start percent
+					local pn = m.Player
 					if m.Type == 'Player' then
-						if m.Player then
-							--v[3] = v[3] or 0
-							local last_perc = v[3] or mod_percents[m.Player][v[2]] or 0
-							local ease = m.Ease((BEAT - m.Start) / m.Length)
-							local perc = last_perc + ease * (v[1] - last_perc)
-							ApplyMods(v[2], perc, m.Player)
-							mod_percents[m.Player][v[2]] = perc
-							mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
+						v[3] = v[3] or {}
+						if type(v[3]) == 'table' then
+							v[3][pn] = v[3][pn] or mod_percents[pn][v[2]] or 0
 						else
-							for pn = 1, #POptions do
-								--v[3] = v[3] or 0
-								--printerr(v[3])
-								local last_perc = v[3] or mod_percents[pn][v[2]] or 0
-								local ease = m.Ease((BEAT - m.Start) / m.Length)
-								local perc = last_perc + ease * (v[1] - last_perc)
-								ApplyMods(v[2], perc, pn)
-								mod_percents[pn][v[2]] = perc
-								printerr(mod_percents[pn][v[2]])
-							end
+							local v3 = v[3]
+							v[3] = {}
+							v[3][pn] = v3
 						end
+						local ease = m.Ease((BEAT - m.Start) / m.Length)
+						local perc = v[3][pn] + ease * (v[1] - v[3][pn])
+						ApplyMods(v[2], perc, pn)
+						mod_percents[pn][v[2]] = perc
 					elseif m.Type == 'Note' then
+						v[5] = v[5] or {}
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
-						if m.Player then
-							v[5] = v[5] or 0
-							local last_perc = note_percents[m.Player][notemod] or 0
-							local ease = m.Ease((BEAT - m.Start) / m.Length)
-							local perc = last_perc + ease * (v[3] - last_perc)
-							ApplyNotes(v[1], v[2], v[4], perc, m.Player)
-							note_percents[m.Player][notemod] = perc - last_perc
-							note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
-						else
-							for pn = 1, #POptions do
-								v[5] = v[5] or 0
-								local last_perc = note_percents[pn][notemod] or 0
-								local ease = m.Ease((BEAT - m.Start) / m.Length)
-								local perc = last_perc + ease * (v[3] - last_perc)
-								ApplyNotes(v[1], v[2], v[4], perc, pn)
-								note_percents[pn][notemod] = perc - last_perc
-							end
-						end
+						v[5][pn] = v[5][pn] or note_percents[pn][notemod] or 0
+						local ease = m.Ease((BEAT - m.Start) / m.Length)
+						local perc = v[5][pn] + ease * (v[3] - v[5][pn])
+						ApplyNotes(v[1], v[2], v[4], perc, pn)
+						note_percents[pn][notemod] = perc
 					end
                 elseif BEAT >= (m.Start + m.Length) then
 					if m.Type == 'Player' then
-						if m.Player then
-							ApplyMods(v[2], v[1], m.Player)
-							mod_percents[m.Player][v[2]] = v[1]
-							mod_percents[3 - m.Player][v[2]] = mod_percents[3 - m.Player][v[2]] or 0
-						else
-							for pn = 1, #POptions do
-								ApplyMods(v[2], v[1], pn)
-								mod_percents[pn][v[2]] = v[1]
-							end
-						end
+						ApplyMods(v[2], v[1], m.Player)
+						mod_percents[m.Player][v[2]] = v[1]
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
-						if m.Player then
-							ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
-							note_percents[m.Player][notemod] = v[3]
-							note_percents[3 - m.Player][notemod] = note_percents[3 - m.Player][notemod] or 0
-						else
-							for pn = 1, #POptions do
-								ApplyNotes(v[1], v[2], v[4], v[3], pn)
-								note_percents[pn][notemod] = v[3]
-							end
-						end
+						ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
+						note_percents[m.Player][notemod] = v[3]
 					end
 					table.remove(m.Modifiers, j)
                 end
@@ -170,7 +135,9 @@ local function LoadFromFile(scriptpath)
 end
 local function Default(self, modtable)
 	--printerr('Mods:Default')
-	default_mods = modtable
+	for pn = 1, #POptions do
+		default_mods[pn] = modtable
+	end
 	return self
 end
 local function DefineMod(self, name, func, ret)
@@ -180,61 +147,107 @@ local function DefineMod(self, name, func, ret)
 		Function = func,
 		Return = ret
 	}
-	custom_mods[name] = t
+	for pn = 1, #POptions do
+		custom_mods[pn][name] = t
+	end
 	return self
 end
 -- Write to a mod branch.
 local function InsertMod(self, start, len, ease, modtable, offset, pn)
     --printerr('Mods:InsertMod')
-    local t = {}
+    local t1, t2 = {}, {}
     if not offset or offset == 0 then
-        t = {
-            Start = start,
-            Length = len,
-            Ease = ease,
-            Modifiers = modtable,
+		t1 = {
+			Start = start,
+			Length = len,
+			Ease = ease,
+			Modifiers = modtable,
 			Type = 'Player',
-            Player = pn or nil
-        }
-        table.insert(self, t)
+			Player = pn or 1
+		}
+		table.insert(self, t1)
+		if not pn then
+			t2 = {
+				Start = start,
+				Length = len,
+				Ease = ease,
+				Modifiers = modtable,
+				Type = 'Player',
+				Player = 2
+			}
+			table.insert(self, t2)
+		end
     else
         for i, v in ipairs(modtable) do
-            t[i] = {
+            t1[i] = {
                 Start = start + (offset * (i - 1)),
                 Length = len,
                 Ease = ease,
                 Modifiers = {v},
 				Type = 'Player',
-                Player = pn or nil
+                Player = pn or 1
             }
-            table.insert(self, t[i])
+            table.insert(self, t1[i])
+			if not pn then
+				t2[i] = {
+					Start = start + (offset * (i - 1)),
+					Length = len,
+					Ease = ease,
+					Modifiers = {v},
+					Type = 'Player',
+					Player = 2
+				}
+				table.insert(self, t2[i])
+			end
         end
     end
     return self
 end
 local function InsertNoteMod(self, start, len, ease, notetable, offset, pn)
-	local t = {}
+	local t1, t2 = {}, {}
 	if not offset or offset == 0 then
-		t = {
+		t1 = {
 			Start = start,
 			Length = len,
 			Ease = ease,
 			Modifiers = notetable,
 			Type = 'Note',
-			Player = pn or nil
+			Player = pn or 1
 		}
-		table.insert(self, t)
+		table.insert(self, t1)
+		if not pn then
+			t2 = {
+				Start = start,
+				Length = len,
+				Ease = ease,
+				Modifiers = notetable,
+				Type = 'Note',
+				Player = 2
+			}
+			table.insert(self, t2)
+		end
 	else
 		for i, v in ipairs(notetable) do
-			t[i] = {
+			t1[i] = {
 				Start = start + (offset * (i - 1)),
 				Length = len,
 				Ease = ease,
 				Modifiers = {v},
 				Type = 'Note',
-				Player = pn or nil
+				Player = pn or 1
 			}
-			table.insert(self, t[i])
+			table.insert(self, t1[i])
+			if not pn then
+				t2[i] = {
+					Start = start + (offset * (i - 1)),
+					Length = len,
+					Ease = ease,
+					Modifiers = {v},
+					Type = 'Note',
+					Player = pn or nil
+				}
+				table.insert(self, t2[i])
+			end
 		end
 	end
 	return self
