@@ -11,12 +11,14 @@ local mod_percents = {}
 local note_percents = {}
 local custom_mods = {}
 local default_mods = {}
+local active = {}
 
 for pn = 1, #POptions do
 	mod_percents[pn] = {}
 	note_percents[pn] = {}
 	custom_mods[pn] = {}
 	default_mods[pn] = {}
+	active[pn] = {}
 end
 
 local function ApplyMods(mod, percent, pn)
@@ -55,43 +57,45 @@ local function UpdateMods()
         for i, m in ipairs(b) do
             for j, v in ipairs(m.Modifiers) do
                 -- If the player where we're trying to access is not available, then don't even update.
-                if m.Player and not POptions[ m.Player ] then break end
+                if m.Player and not POptions[m.Player] then break end
+				local pn = m.Player
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
-					local pn = m.Player
 					if m.Type == 'Player' then
-						v[3] = v[3] or {}
-						if type(v[3]) == 'table' then
-							v[3][pn] = v[3][pn] or mod_percents[pn][v[2]] or 0
-						else
-							local v3 = v[3]
-							v[3] = {}
-							v[3][pn] = v3
+						v[3] = v[3] or mod_percents[pn][v[2]] or 0
+						active[pn][v[2]] = active[pn][v[2]] or {}
+						v[4] = v[4] or (#active[pn][v[2]] + 1)
+						active[pn][v[2]][v[4]] = m
+						local perc = 0
+						for n = 1, v[4] do
+							local offset = (n < v[4]) and 1 or 0
+							local cur_m = active[pn][v[2]][n]
+							local cur_v1 = cur_m.Modifiers[j][1]
+							local cur_v3 = cur_m.Modifiers[j][3]
+							local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
+							local cur_perc = cur_ease * (cur_v1 - cur_v3 * n)
+							perc = perc + cur_perc
 						end
-						local last_perc = mod_percents[pn][v[2]] or 0
-						local ease = m.Ease((BEAT - m.Start) / m.Length)
-						local perc = v[3][pn] + ease * (v[1] - v[3][pn])
 						mod_percents[pn][v[2]] = perc
 						ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 					elseif m.Type == 'Note' then
-						v[5] = v[5] or {}
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
-						v[5][pn] = v[5][pn] or note_percents[pn][notemod] or 0
-						local last_perc = note_percents[pn][notemod] or 0
+						v[5] = v[5] or note_percents[pn][notemod] or 0
 						local ease = m.Ease((BEAT - m.Start) / m.Length)
-						local perc = v[5][pn] + ease * (v[3] - v[5][pn])
-						note_percents[pn][notemod] = perc
-						ApplyNotes(v[1], v[2], v[4], perc, pn)
+						local perc = ease * (v[3] - v[5])
+						note_percents[pn][notemod] = v[5] + perc
+						ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 					end
                 elseif BEAT >= (m.Start + m.Length) then
 					if m.Type == 'Player' then
-						mod_percents[m.Player][v[2]] = v[1]
-						ApplyMods(v[2], v[1], m.Player)
+						mod_percents[pn][v[2]] = v[1]
+						if active[pn][v[2]] then
+							active[pn][v[2]][v[4]] = nil
+						end
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
-						note_percents[m.Player][notemod] = v[3]
-						ApplyNotes(v[1], v[2], v[4], v[3], m.Player)
+						note_percents[pn][notemod] = v[3]
 					end
-					table.remove(m.Modifiers, j)
+					--table.remove(m.Modifiers, j)
                 end
             end
             if #b < 1 then table.remove(branches, i) end
@@ -117,9 +121,9 @@ local ModTree = Def.ActorFrame {
     in stone, you can add and remove to a
     mod branch that can be changed or even
     deleted under any desired circumstance.
-]]
 
---Tweens.instant = function(x) return 1 end -- fite me
+	It can also update on a constant tick rate.
+]]
 
 -- TODO: Create a GetPercent function to get the current mod percent
 
@@ -135,13 +139,16 @@ local function LoadFromFile(scriptpath)
 	--printerr('Mods.LoadFromFile')
 	sudo(assert(loadfile(SongDir..'lua/'..scriptpath..'.lua')))()
 end
+-- Write default mods.
 local function Default(self, modtable)
 	--printerr('Mods:Default')
 	for pn = 1, #POptions do
 		default_mods[pn] = modtable
 	end
-	return self
+	local res = self:InsertMod(MOD_START, 0, Tweens.instant, modtable)
+	return res
 end
+-- Define a new mod.
 local function DefineMod(self, name, func, ret)
 	--printerr('Mods:DefineMod')
 	local t = {}
@@ -206,6 +213,7 @@ local function InsertMod(self, start, len, ease, modtable, offset, pn)
     return self
 end
 local function InsertNoteMod(self, start, len, ease, notetable, offset, pn)
+	--printerr(Mods:InsertNoteMod)
 	local t1, t2 = {}, {}
 	if not offset or offset == 0 then
 		t1 = {
@@ -246,7 +254,7 @@ local function InsertNoteMod(self, start, len, ease, notetable, offset, pn)
 					Ease = ease,
 					Modifiers = {v},
 					Type = 'Note',
-					Player = pn or nil
+					Player = 2
 				}
 				table.insert(self, t2[i])
 			end
@@ -274,12 +282,6 @@ local function ExschMod(self, start, len, str1, str2, mod, timing, ease, pn)
     end
     local res = self:InsertMod(start, len, ease, {{str2, mod, str1}}, 0, pn)
     return res
-end
--- Alias for writing default mods
-local function Default(self, modpairs)
-    --printerr('Mods:Default')
-    self:InsertMod(0, 9e9, function(x) return 1 end, modpairs)
-	return self
 end
 -- Add branch to the mod tree.
 local function AddToModTree(self)

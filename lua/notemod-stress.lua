@@ -35,7 +35,7 @@ for i = 1, #notedata - 1 do
 			{beat, col, 90 * math.pi/1.8, 'confusionoffset'},
 			{beat, col, 200, 'holdtinyx'}
 		})
-		---[[
+		--[[
 		:InsertNoteMod(beat - 10, 0.1, Tweens.instant, {
 			--{beat, col, math.random(-2, 1) * 100, 'movey'},
 			{beat, col, 645, 'movex'}

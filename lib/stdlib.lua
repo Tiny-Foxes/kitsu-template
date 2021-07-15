@@ -39,7 +39,7 @@ function deepcopy(orig)
     return copy
 end
 
--- First set of global variables
+-- Environment global variables, mostly shortcuts
 printerr = lua.ReportScriptError
 
 SW, SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
@@ -50,6 +50,7 @@ TICK = 1 / TICKRATE -- seconds since last tick
 CONST_TICK = false -- set this to true for automagic frame limiting!!!! o A o
 
 DT = 0 -- seconds since last frame
+MOD_START = -10 -- Change this to match the start beat of your notes.ssc
 BEAT = GAMESTATE:GetSongPosition():GetSongBeat() -- current beat
 BPS = GAMESTATE:GetSongPosition():GetCurBPS() -- current beats per second
 BPM = BPS * 60 -- beats per minute
@@ -97,6 +98,7 @@ return Def.ActorFrame {
 		self:queuecommand('BeginFrame')
 	end,
 	ReadyCommand = function(self)
+		-- Actor variables
 		SCREEN = SCREENMAN:GetTopScreen()
 		SCREEN:AddInputCallback(InputHandler)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do

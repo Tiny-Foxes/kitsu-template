@@ -58,12 +58,6 @@ local function SetInput(self, func)
 		return func(self, args[1])
 	end
 end
-local function SetDraw(self, func)
-	--printerr('Node:SetDraw')
-	self.DrawMessageCommand = function(self)
-		self:SetDrawFunction(func)
-	end
-end
 local function AddToNodeTree(self)
 	--printerr('Node:AddToNodeTree')
 	table.insert(NodeTree, self)
@@ -112,7 +106,6 @@ Node = {
 	SetReady = SetReady,
 	SetUpdate = SetUpdate,
 	SetInput = SetInput,
-	SetDraw = SetDraw,
 	AddToNodeTree = AddToNodeTree,
 	SetSRTStyle = SetSRTStyle,
 	GetNodeTree = GetNodeTree,

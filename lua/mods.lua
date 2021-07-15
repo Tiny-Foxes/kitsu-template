@@ -51,7 +51,7 @@ example1
 
 -- Note-specific mods
 example2
-	:Default({{100, 'tinyusesminicalc'}})
+	:Default({{1.5, 'xmod'}, {100, 'tinyusesminicalc'}})
 	-- Brush your notes, kids.
 	:InsertNoteMod(0, 3, Tweens.inoutsine, {{5, 4, 100, 'movey'}}, 0, 1)
 	:InsertNoteMod(3, 2, Tweens.outelastic, {{5, 4, 0, 'movey'}}, 0, 1)
@@ -66,16 +66,17 @@ example2
 --example2:AddToModTree()
 
 -- Spo('v')oky Notes
+example3:Default({{1.5, 'xmod'}})
 local nd = {}
 for pn = 1, #PL do
 	nd[pn] = PL[pn].NoteData
 	for i = 1, #nd[pn] do
 		local beat = nd[pn][i][1]
 		local col = nd[pn][i][2]
-		if beat % 5 == 4 then
+		if beat % 10 == 9 then
 			example3
-				:InsertNoteMod(0, 0.25, Tweens.instant, {{beat, col, 100, 'flip'}, {beat, col, 180 * math.pi/1.8, 'confusionoffset'}, {beat, col, 90, 'stealth'}})
-				:InsertNoteMod(2, 2, Tweens.inoutquad, {{beat, col, 0, 'flip'}, {beat, col, 0, 'confusionoffset'}})
+				:InsertNoteMod(beat - 10, 0.25, Tweens.instant, {{beat, col, 100, 'flip'}, {beat, col, 180 * math.pi/1.8, 'confusionoffset'}, {beat, col, 90, 'stealth'}})
+				:InsertNoteMod(beat - 2, 2, Tweens.inoutquad, {{beat, col, 0, 'flip'}, {beat, col, 0, 'confusionoffset'}})
 		end
 	end
 end
@@ -83,6 +84,7 @@ end
 
 ---------------------------
 
+---[[
 local custom = Mods.new()
 custom
 	:DefineMod(
@@ -93,15 +95,17 @@ custom
 		end,
 		'confusionxoffset'
 	)
+	:Default({
+		{1.5, 'xmod'},
+	})
 	:InsertMod(0, 10, Tweens.linear, {
 		{360, 'swingx'}
-	})
-	---[[
+	}, nil, 1)
 	:InsertMod(5, 5, Tweens.inoutexpo, {
 		{0, 'swingx'}
-	})
-	--]]
-custom:AddToModTree()
+	}, nil, 1)
+--custom:AddToModTree()
+--]]
 
---Mods.LoadFromFile('notemod-stress')
+Mods.LoadFromFile('notemod-stress')
 --Mods.LoadFromFile('benchmark')

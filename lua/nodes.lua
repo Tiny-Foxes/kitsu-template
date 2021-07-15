@@ -67,7 +67,7 @@ for i = 1, 4 do
 			end
 		end
 	end)
-	QuadPad[i]:AddToNodeTree()
+	--QuadPad[i]:AddToNodeTree()
 end
 --]]
 ---------------------------
@@ -83,6 +83,10 @@ Node.SetSRTStyle(true)
 
 -- Modify pre-existing actors here --
 function ready()
+	for pn = 1, 2 do
+		PL[pn].Player:rotafterzoom(false)
+		--PL[pn].Player:zoomz(4)
+	end
 end
 
 function update(dt)
