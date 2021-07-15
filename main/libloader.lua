@@ -1,5 +1,5 @@
 Node = import "nodebuilder" -- Nodebuilder
-Mods = import "new-modsbuilder" -- Modsbuilder
+Mods = import "modsbuilder" -- Modsbuilder
 
 -- Corope needs a Def.Actor wrapper
 local Corope = Def.Actor {
