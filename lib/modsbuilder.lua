@@ -80,20 +80,39 @@ local function UpdateMods()
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
 						v[5] = v[5] or note_percents[pn][notemod] or 0
+						--[[
 						local ease = m.Ease((BEAT - m.Start) / m.Length)
 						local perc = ease * (v[3] - v[5])
 						note_percents[pn][notemod] = v[5] + perc
+						--]]
+						active[pn][notemod] = active[pn][notemod] or {}
+						v[6] = v[6] or (#active[pn][notemod] + 1)
+						active[pn][notemod][v[6]] = m
+						local perc = 0
+						for n = 1, v[6] do
+							local offset = (n < v[6]) and 1 or 0
+							local cur_m = active[pn][notemod][n]
+							local cur_v3 = cur_m.Modifiers[j][3]
+							local cur_v5 = cur_m.Modifiers[j][5]
+							local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
+							local cur_perc = cur_ease * (cur_v3 - cur_v5)
+							perc = perc + (cur_v5 + cur_perc)
+						end
+						note_percents[pn][notemod] = perc
 						ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 					end
                 elseif BEAT >= (m.Start + m.Length) then
 					if m.Type == 'Player' then
 						mod_percents[pn][v[2]] = v[1]
-						if active[pn][v[2]] then
+						if v[4] and active[pn][v[2]] then
 							active[pn][v[2]][v[4]] = nil
 						end
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
 						note_percents[pn][notemod] = v[3]
+						if v[6] and active[pn][notemod] then
+							active[pn][notemod][v[6]] = nil
+						end
 					end
 					--table.remove(m.Modifiers, j)
                 end
@@ -145,7 +164,7 @@ local function Default(self, modtable)
 	for pn = 1, #POptions do
 		default_mods[pn] = modtable
 	end
-	local res = self:InsertMod(MOD_START, 0, Tweens.instant, modtable)
+	local res = self:InsertMod(MOD_START, 0.25, Tweens.instant, modtable)
 	return res
 end
 -- Define a new mod.

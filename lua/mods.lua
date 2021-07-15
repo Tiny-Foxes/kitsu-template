@@ -73,9 +73,9 @@ for pn = 1, #PL do
 	for i = 1, #nd[pn] do
 		local beat = nd[pn][i][1]
 		local col = nd[pn][i][2]
-		if beat % 10 == 9 then
+		if beat % 5 == 4 then
 			example3
-				:InsertNoteMod(beat - 10, 0.25, Tweens.instant, {{beat, col, 100, 'flip'}, {beat, col, 180 * math.pi/1.8, 'confusionoffset'}, {beat, col, 90, 'stealth'}})
+				:InsertNoteMod(MOD_START, 0.25, Tweens.instant, {{beat, col, 100, 'flip'}, {beat, col, 180 * math.pi/1.8, 'confusionoffset'}, {beat, col, 90, 'stealth'}})
 				:InsertNoteMod(beat - 2, 2, Tweens.inoutquad, {{beat, col, 0, 'flip'}, {beat, col, 0, 'confusionoffset'}})
 		end
 	end
