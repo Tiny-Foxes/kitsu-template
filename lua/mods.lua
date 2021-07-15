@@ -17,9 +17,6 @@
 --	Mods:Default(modpairs) - Writes default mods to branch
 --	Mods:AddToModTree() - Adds branch to mod tree
 --	Mods.GetModTree() - Gets mod tree
-
--- This is probably much more robust than you need, so you can simply create
--- a new branch using Mods.new() branch and stuff all of your mods into it.
 ---------------------------
 
 ---------------------------------
@@ -75,7 +72,7 @@ for pn = 1, #PL do
 		local col = nd[pn][i][2]
 		if beat % 5 == 4 then
 			example3
-				:InsertNoteMod(MOD_START, 0.25, Tweens.instant, {{beat, col, 100, 'flip'}, {beat, col, 180 * math.pi/1.8, 'confusionoffset'}, {beat, col, 90, 'stealth'}})
+				:InsertNoteMod(beat - 5, 0.25, Tweens.instant, {{beat, col, 100, 'flip'}, {beat, col, 180 * math.pi/1.8, 'confusionoffset'}, {beat, col, 90, 'stealth'}})
 				:InsertNoteMod(beat - 2, 2, Tweens.inoutquad, {{beat, col, 0, 'flip'}, {beat, col, 0, 'confusionoffset'}})
 		end
 	end
@@ -84,6 +81,7 @@ end
 
 ---------------------------
 
+-- Testing ease blending
 ---[[
 local custom = Mods.new()
 custom
@@ -107,5 +105,55 @@ custom
 --custom:AddToModTree()
 --]]
 
-Mods.LoadFromFile('notemod-stress')
+-- Mods struct format brainstorming
+--[[
+Mods.Default {
+	Bumpy = 0,
+	XMod = 1.5,
+}
+
+Mods.Set {
+	Beat = 0,
+	Length = 2,
+	Ease = Tweens.inoutexpo,
+	Bumpy = 200,
+	Drunk = 150,
+	Invert = 100,
+	Player = 1,
+	Column = 2,
+	Notes = {
+		{4},
+		{9, 1},
+	}
+}
+
+Mods.Add {
+	Second = 2,
+	End = 1,
+	Ease = Tweens.outcircle,
+	Invert = 0,
+	Tornado = 25,
+	Tiny = -200,
+}
+
+Mods.Perframe {
+	Beat = 7,
+	Length = 3,
+	Bumpy = function(beat) return math.sin(beat) end,
+	Drunk = -1,
+}
+
+Mods.Reset {
+	Beat = 14,
+	Length = 1.5,
+	Ease = Tweens.linear,
+	Player = 2,
+	Exclude = {
+		Tornado,
+		Tiny,
+	}
+}
+--]]
+
+--Mods.LoadFromFile('notemod-stress')
 --Mods.LoadFromFile('benchmark')

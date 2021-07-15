@@ -25,11 +25,12 @@ local function ApplyMods(mod, percent, pn)
 	if custom_mods[pn][mod] ~= nil then
 		local new_perc = custom_mods[pn][mod].Function(percent, pn)
 		local new_mod = custom_mods[pn][mod].Return
-		percent = new_perc
+		percent = new_perc -- haha :TacMeme2:
 		mod = new_mod
 	end
     if mod then
-		local modstring = '*-1 '..percent..' '..mod:lower()
+		-- TODO: Fix mod ease calculations so percentage doesn't end up backwards
+		local modstring = '*-1 '..(percent)..' '..mod:lower()
 		if mod:sub(2):lower() == 'mod' then
 			modstring = '*-1 '..percent..mod:sub(1, 1):lower()
 		end
@@ -43,6 +44,8 @@ local function ApplyMods(mod, percent, pn)
 	end
 end
 local function ApplyNotes(beat, col, mod, percent, pn)
+	-- Code to turn on notemods once will go here once option is implemented
+	mod = mod:lower()
 	if pn then
 		PL[pn].Player:AddNoteMod(beat, col, mod, percent * 0.01)
 	else
@@ -61,55 +64,59 @@ local function UpdateMods()
 				local pn = m.Player
                 if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
 					if m.Type == 'Player' then
+						-- Ease blending is a work in progress. Try to make sure two eases don't use the same mod.
 						v[3] = v[3] or mod_percents[pn][v[2]] or 0
 						active[pn][v[2]] = active[pn][v[2]] or {}
 						v[4] = v[4] or (#active[pn][v[2]] + 1)
 						active[pn][v[2]][v[4]] = m
 						local perc = 0
 						for n = 1, v[4] do
-							local offset = (n < v[4]) and 1 or 0
+							local offset = (n > v[4]) and 1 or 0
 							local cur_m = active[pn][v[2]][n]
 							local cur_v1 = cur_m.Modifiers[j][1]
 							local cur_v3 = cur_m.Modifiers[j][3]
 							local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
-							local cur_perc = cur_ease * (cur_v1 - cur_v3 * n)
-							perc = perc + cur_perc
+							local cur_perc = cur_ease * (cur_v1 - cur_v3)
+							--perc = perc + (cur_v3 + cur_perc)
+							if #active[pn][v[2]] == n then
+								--lua.Trace(perc)
+								perc = perc + (cur_v3 + cur_perc)
+							end
 						end
 						mod_percents[pn][v[2]] = perc
 						ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
 						v[5] = v[5] or note_percents[pn][notemod] or 0
-						--[[
-						local ease = m.Ease((BEAT - m.Start) / m.Length)
-						local perc = ease * (v[3] - v[5])
-						note_percents[pn][notemod] = v[5] + perc
-						--]]
 						active[pn][notemod] = active[pn][notemod] or {}
 						v[6] = v[6] or (#active[pn][notemod] + 1)
 						active[pn][notemod][v[6]] = m
 						local perc = 0
 						for n = 1, v[6] do
-							local offset = (n < v[6]) and 1 or 0
+							local offset = (n > v[6]) and 1 or 0
 							local cur_m = active[pn][notemod][n]
 							local cur_v3 = cur_m.Modifiers[j][3]
 							local cur_v5 = cur_m.Modifiers[j][5]
 							local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
 							local cur_perc = cur_ease * (cur_v3 - cur_v5)
-							perc = perc + (cur_v5 + cur_perc)
+							--perc = perc + (cur_v5 + cur_perc)
+							if #active[pn][notemod] == n then
+								--lua.Trace(perc)
+								perc = perc + (cur_v5 + cur_perc)
+							end
 						end
 						note_percents[pn][notemod] = perc
 						ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 					end
                 elseif BEAT >= (m.Start + m.Length) then
 					if m.Type == 'Player' then
-						mod_percents[pn][v[2]] = v[1]
+						--mod_percents[pn][v[2]] = v[1]
 						if v[4] and active[pn][v[2]] then
 							active[pn][v[2]][v[4]] = nil
 						end
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
-						note_percents[pn][notemod] = v[3]
+						--note_percents[pn][notemod] = v[3]
 						if v[6] and active[pn][notemod] then
 							active[pn][notemod][v[6]] = nil
 						end
