@@ -39,7 +39,12 @@ function deepcopy(orig)
     return copy
 end
 
+function aftmult(a)
+	return a * 0.9
+end
+
 -- Environment global variables, mostly shortcuts
+print = lua.Trace
 printerr = lua.ReportScriptError
 
 SW, SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
@@ -121,7 +126,7 @@ return Def.ActorFrame {
 		PL = setmetatable(PL, {
 			__index = function(this, number)
 				if number < 1 or number > #this then
-					printerr( string.format("[PL] No player was found on index %i, using first item instead.", number) )
+					print( string.format("[PL] No player was found on index %i, using first item instead.", number) )
 					return this[1]
 				end
 				return this

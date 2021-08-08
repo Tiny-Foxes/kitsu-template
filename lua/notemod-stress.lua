@@ -2,7 +2,6 @@ local notedata = PL[1].NoteData
 
 local test = Mods.new()
 test:InsertMod(MOD_START, 0.1, Tweens.instant, {{100, 'tinyusesminicalc'}, {1, 'xmod'}})
-test:InsertMod(notedata[#notedata][1] - 10, 0.1, Tweens.instant, {{2, 'xmod'}})
 for i = 1, #notedata - 1 do
 	local beat = notedata[i][1]
 	local col = notedata[i][2]
