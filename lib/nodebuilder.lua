@@ -28,10 +28,14 @@ end
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
 		Node.GetNodeTree = function() return self end
-		Node.GetFGActor = function(this) return self:GetChild(this) end
-		for k, v in pairs(self:GetChildren()) do
-			_G.sudo[v:GetName()] = v
+		Node.GetActor = function(self, this) return self:GetChild(this) end
+		local function NameActors(self)
+			for k, v in pairs(self:GetChildren()) do
+				_G.sudo[v:GetName()] = v
+				if v and v.GetChildren then NameActors(v) end
+			end
 		end
+		NameActors(self)
 	end,
 }
 
@@ -124,6 +128,25 @@ local function SetInput(self, func)
 	end
 	return self
 end
+local function AddChild(self, child, idx, name)
+	--printerr('Node:AddToNodeTree')
+	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
+		printerr('Node.AddChild: Cannot add child to type '..self.Type)
+		return
+	end
+	if type(idx) == 'string' then
+		name = idx
+		idx = nil
+	end
+	if name then child:SetName(name) end
+	child = Def[child.Type](child)
+	if idx then
+		table.insert(self, idx, child)
+	else
+		table.insert(self, child)
+	end
+	return self
+end
 local function AddToNodeTree(self, idx, name)
 	--printerr('Node:AddToNodeTree')
 	if type(idx) == 'string' then
@@ -131,7 +154,11 @@ local function AddToNodeTree(self, idx, name)
 		idx = nil
 	end
 	if name then self:SetName(name) end
-	table.insert(NodeTree, idx or #NodeTree, self)
+	if idx then
+		table.insert(NodeTree, idx, self)
+	else
+		table.insert(NodeTree, self)
+	end
 	return self
 end
 local function SetSRTStyle(b)
@@ -243,6 +270,7 @@ Node = {
 	SetReady = SetReady,
 	SetUpdate = SetUpdate,
 	SetInput = SetInput,
+	AddChild = AddChild,
 	AddToNodeTree = AddToNodeTree,
 	SetSRTStyle = SetSRTStyle,
 	GetNodeTree = GetNodeTree,
