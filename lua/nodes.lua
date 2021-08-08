@@ -1,89 +1,45 @@
----------------------------
--- Use this file for your nodes
-
---	Node.new({Actor}/'Actor') - Creates a new node
---      {Actor} - OutFox actor table
---      'Actor' - Alternatively, use a type name
---	Node:AttachScript(scriptpath) - Attaches a script to a node
---      scriptpath - Path to Lua script
---		(See 'lua/scripts/empty.lua' for example script)
---	Node:SetReady(func) - Attaches a function to the ready command
---      func - Function to attach
---	Node:SetUpdate(func) - Attaches a function to the update command
---      func - Function to attach (requires 1 parameter!)
---	Node:SetInput(func) - Attaches a function to the input command
---		func - Function to attach (requires 1 parameter!)
---	Node:AddToNodeTree() - Adds a node to the node tree
---	Node.GetNodeTree() - Gets the node tree
-
--- Nodes can be manipulated like normal actors, but most work
--- should be done in a dedicated script to keep space clean.
-
--- Update functions require a 'dt' parameter, even if you don't plan to use it.
-
--- Set SRT_STYLE to true to hide overlays and underlays like in common SRT files.
-
--- Use the ready and update functions in this script for already established actors
--- (like players and other screen elements)
--- They will not work with nodes. Use the set functions for them instead.
----------------------------
-
----------------------------
--- Uncomment for example --
----------------------------
---[[
-local QuadPad = {}
-local PadDirs = {"Left", "Down", "Up", "Right"}
-for i = 1, 4 do
-	QuadPad[i] = Node.new('Quad')
-	QuadPad[i]:SetReady(function(self)
-		self:Center()
-		self:SetWidth(64)
-		self:SetHeight(64)
-		if i == 1 then
-			self:addx(-64) -- Left
-		elseif i == 2 then
-			self:addy(64) -- Down
-		elseif i == 3 then
-			self:addy(-64) -- Up
-		else
-			self:addx(64) -- Right
-		end
-	end)
-	QuadPad[i]:SetInput(function(self, event)
-		if event.button == PadDirs[i] then
-			local col = event.DeviceInput.level
-			if event.PlayerNumber == PLAYER_1 and (SCREEN and SCREEN:GetName() ~= 'ScreenGameplay' or not SCREEN:IsPaused()) then
-				if event.type == 'InputEventType_Release' then
-					self:diffuse(1, 1, 1, 1)
-				else
-					self:diffuse(col, 0, 1 - col, 1)
-				end
-			end
-		end
-	end)
-	QuadPad[i]:AddToNodeTree()
-end
---]]
----------------------------
-
--- This centers the player if there's only one
-if #PL == 1 then
+if GAMESTATE:GetNumSidesJoined() < 2 then
 	CENTER_PLAYERS = true
 end
--- This hides the song overlay and underlay like common SRT modfiles do
-SRT_STYLE = true
+Node.SetSRTStyle(true)
 
--- Set up nodes here --
 
--- Modify pre-existing actors here --
+Node.new('Quad')
+	:AddToNodeTree(1, 'Sun')
+	:SetReady(function(self)
+		self
+			:Center()
+			:SetSize(128, 128)
+			:zoom(0)
+			:diffusealpha(0.75)
+	end)
+	:Tween {0, 1, Tweens.outexpo, 0, 1, 'zoom'}
+	:Tween {0, 2, Tweens.outexpo, -360, 0, 'rotationz'}
+	
+Node.new('Quad')
+	:AddToNodeTree(1, 'Cover')
+	:Tween {0, 1, Tweens.outexpo, 0, 0.25, 'diffusealpha'}
+
+
 function ready()
+	Node.AFT:blend('add')
+	Sun
+		:wag()
+		:effectmagnitude(0, 0, 5)
+		:effectperiod(4)
+	Cover
+		:FullScreen()
+		:diffuse(color('#000000'))
+		:diffusealpha(0)
+	Node.ease
+		{Node.AFT, 0, 1, Tweens.outexpo, 0, 0.9, 'diffusealpha'}
+		{Node.AFT, 0, 1, Tweens.outexpo, 1, 1.1, 'zoom'}
 end
 
 function update(dt)
 end
 
 function input(event)
+	local type = event.type
+	local btn = event.button
 end
-
-return Node.GetNodeTree()

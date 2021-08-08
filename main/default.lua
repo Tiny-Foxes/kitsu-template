@@ -9,8 +9,7 @@ return Def.ActorFrame {
         self:playcommand('Ready')
     end,
     assert(loadfile(SongDir .. 'lib/stdlib.lua'))(), -- Std Library
-    sudo(assert(loadfile(SongDir .. 'lua/nodes.lua')))(), -- Actors
-    sudo(assert(loadfile(SongDir .. 'lua/mods.lua')))(), -- Mods
+	sudo(assert(loadfile(SongDir .. 'main/libloader.lua')))(), -- Library Loader
 }
 
 --[[
