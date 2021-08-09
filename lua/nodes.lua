@@ -13,8 +13,8 @@ local Sun = Node.new('Quad')
 			:effectmagnitude(0, 0, 5)
 			:effectperiod(4)
 	end)
-	:Tween {0, 1, Tweens.outexpo, 0, 1, 'zoom'}
-	:Tween {0, 2, Tweens.outexpo, -360, 0, 'rotationz'}
+	:AddEase {0, 1, Tweens.outexpo, 0, 1, 'zoom'}
+	:AddEase {0, 2, Tweens.outexpo, -360, 0, 'rotationz'}
 
 Node.new('ActorFrame')
 	:AddChild(Sun)
@@ -22,7 +22,7 @@ Node.new('ActorFrame')
 	
 Node.new('Quad')
 	:AddToNodeTree(1, 'Cover')
-	:Tween {0, 1, Tweens.outexpo, 0, 0.25, 'diffusealpha'}
+	:AddEase {0, 1, Tweens.outexpo, 0, 0.5, 'diffusealpha'}
 
 
 function ready()
@@ -33,7 +33,7 @@ function ready()
 		:diffuse(color('#000000'))
 		:diffusealpha(0)
 	Node.ease
-		{Node.AFT, 0, 1, Tweens.outexpo, 0, 0.9, 'diffusealpha'}
+		{Node.AFT, 0, 1, Tweens.outexpo, 0, 0.75, 'diffusealpha'}
 		{Node.AFT, 0, 1, Tweens.outexpo, 1, 1.1, 'zoom'}
 end
 
