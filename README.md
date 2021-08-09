@@ -6,6 +6,7 @@ You can view the docs [here](https://tiny-foxes.github.io/kitsu-template).
 NotITG version [here](https://github.com/sudospective/kitsu-template-notitg)
 
 # Getting Started
+##### NOTE: This section is out-of-date and does not reflect current procedures.
 ## Creating a Node
 Nodes are Kitsu's form of actors with embedded scripts or functions. To create one, simply call the `Node.new` function.
 ```lua
