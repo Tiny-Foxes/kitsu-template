@@ -3,18 +3,22 @@ if GAMESTATE:GetNumSidesJoined() < 2 then
 end
 Node.SetSRTStyle(true)
 
-
-Node.new('Quad')
-	:AddToNodeTree(1, 'Sun')
+local Sun = Node.new('Quad')
 	:SetReady(function(self)
 		self
-			:Center()
 			:SetSize(128, 128)
 			:zoom(0)
 			:diffusealpha(0.75)
+			:wag()
+			:effectmagnitude(0, 0, 5)
+			:effectperiod(4)
 	end)
 	:Tween {0, 1, Tweens.outexpo, 0, 1, 'zoom'}
 	:Tween {0, 2, Tweens.outexpo, -360, 0, 'rotationz'}
+
+Node.new('ActorFrame')
+	:AddChild(Sun)
+	:AddToNodeTree(1, 'SunFrame')
 	
 Node.new('Quad')
 	:AddToNodeTree(1, 'Cover')
@@ -23,10 +27,7 @@ Node.new('Quad')
 
 function ready()
 	Node.AFT:blend('add')
-	Sun
-		:wag()
-		:effectmagnitude(0, 0, 5)
-		:effectperiod(4)
+	SunFrame:Center()
 	Cover
 		:FullScreen()
 		:diffuse(color('#000000'))
@@ -39,7 +40,38 @@ end
 function update(dt)
 end
 
+local dir = {x = 0, y = 0}
 function input(event)
-	local type = event.type
+	local type = event.type:sub(event.type:find('_') + 1)
 	local btn = event.button
+	if type == 'FirstPress' then
+		if btn == 'Left' then
+			dir.x = dir.x + 10
+		elseif btn == 'Right' then
+			dir.x = dir.x - 10
+		elseif btn == 'Up' then
+			dir.y = dir.y + 10
+		elseif btn == 'Down' then
+			dir.y = dir.y - 10
+		end
+	elseif type == 'Release' then
+		if btn == 'Left' then
+			dir.x = dir.x - 10
+		elseif btn == 'Right' then
+			dir.x = dir.x + 10
+		elseif btn == 'Up' then
+			dir.y = dir.y - 10
+		elseif btn == 'Down' then
+			dir.y = dir.y + 10
+		end
+	end
+	Node.AFT
+		:stoptweening()
+		:easeoutexpo(0.5)
+		:xy(SCX + dir.x, SCY + dir.y)
+	SunFrame
+		:stoptweening()
+		:easeoutexpo(0.5)
+		:xy(SCX - dir.x * 2, SCY - dir.y * 2)
+
 end
