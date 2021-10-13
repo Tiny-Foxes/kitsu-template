@@ -1,20 +1,14 @@
-Node = import "nodebuilder" -- Nodebuilder
-Mods = import "modsbuilder" -- Modsbuilder
+-- libloader.lua --
 
--- Corope needs a Def.Actor wrapper
-local Corope = Def.Actor {
-	InitCommand = sudo(function(self)
-		Async = import("corope")({errhand = printerr})
-	end)
-}
+-- Add libraries using import 'filename' here
+-- This should always return an Actor, even if it's an empty one
+std = import 'stdlib' -- Kitsu Standard Library by Sudospective
+Node = import 'nodebuilder' -- Kitsu Nodebuilder by Sudospective
+Mods = import 'modsbuilder' -- Kitsu Modsbuilder by Sudospective
 
--- Add libraries using import "[library_name]"
-
-
-
--- Return your libraries as an Actor or ActorFrame and add here
+-- Add your Actors to this ActorFrame to load them
 return Def.ActorFrame {
+	std,
 	Node,
 	Mods,
-	Corope
 }

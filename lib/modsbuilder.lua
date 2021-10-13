@@ -132,7 +132,7 @@ end
 local ModTree = Def.ActorFrame {
     Branches = {},
 	ReadyCommand = function(self)
-		sudo(assert(loadfile(SongDir .. 'lua/mods.lua')))()
+		run 'lua/mods'
 	end,
     UpdateMessageCommand = function(self)
         UpdateMods()

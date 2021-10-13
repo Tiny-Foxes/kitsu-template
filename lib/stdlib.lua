@@ -1,49 +1,7 @@
--- environment builder stolen this from xero thanks xero
-local sudo = setmetatable(sudo, sudo)
-sudo.__index = _G
-local function nop() end
-function sudo:__call(f, name)
-	if type(f) == 'string' then
-		-- if we call sudo with a string, we need to load it as code
-		local err
-		-- try compiling the code
-		f, err = loadstring( 'return function(self)' .. f .. '\nend', name)
-		if err then SCREENMAN:SystemMessage(err) return nop end
-		-- grab the function
-		f, err = pcall(f)
-		if err then SCREENMAN:SystemMessage(err) return nop end
-	end
-	-- set environment
-	setfenv(f or 2, self)
-	return f
-end
-
-sudo()
-
-function import(lib)
-	return sudo(assert(loadfile(SongDir..'lib/'..lib..'.lua')))()
-end
-
-function deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
-        end
-        setmetatable(copy, deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
-end
-
-function aftmult(a)
-	return a * 0.9
-end
+-- stdlib.lua --
 
 -- Environment global variables, mostly shortcuts
+songdir = GAMESTATE:GetCurrentSong():GetSongDir()
 print = lua.Trace
 printerr = lua.ReportScriptError
 
@@ -55,7 +13,7 @@ TICK = 1 / TICKRATE -- seconds since last tick
 CONST_TICK = false -- set this to true for automagic frame limiting!!!! o A o
 
 DT = 0 -- seconds since last frame
-MOD_START = -10 -- Change this to match the start beat of your notes.ssc
+
 BEAT = GAMESTATE:GetSongPosition():GetSongBeat() -- current beat
 BPS = GAMESTATE:GetSongPosition():GetCurBPS() -- current beats per second
 BPM = BPS * 60 -- beats per minute
@@ -64,18 +22,67 @@ SPB = 1 / BPS -- seconds per beat
 TPB = SPB * TICKRATE -- ticks per beat
 CENTER_PLAYERS = false
 SRT_STYLE = false
+PL = {}
 
+-- A bit of work to get the true start of our FG changes.
+local f = RageFileUtil.CreateRageFile()
+f:Open(songdir .. 'notes.ssc', 1)
+local chart = f:Read()
+f:Close()
+local fgfirst = chart:find('#FGCHANGES:') + ('#FGCHANGES:'):len()
+local fglast = chart:find('=', fgfirst) - 1
+
+MOD_START = chart:sub(fgfirst, fglast)
+
+-- This might not be added on the engine side yet.
 if not _G.Tweens.instant then
 	Tweens.instant = function(x) return 1 end
 end
 
-PL = {}
+function aftmult(a)
+	return a * 0.9
+end
+
+function InitAFT(aft, recursive)
+	if not recursive then
+		aft
+			:SetSize(SW, SH)
+			:EnableFloat(false)
+			:EnableDepthBuffer(true)
+			:EnableAlphaBuffer(true)
+			:EnablePreserveTexture(false)
+			:Create()
+	else
+		aft
+			:SetSize(SW, SH)
+			:EnableFloat(false)
+			:EnableDepthBuffer(true)
+			:EnableAlphaBuffer(false)
+			:EnablePreserveTexture(true)
+			:Create()
+	end
+end
+
+function MapAFT(aft, sprite)
+	sprite
+		:Center()
+		:SetTexture(aft:GetTexture())
+end
+
 
 local InputHandler = function(event)
 	MESSAGEMAN:Broadcast('Input', {event})
 end
 
 return Def.ActorFrame {
+	InitCommand = function(self)
+		std = {}
+		for k, v in pairs(_G.sudo) do
+			if _G.sudo[k] ~= _G[k] then
+				std[k] = _G.sudo[k]
+			end
+		end
+	end,
 	BeginFrameCommand = function(self)
 		TICK = 1 / TICKRATE
 		if CONST_TICK then
@@ -92,7 +99,6 @@ return Def.ActorFrame {
 		MESSAGEMAN:Broadcast('Update')
 	end,
 	UpdateMessageCommand = function(self)
-		Async:update(DT)
 		if sudo.update then
 			sudo.update(DT)
 		end
@@ -110,9 +116,6 @@ return Def.ActorFrame {
 			local info = {}
 	
 			local pl = SCREEN:GetChild('Player'..ToEnumShortString(v))
-			if not pl and SCREEN:GetName() == 'ScreenEdit' then
-				pl = SCREEN:GetChildAt(7)
-			end
 			info.Player = pl
 			info.Life = SCREEN:GetChild('Life'..ToEnumShortString(v))
 			info.Score = SCREEN:GetChild('Score'..ToEnumShortString(v))
@@ -120,6 +123,7 @@ return Def.ActorFrame {
 			info.Judgment = pl:GetChild('Judgment')
 			info.NoteField = pl:GetChild('NoteField')
 			info.NoteData = pl:GetNoteData()
+			info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
 	
 			PL[i] = info
 		end
@@ -148,11 +152,6 @@ return Def.ActorFrame {
 			for i = 1, #PL do
 				PL[i].Life:visible(false)
 				PL[i].Score:visible(false)
-				PL[i].Player:visible(false)
-				PL[i].Combo:visible(false)
-				PL[i].Combo:sleep(9e9)
-				PL[i].Judgment:visible(false)
-				PL[i].Judgment:sleep(9e9)
 			end
 			SCREEN:GetChild('Overlay'):visible(false)
 		end

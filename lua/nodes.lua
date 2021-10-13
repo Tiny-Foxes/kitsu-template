@@ -1,77 +1,51 @@
-if GAMESTATE:GetNumSidesJoined() < 2 then
-	CENTER_PLAYERS = true
+Node.HideOverlay(true) -- Hides overlay
+
+-- Here is how proxies for the players are typically set up.
+local PP = {}
+local PJ = {}
+local PC = {}
+for pn = 1, #PL do
+	-- First, the player proxy. Simple enough, just set the target, then hide the player.
+	-- Then we add it to our node tree.
+	PP[pn] = Node.new('ActorProxy')
+	PP[pn]
+		:SetReady(function(self)
+			self:SetTarget(PL[pn].Player)
+		end)
+		:AddToNodeTree('PP['..pn..']')
+	PL[i].Player:visible(false)
+	-- Now the judgments. We have to position these, and also sleep the original actors.
+	PJ[pn] = Node.new('ActorProxy')
+	PJ[pn]
+		:SetReady(function(self)
+			self:SetTarget(PL[pn].Judgment)
+			self:x(SCX * (pn-.5))
+			self:y(SCY)
+		end)
+		:AddToNodeTree('PJ['..pn..']')
+	PL[i].Judgment:visible(false)
+	PL[i].Judgment:sleep(9e9)
+	-- Same with the combos. Target, position, add to tree, sleep.
+	PC[pn] = Node.new('ActorProxy')
+	PC[pn]
+		:SetReady(function(self)
+			self:SetTarget(PL[pn].Combo)
+			self:x(SCX * (pn-.5))
+			self:y(SCY)
+		end)
+		:AddToNodeTree('PC['..pn..']')
+	PL[i].Combo:visible(false)
+	PL[i].Combo:sleep(9e9)
 end
-Node.SetSRTStyle(true)
 
-local Sun = Node.new('Quad')
-	:SetReady(function(self)
-		self
-			:SetSize(128, 128)
-			:zoom(0)
-			:diffusealpha(0.75)
-			:wag()
-			:effectmagnitude(0, 0, 5)
-			:effectperiod(4)
-	end)
-	:Tween {0, 1, Tweens.outexpo, 0, 1, 'zoom'}
-	:Tween {0, 2, Tweens.outexpo, -360, 0, 'rotationz'}
-
-Node.new('ActorFrame')
-	:AddChild(Sun)
-	:AddToNodeTree(1, 'SunFrame')
-	
-Node.new('Quad')
-	:AddToNodeTree(1, 'Cover')
-	:Tween {0, 1, Tweens.outexpo, 0, 0.25, 'diffusealpha'}
-
-
+-- Called on ReadyCommand
 function ready()
-	Node.AFT:blend('add')
-	SunFrame:Center()
-	Cover
-		:FullScreen()
-		:diffuse(color('#000000'))
-		:diffusealpha(0)
-	Node.ease
-		{Node.AFT, 0, 1, Tweens.outexpo, 0, 0.9, 'diffusealpha'}
-		{Node.AFT, 0, 1, Tweens.outexpo, 1, 1.1, 'zoom'}
 end
 
+-- Called on UpdateCommand
 function update(dt)
 end
 
-local dir = {x = 0, y = 0}
+-- Called on InputMessageCommand
 function input(event)
-	local type = event.type:sub(event.type:find('_') + 1)
-	local btn = event.button
-	if type == 'FirstPress' then
-		if btn == 'Left' then
-			dir.x = dir.x + 10
-		elseif btn == 'Right' then
-			dir.x = dir.x - 10
-		elseif btn == 'Up' then
-			dir.y = dir.y + 10
-		elseif btn == 'Down' then
-			dir.y = dir.y - 10
-		end
-	elseif type == 'Release' then
-		if btn == 'Left' then
-			dir.x = dir.x - 10
-		elseif btn == 'Right' then
-			dir.x = dir.x + 10
-		elseif btn == 'Up' then
-			dir.y = dir.y - 10
-		elseif btn == 'Down' then
-			dir.y = dir.y + 10
-		end
-	end
-	Node.AFT
-		:stoptweening()
-		:easeoutexpo(0.5)
-		:xy(SCX + dir.x, SCY + dir.y)
-	SunFrame
-		:stoptweening()
-		:easeoutexpo(0.5)
-		:xy(SCX - dir.x * 2, SCY - dir.y * 2)
-
 end
