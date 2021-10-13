@@ -334,6 +334,7 @@ Node = {
 	AddFunc = AddFunc,
 	SetName = SetName,
 	SetTexture = SetTexture,
+	SetInit = SetInit,
 	SetReady = SetReady,
 	SetUpdate = SetUpdate,
 	SetInput = SetInput,
