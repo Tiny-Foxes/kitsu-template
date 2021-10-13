@@ -23,7 +23,7 @@ return Def.ActorFrame {
 	
 	-- Our environment variable is global. This means that even after our file
 	-- is over, we still have it loaded in Lua.
-	-- This OffCommand will fix that.
+	-- This OffCommand should fix that.
 	OffCommand = function(self)
 		-- *snap*
 		_G.sudo = nil
@@ -33,6 +33,9 @@ return Def.ActorFrame {
 	-- sudo.run will take a shorthand filepath, load the file if it finds one, and execute the return in a sudo environment.
 	-- Let's run our library loader. You can import your own libraries and define them in this file.
 	run 'main/libloader',
+
+	-- Now it's safe to run out mods.lua.
+	run 'lua/mods',
 	-- (Trailing commas are okay to have, and help me with my problem of forgetting them.)
 
 	-- If you want, you can add your own stuff here, or you can just use the included

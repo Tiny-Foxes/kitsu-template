@@ -9,7 +9,7 @@
 -- First, let's define a global variable for our environment. We feel powerful, in our own
 -- castle of logical wizardry. Elevated and even privileged. Let's call it 'sudo'.
 -- For no particular reason at all.
-_G.sudo = {}
+_G.sudo = _G.sudo or {}
 
 -- Let's do a really weird thing that's scary to think about. Don't do this in real life.
 local sudo = setmetatable(sudo, sudo)

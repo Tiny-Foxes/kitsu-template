@@ -1,3 +1,24 @@
+-- modsbuilder.lua --
+
+---------------------------
+--	Mods.new() - Creates new mod branch
+--	Mods:InsertMod(start, len, ease, modpairs, [offset], [plr]) - Writes mods to branch
+--      start - Starting time
+--      len - Length to full percentage
+--      ease - Ease function
+--      modpairs - {{end_p, mod, [begin_p]}, ...}
+--          end_p - Ending percent
+--          mod - Mod to activate (MUST be written in PascalCase)
+--          begin_p - Beginning percent (optional)
+--      offset - Offset between each mod in modpairs (optional)
+--      plr - Player to apply mods (optional)
+--	Mods:MirinMod({start, len, ease, perc, mod, ...}, [offset], [plr]) - Writes mods to branch Mirin style
+--	Mods:ExschMod(start, len, begin_p, end_p, mod, timing, ease, [offset], [plr]) - Write mods to branch Exschwasion style
+--	Mods:Default(modpairs) - Writes default mods to branch
+--	Mods:AddToModTree() - Adds branch to mod tree
+--	Mods.GetModTree() - Gets mod tree
+---------------------------
+
 Mods = {}
 
 -- Keep the player options from the enabled players that are available.
@@ -62,7 +83,7 @@ local function UpdateMods()
                 -- If the player where we're trying to access is not available, then don't even update.
                 if m.Player and not POptions[m.Player] then break end
 				local pn = m.Player
-                if BEAT >= m.Start and BEAT < (m.Start + m.Length) then
+                if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) or m.Length == 0 then
 					if m.Type == 'Player' then
 						-- Ease blending is a work in progress. Try to make sure two eases don't use the same mod.
 						v[3] = v[3] or mod_percents[pn][v[2]] or 0
@@ -76,6 +97,7 @@ local function UpdateMods()
 							local cur_v1 = cur_m.Modifiers[j][1]
 							local cur_v3 = cur_m.Modifiers[j][3]
 							local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
+							if m.Length == 0 then cur_ease = 1 end
 							local cur_perc = cur_ease * (cur_v1 - cur_v3)
 							--perc = perc + (cur_v3 + cur_perc)
 							if #active[pn][v[2]] == n then
@@ -98,6 +120,7 @@ local function UpdateMods()
 							local cur_v3 = cur_m.Modifiers[j][3]
 							local cur_v5 = cur_m.Modifiers[j][5]
 							local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
+							if m.Length == 0 then cur_ease = 1 end
 							local cur_perc = cur_ease * (cur_v3 - cur_v5)
 							--perc = perc + (cur_v5 + cur_perc)
 							if #active[pn][notemod] == n then
@@ -114,12 +137,14 @@ local function UpdateMods()
 						if v[4] and active[pn][v[2]] then
 							active[pn][v[2]][v[4]] = nil
 						end
+						--ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 					elseif m.Type == 'Note' then
 						local notemod = v[4]..'|'..v[1]..'|'..v[2]
 						--note_percents[pn][notemod] = v[3]
 						if v[6] and active[pn][notemod] then
 							active[pn][notemod][v[6]] = nil
 						end
+						--ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 					end
 					--table.remove(m.Modifiers, j)
                 end
