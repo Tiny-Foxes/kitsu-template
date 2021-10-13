@@ -1,5 +1,3 @@
-
-
 Node = {}
 
 local ease_table = {}
@@ -76,67 +74,6 @@ local NodeTree = Def.ActorFrame {
 		NameActors(self)
 	end,
 }
-local AFTSprite = Def.Sprite {
-	Name = 'MainSprite',
-	InitCommand = function(self)
-		Node.AFT = self
-		self:Center():diffusealpha(0)
-	end,
-}
-
-local af = Def.ActorFrame {
-	ReadyCommand = function(self)
-		local mainA = self:GetChild('MainAFT')
-		local mainS = mainA:GetChild('MainSprite')
-		local actorS = self:GetChild('ShowActors')
-		local recA = self:GetChild('RecursiveAFT')
-		local recS = recA:GetChild('RecursiveSprite')
-
-		actorS:SetTexture(mainA:GetTexture())
-		recS:SetTexture(mainA:GetTexture())
-		mainS:SetTexture(recA:GetTexture())
-	end,
-	UpdateMessageCommand = function(self)
-		UpdateEases()
-		UpdateFuncs()
-		UpdateSignals()
-	end,
-	Def.ActorFrameTexture {
-		Name = 'MainAFT',
-		InitCommand = function(self)
-			self
-				:SetSize(SW, SH)
-				:EnableFloat(false)
-				:EnableDepthBuffer(true)
-				:EnableAlphaBuffer(true)
-				:EnablePreserveTexture(false)
-				:Create()
-		end,
-		LoadActor(THEME:GetPathG('Common', 'fallback background')),
-		NodeTree,
-		AFTSprite,
-	},
-	Def.ActorFrameTexture {
-		Name = 'RecursiveAFT',
-		InitCommand = function(self)
-			self
-				:SetSize(SW, SH)
-				:EnableFloat(false)
-				:EnableDepthBuffer(true)
-				:EnableAlphaBuffer(false)
-				:EnablePreserveTexture(true)
-				:Create()
-		end,
-		Def.Sprite {
-			Name = 'RecursiveSprite',
-			InitCommand = function(self) self:Center() end,
-		},
-	},
-	Def.Sprite {
-		Name = 'ShowActors',
-		InitCommand = function(self) self:Center() end,
-	},
-}
 
 -- This would be used for extending the metatable of the node, I hope? For whatever reason...
 local function extends(self, nodeType)
@@ -200,8 +137,8 @@ local function AttachScript(self, scriptpath)
 		input = nil,
 		draw = nil,
 	}
-	sudo(assert(loadfile(SongDir .. scriptpath)))()
-	local src = deepcopy(kitsu)
+	sudo(assert(loadfile(SongDir .. scriptpath .. '.lua')))()
+	local src = DeepCopy(kitsu)
 	self.ReadyCommand = function(self)
 		if src.ready then return src.ready(self) end
 	end
@@ -362,36 +299,12 @@ local function AddToNodeTree(self, idx, name)
 	end
 	return self
 end
-local function SetSRTStyle(b)
-	--print('Node.SetSRTStyle')
+local function HideOverlay(b)
+	--print('Node.HideOverlay')
 	if type(b) == 'boolean' and b then
-		local PP = {}
-		local PJ = {}
-		local PC = {}
-		for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-			PP[pn] = Node.new('ActorProxy')
-			PP[pn]:SetReady(function(self)
-				self:SetTarget(PL[pn].Player)
-			end)
-			PJ[pn] = Node.new('ActorProxy')
-			PJ[pn]:SetReady(function(self)
-				self:SetTarget(PL[pn].Judgment)
-				self:x(SCX * (pn-.5))
-				self:y(SCY)
-			end)
-			PC[pn] = Node.new('ActorProxy')
-			PC[pn]:SetReady(function(self)
-				self:SetTarget(PL[pn].Combo)
-				self:x(SCX * (pn-.5))
-				self:y(SCY)
-			end)
-			PP[pn]:AddToNodeTree()
-			PJ[pn]:AddToNodeTree()
-			PC[pn]:AddToNodeTree()
-		end
 		SRT_STYLE = b
 	elseif type(b) ~= 'boolean' then
-		printerr('Node.SetSRTStyle: argument must be boolean value')
+		printerr('Node.HideOverlay: argument must be boolean value')
 	end
 end
 local function GetNodeTree()
@@ -420,18 +333,18 @@ Node = {
 	AddChild = AddChild,
 	GetChildIndex = GetChildIndex,
 	AddToNodeTree = AddToNodeTree,
-	SetSRTStyle = SetSRTStyle,
+	HideOverlay = HideOverlay,
 	GetNodeTree = GetNodeTree,
 	GetActor = function(this) printerr('Node.GetActor: Function not available before ready()') end,
 	AFT = AFTSprite,
 }
 Node.__index = Node
-sudo(assert(loadfile(SongDir .. 'lua/nodes.lua')))()
+run 'lua/nodes'
 
 return Def.ActorFrame {
 	InitCommand = function(self)
 		Node.ease = ease
 		Node.AddEase = AddEase
 	end,
-	af,
+	NodeTree,
 }
