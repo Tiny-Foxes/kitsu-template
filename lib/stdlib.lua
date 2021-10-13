@@ -82,6 +82,9 @@ return Def.ActorFrame {
 				std[k] = _G.sudo[k]
 			end
 		end
+		if sudo.init then
+			sudo.init()
+		end
 	end,
 	BeginFrameCommand = function(self)
 		TICK = 1 / TICKRATE
