@@ -32,7 +32,7 @@ f:Close()
 local fgfirst = chart:find('#FGCHANGES:') + ('#FGCHANGES:'):len()
 local fglast = chart:find('=', fgfirst) - 1
 
-MOD_START = chart:sub(fgfirst, fglast)
+MOD_START = tonumber(chart:sub(fgfirst, fglast))
 
 -- This might not be added on the engine side yet.
 if not _G.Tweens.instant then
@@ -74,14 +74,8 @@ local InputHandler = function(event)
 	MESSAGEMAN:Broadcast('Input', {event})
 end
 
-return Def.ActorFrame {
+FG = Def.ActorFrame {
 	InitCommand = function(self)
-		std = {}
-		for k, v in pairs(_G.sudo) do
-			if _G.sudo[k] ~= _G[k] then
-				std[k] = _G.sudo[k]
-			end
-		end
 		if sudo.init then
 			sudo.init()
 		end

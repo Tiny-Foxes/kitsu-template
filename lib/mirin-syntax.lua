@@ -1,12 +1,20 @@
+local Mods = import 'konko-mods'
+
+local mirin = {}
+
 local function ease(t)
-	Mods:Mirin(t)
+	local pn = (type(t.plr) ~= 'table' and t.plr) or nil
+	t.plr = nil
+	Mods:Mirin(t, 0, pn)
 	return ease
 end
 
 local function set(t)
 	table.insert(t, 2, 0)
 	table.insert(t, 3, Tweens.instant)
-	Mods:Mirin(t)
+	local pn = (type(t.plr) ~= 'table' and t.plr) or nil
+	t.plr = nil
+	Mods:Mirin(t, 0, pn)
 	return set
 end
 
@@ -25,11 +33,12 @@ local function setdefault(t)
 	return setdefault
 end
 
-local ret = {
-	ease,
-	set,
-	definemod,
-	setdefault,
+mirin = {
+	ease = ease,
+	set = set,
+	definemod = definemod,
+	setdefault = setdefault
 }
+mirin.__index = mirin
 
-return table.unpack(ret)
+return mirin

@@ -18,7 +18,7 @@
 --	Mods:Default(modpairs) - Writes default mods to branch
 ---------------------------
 
-Mods = {}
+local Mods = {}
 setmetatable(Mods, {})
 
 
@@ -145,27 +145,18 @@ local function UpdateMods()
 					end
 					ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 				end
-				table.remove(m.Modifiers, j)
 			end
 		end
     end
 end
 
-local ModFrame = Def.ActorFrame {
-    UpdateMessageCommand = UpdateMods
-}
 
---[[
-    This is a special type of modbuilder.
-    The idea behind this is that you can
-    separate in to branches, so that rather
-    than making messy tables that are set
-    in stone, you can add and remove to a
-    mod branch that can be changed or even
-    deleted under any desired circumstance.
+local fgupdate = FG.UpdateMessageCommand
+FG.UpdateMessageCommand = function(self)
+	fgupdate(self)
+	UpdateMods()
+end
 
-	It can also update on a constant tick rate.
-]]
 
 -- TODO: Create a GetPercent function to get the current mod percent
 
@@ -320,18 +311,17 @@ local function Exsch(self, start, len, str1, str2, mod, timing, ease, pn)
     return res
 end
 
-return Def.ActorFrame {
-	InitCommand = sudo(function(self)
-		Mods = {
-			FromFile = FromFile,
-			Define = Define,
-			Insert = Insert,
-			Note = Note,
-			Mirin = Mirin,
-			Exsch = Exsch,
-			Default = Default,
-		}
-		Mods.__index = Mods
-	end),
-	ModFrame
+Mods = {
+	FromFile = FromFile,
+	Define = Define,
+	Insert = Insert,
+	Note = Note,
+	Mirin = Mirin,
+	Exsch = Exsch,
+	Default = Default,
 }
+Mods.__index = Mods
+
+print('Konko Mods loaded')
+
+return Mods
