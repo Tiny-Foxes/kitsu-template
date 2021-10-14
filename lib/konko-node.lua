@@ -18,7 +18,7 @@
 --	Node:AddToNodeTree(name, index) - Adds a Node to the NodeTree (Name and index can be in any order)
 ---------------------------
 
-Node = {}
+local Node = {}
 
 local ease_table = {}
 local func_table = {}
@@ -82,17 +82,21 @@ end
 
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
-		Node.GetNodeTree = function() return self end
-		Node.GetActor = function(self, this) return self:GetChild(this) end
-		local function NameActors(self)
-			for i = 1, self:GetNumChildren() do
-				local this = self:GetChildAt(i)
+		local s = self
+		Node.ease = ease
+		Node.AddEase = AddEase
+		Node.HideOverlay = HideOverlay
+		Node.GetNodeTree = function() return s end
+		Node.GetActor = function(this) return s:GetChild(this) end
+		local function NameActors(actor)
+			for i = 1, actor:GetNumChildren() do
+				local this = actor:GetChildAt(i)
 				_G.sudo[this:GetName()] = this
 				if this.GetChildren then NameActors(this) end
 			end
 		end
-		NameActors(self)
-	end,
+		NameActors(s)
+	end
 }
 
 local function new(obj)
@@ -334,6 +338,7 @@ Node = {
 	AddFunc = AddFunc,
 	SetName = SetName,
 	SetTexture = SetTexture,
+	SetInit = SetInit,
 	SetReady = SetReady,
 	SetUpdate = SetUpdate,
 	SetInput = SetInput,
@@ -346,15 +351,11 @@ Node = {
 	HideOverlay = HideOverlay,
 	GetNodeTree = GetNodeTree,
 	GetActor = function(this) printerr('Node.GetActor: Function not available before ready()') end,
-	AFT = AFTSprite,
 }
 Node.__index = Node
 
-return Def.ActorFrame {
-	InitCommand = function(self)
-		Node.ease = ease
-		Node.AddEase = AddEase
-		Node.HideOverlay = HideOverlay
-	end,
-	NodeTree,
-}
+FG[#FG + 1] = NodeTree
+
+print('Loaded Konko Node')
+
+return Node
