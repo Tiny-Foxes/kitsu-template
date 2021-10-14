@@ -2,8 +2,8 @@
 
 -- Environment global variables, mostly shortcuts
 songdir = GAMESTATE:GetCurrentSong():GetSongDir()
-print = lua.Trace
-printerr = lua.ReportScriptError
+print = function(s) lua.Trace('KITSU: '..s) end
+printerr = function(s) lua.ReportScriptError('KITSU: '..s) end
 
 SW, SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 SCX, SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
@@ -74,6 +74,7 @@ local InputHandler = function(event)
 	MESSAGEMAN:Broadcast('Input', {event})
 end
 
+-- Our foreground to put everything in. If FG is not set, an empty ActorFrame will take its place.
 FG = Def.ActorFrame {
 	InitCommand = function(self)
 		if sudo.init then
@@ -152,15 +153,11 @@ FG = Def.ActorFrame {
 			end
 			SCREEN:GetChild('Overlay'):visible(false)
 		end
-		MESSAGEMAN:Broadcast('Draw')
 		self:queuecommand('BeginFrame')
-	end,
-	InputMessageCommand = function(self, args)
-		if sudo.input then
-			sudo.input(args[1])
-		end
 	end,
 	OffCommand = function(self)
 		SCREEN:RemoveInputCallback(InputHandler)
 	end,
 }
+
+print('Loaded Kitsu Standard Library')

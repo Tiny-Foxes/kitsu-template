@@ -322,6 +322,6 @@ Mods = {
 }
 Mods.__index = Mods
 
-print('Konko Mods loaded')
+print('Loaded Konko Mods')
 
 return Mods

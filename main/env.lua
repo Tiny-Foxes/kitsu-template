@@ -62,3 +62,5 @@ function sudo.run(path)
 	-- Return our file in our environment
 	return sudo(assert(loadfile(dir..path..'.lua')))()
 end
+
+sudo.FG = Def.ActorFrame {}

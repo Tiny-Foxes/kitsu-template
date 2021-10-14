@@ -117,3 +117,5 @@ function inOutElastic(x) return t.inoutelastic(x) end
 function inBack(x) return t.inback(x) end
 function outBack(x) return t.outback(x) end
 function inOutBack(x) return t.inoutback(x) end
+
+print('Loaded NotITG Ease Names')

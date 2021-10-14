@@ -41,4 +41,6 @@ mirin = {
 }
 mirin.__index = mirin
 
+print('Loaded Mirin Syntax for Konko Mods')
+
 return mirin

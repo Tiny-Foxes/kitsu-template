@@ -82,7 +82,6 @@ end
 
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
-		print('Konko Node loaded')
 		local s = self
 		Node.ease = ease
 		Node.AddEase = AddEase
@@ -356,5 +355,7 @@ Node = {
 Node.__index = Node
 
 FG[#FG + 1] = NodeTree
+
+print('Loaded Konko Node')
 
 return Node
