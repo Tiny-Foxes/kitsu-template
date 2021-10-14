@@ -25,13 +25,13 @@
 ]]--
 
 -- If we're in ScreenEdit, don't even do anything. This will be removed after OutFox Alpha 5.
-if SCREENMAN:GetTopScreen():GetName() == 'ScreenEdit' then return Def.Actor {} end
+if SCREENMAN:GetTopScreen() and SCREENMAN:GetTopScreen().GetEditState then return Def.Actor {} end
 -- Let's get our song directory real quick.
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 -- This loads the absolutely necessary stuff for the template's environment to work properly.
-loadfile(dir .. 'main/env.lua')()
+assert(loadfile(dir .. 'main/env.lua'))()
 -- This loads our overarching ActorFrame and initial playground. We need to return this one.
-return loadfile(dir .. 'main/init.lua')()
+return assert(loadfile(dir .. 'main/init.lua'))()
 
 --[[
 
