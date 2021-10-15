@@ -1,6 +1,8 @@
 # Kitsu for Outfox API Reference
+
 ---
-| Global | |
+### Global
+| | |
 |:--- |:--- |
 | `print`(dbg: *string*): *function* | Prints debug message to console |
 | `printerr`(err: *string*): *function* | Prints error message to console |
@@ -9,8 +11,8 @@
 | `FG`: *ActorFrame* | Returns the foreground layer that is returned by `mods.lua` |
 
 ---
-
-| Kitsu Standard Library | |
+### Kitsu Standard Library
+| | |
 |:--- |:--- |
 | `songdir`: *string* | Current song directory |
 | `SCREEN`: *ActorFrame* | Top screen |
@@ -28,8 +30,8 @@
 | `TPB`: *float* | Current ticks per beat |
 
 ---
-
-| Konko Mods | |
+### Konko Mods
+| | |
 |:--- |:--- |
 | `Mods:Insert`(start: *float*, len: *float*, ease: *function*, \{\{percent: *float*, mod: *string*\}, ...\}, \[offset\]: *float*, \[pn\]: *int*): *Mods* | Insert a mod. Returns Mods object. |
 | `Mods:Default`(\{\{percent: *float*, mod: *string*\}, ...\}): *Mods* | Insert default mods. Return Mods object. |
@@ -37,8 +39,8 @@
 | `Mods:Exsch`(start: *float*, end: *float*, start_percent: *float*, end_percent: *float*, mod: *string*, timing: *string*, ease: *function*, \[pn\]: *int*): *Mods* | Insert a mod using Exschwasion template syntax. Returns Mods object. |
 
 ---
-
-| Konko Node | |
+### Konko Node
+| | |
 |:--- |:--- |
 | `Node.new`(type: *string*): *Node* | Create and return a new Node. |
 | `Node.ease`(\{actor: *string, table*, start: *float*, len: *float*, ease: *function*, amp1: *float*, amp2: *float*, property: *string*\}): *function* | Ease `property` of `actor` at `start` from `amp1` to `amp2` for `len` beats using `ease` to calculate strength. Returns `Node.ease`. |
@@ -54,5 +56,4 @@
 | `Node.AddToNodeTree`(\[name\]: *string*, \[index\]: *int*): *Node* | Add a Node to the node tree. Self-returns. |
 
 ---
-
 ###### [Return to Home](/kitsu-template)
