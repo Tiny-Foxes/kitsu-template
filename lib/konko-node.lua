@@ -17,6 +17,7 @@
 --	Node:AddChild(node, index, name) - Adds a child to a Node (Must inherit ActorFrame)
 --	Node:AddToNodeTree(name, index) - Adds a Node to the NodeTree (Name and index can be in any order)
 ---------------------------
+local std = import 'stdlib'
 
 local Node = {}
 
@@ -27,6 +28,7 @@ local msg_table = {}
 local node_idx = 1
 
 local function UpdateEases()
+	local BEAT = std.BEAT
 	for i, v in ipairs(ease_table) do
 		local actor
 		if type(v[1]) == 'string' then
@@ -35,7 +37,7 @@ local function UpdateEases()
 			actor = v[1]
 		end
 		if not actor then
-			printerr('Cannot find actor ('..tostring(v[1])..')')
+			std.printerr('Cannot find actor ('..tostring(v[1])..')')
 			table.remove(ease_table, i)
 			return
 		end
@@ -51,6 +53,7 @@ local function UpdateEases()
 	end
 end
 local function UpdateFuncs()
+	local BEAT = std.BEAT
 	for i, v in ipairs(func_table) do
 		local actor
 		if type(v[1]) == 'string' then
@@ -61,8 +64,8 @@ local function UpdateFuncs()
 		local func = v[7]
 		if type(func) ~= 'function' then return end
 		if BEAT >= v[2] and BEAT < (v[2] + v[3]) then
-			local ease = v[4]((BEAT - v[2]) / v[3]) - v[5]
-			local amp = ease * (v[6] - v[5])
+			local ease = v[4]((BEAT - v[2]) / v[3])
+			local amp = ease * (v[6] - v[5]) + v[5]
 			if actor then func(actor, amp) else func(amp) end
 		elseif BEAT >= (v[2] + v[3]) then
 			if actor then func(actor, v[6]) else func(v[6]) end
@@ -71,6 +74,7 @@ local function UpdateFuncs()
 	end
 end
 local function UpdateSignals()
+	local BEAT = std.BEAT
 	for i, v in ipairs(msg_table) do
 		local msg = v[2]
 		if BEAT >= v[1] then
@@ -83,9 +87,6 @@ end
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
 		local s = self
-		Node.ease = ease
-		Node.AddEase = AddEase
-		Node.HideOverlay = HideOverlay
 		Node.GetNodeTree = function() return s end
 		Node.GetActor = function(this) return s:GetChild(this) end
 		local function NameActors(actor)
@@ -96,7 +97,13 @@ local NodeTree = Def.ActorFrame {
 			end
 		end
 		NameActors(s)
-	end
+		print('NodeTree')
+	end,
+	UpdateMessageCommand = function(self)
+		UpdateEases()
+		UpdateFuncs()
+		UpdateSignals()
+	end,
 }
 
 local function new(obj)
@@ -151,7 +158,7 @@ local function AttachScript(self, scriptpath)
 		update = nil,
 		input = nil,
 	}
-	sudo(assert(loadfile(SongDir .. scriptpath .. '.lua')))()
+	run(scriptpath)
 	local src = DeepCopy(kitsu)
 	self.InitCommand = function(self)
 		if src.init then src.init(self) end
@@ -165,6 +172,7 @@ local function AttachScript(self, scriptpath)
 	self.InputMessageCommand = function(self, args)
 		if src.input then return src.input(self, args[1]) end
 	end
+	kitsu = nil
 end
 local function AddEase(self, t)
 	if type(t) ~= 'table' then
@@ -317,7 +325,7 @@ end
 local function HideOverlay(b)
 	--print('Node.HideOverlay')
 	if type(b) == 'boolean' and b then
-		SRT_STYLE = b
+		std.SRT_STYLE = b
 	elseif type(b) ~= 'boolean' then
 		printerr('Node.HideOverlay: argument must be boolean value')
 	end
@@ -357,5 +365,4 @@ Node.__index = Node
 FG[#FG + 1] = NodeTree
 
 print('Loaded Konko Node')
-
 return Node

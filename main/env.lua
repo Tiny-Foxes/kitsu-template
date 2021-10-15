@@ -63,4 +63,8 @@ function sudo.run(path)
 	return sudo(assert(loadfile(dir..path..'.lua')))()
 end
 
-sudo.FG = Def.ActorFrame {}
+-- Debug and Error prints
+function sudo.print(s) lua.Trace('KITSU: '..s) end
+function sudo.printerr(s) lua.ReportScriptError('KITSU: '..s) end
+
+sudo.FG = nil
