@@ -17,6 +17,7 @@
 --	Mods:Exsch(start, len, begin_p, end_p, mod, timing, ease, [offset], [plr]) - Write mods to branch Exschwasion style
 --	Mods:Default(modpairs) - Writes default mods to branch
 ---------------------------
+local std = import 'stdlib'
 
 local Mods = {}
 setmetatable(Mods, {})
@@ -25,7 +26,7 @@ setmetatable(Mods, {})
 -- Keep the player options from the enabled players that are available.
 local POptions = {}
 for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
-    POptions[i] = (PL[i] and PL[i].Options) or GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
+    POptions[i] = (std.PL[i] and std.PL[i].Options) or GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
 end
 
 local modlist = {}
@@ -69,10 +70,10 @@ local function ApplyNotes(beat, col, mod, percent, pn)
 	-- Code to turn on notemods once will go here once function is implemented engine side
 	mod = mod:lower()
 	if pn then
-		PL[pn].Player:AddNoteMod(beat, col, mod, percent * 0.01)
+		std.PL[pn].Player:AddNoteMod(beat, col, mod, percent * 0.01)
 	else
 		for p = 1, #POptions do
-			PL[p].Player:AddNoteMod(beat, col, mod, percent * 0.01)
+			std.PL[p].Player:AddNoteMod(beat, col, mod, percent * 0.01)
 		end
 	end
 end
@@ -82,6 +83,7 @@ local function UpdateMods()
 		for j, v in ipairs(m.Modifiers) do
 			-- If the player where we're trying to access is not available, then don't even update.
 			if m.Player and not POptions[m.Player] then break end
+			local BEAT = std.BEAT
 			local pn = m.Player
 			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) then
 				if m.Type == 'Player' then
@@ -172,7 +174,7 @@ local function Default(self, modtable)
 	for pn = 1, #POptions do
 		default_mods[pn] = modtable
 	end
-	local res = self:Insert(MOD_START, 0, Tweens.instant, modtable)
+	local res = self:Insert(std.MOD_START, 0, Tweens.instant, modtable)
 	return res
 end
 -- Define a new mod.
@@ -239,7 +241,8 @@ local function Insert(self, start, len, ease, modtable, offset, pn)
     end
     return self
 end
-local function Note(self, start, len, ease, notetable, offset, pn)
+-- We can't actually add notemods until they stop corrupting the stack.
+local function Note(self, start, len, ease, notemodtable, offset, pn)
 	--printerr(Mods:Note)
 	local t1, t2 = {}, {}
 	if not offset or offset == 0 then
@@ -247,7 +250,7 @@ local function Note(self, start, len, ease, notetable, offset, pn)
 			Start = start,
 			Length = len,
 			Ease = ease,
-			Modifiers = notetable,
+			Modifiers = notemodtable,
 			Type = 'Note',
 			Player = pn or 1
 		}
@@ -257,14 +260,14 @@ local function Note(self, start, len, ease, notetable, offset, pn)
 				Start = start,
 				Length = len,
 				Ease = ease,
-				Modifiers = notetable,
+				Modifiers = notemodtable,
 				Type = 'Note',
 				Player = 2
 			}
 			table.insert(modlist, t2)
 		end
 	else
-		for i, v in ipairs(notetable) do
+		for i, v in ipairs(notemodtable) do
 			t1[i] = {
 				Start = start + (offset * (i - 1)),
 				Length = len,
@@ -315,7 +318,7 @@ Mods = {
 	FromFile = FromFile,
 	Define = Define,
 	Insert = Insert,
-	Note = Note,
+	--Note = Note,
 	Mirin = Mirin,
 	Exsch = Exsch,
 	Default = Default,
