@@ -6,7 +6,7 @@ You can view the docs [here](https://tiny-foxes.github.io/kitsu-template).
 NotITG version (albeit rarely maintained) [here](https://github.com/sudospective/kitsu-template-notitg)
 
 # Getting Started
-Kitsu template is special in the sense that you don't have to use a built-in mod loader. You can use a different mod loader or even make your own. You don't even have to use the standard library; you can make an entirely custom one and use that instead!
+Kitsu template is special in the sense that you don't have to use a built-in mod loader. You can use a different mod loader or even make your own. You don't even have to use the included standard library; you can make an entirely custom one and use that instead!
 
 You can include libraries in `mods.lua` by using the `import` function.
 ```lua
@@ -124,8 +124,8 @@ end
 
 -- List only what you want to export. internal variables should stay hidden to prevent other things from messing with them.
 MyLib = {
-	MyVar = var,
-	MyFunc = func
+	var = MyVar,
+	func = MyFunc
 }
 MyLib.__index = MyLib
 
