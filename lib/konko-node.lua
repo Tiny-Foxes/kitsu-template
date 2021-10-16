@@ -28,7 +28,7 @@ local msg_table = {}
 local node_idx = 1
 
 local function UpdateEases()
-	local BEAT = std.BEAT()
+	local BEAT = std.BEAT
 	for i, v in ipairs(ease_table) do
 		local actor
 		if type(v[1]) == 'string' then
@@ -53,7 +53,7 @@ local function UpdateEases()
 	end
 end
 local function UpdateFuncs()
-	local BEAT = std.BEAT()
+	local BEAT = std.BEAT
 	for i, v in ipairs(func_table) do
 		local actor
 		if type(v[1]) == 'string' then
@@ -74,7 +74,7 @@ local function UpdateFuncs()
 	end
 end
 local function UpdateSignals()
-	local BEAT = std.BEAT()
+	local BEAT = std.BEAT
 	for i, v in ipairs(msg_table) do
 		local msg = v[2]
 		if BEAT >= v[1] then
@@ -324,12 +324,12 @@ local function AddToNodeTree(self, idx, name)
 end
 local function GetOverlay()
 	local ret = {}
-	ret[#ret + 1] = SCREEN:GetChild('Underlay')
+	ret[#ret + 1] = std.SCREEN:GetChild('Underlay')
 	for i = 1, #std.PL do
 		ret[#ret + 1] = std.PL[i].Life
 		ret[#ret + 1] = std.PL[i].Score
 	end
-	ret[#ret + 1] = SCREEN:GetChild('Overlay')
+	ret[#ret + 1] = std.SCREEN:GetChild('Overlay')
 	return ret
 end
 local function HideOverlay(b)

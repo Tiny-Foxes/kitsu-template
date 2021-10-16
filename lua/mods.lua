@@ -11,10 +11,14 @@ end
 
 -- Called on InitCommand
 function init()
-	--Node.HideOverlay(true)
+
 end
+
 -- Called on ReadyCommand
 function ready()
+
+	-- Hide overlay elements
+	Node.HideOverlay(true)
 
 	-- Localize stdlib variables
 	local PL = std.PL
@@ -34,11 +38,11 @@ function ready()
 			:SetTarget(PL[pn].Player)
 		PJ[pn]
 			:SetTarget(PL[pn].Judgment)
-			:xy(PL[pn].Player:GetX(), std.SCY)
+			:xy(SCX + PP[pn]:GetX(), SCY)
 			:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 		PC[pn]
 			:SetTarget(PL[pn].Combo)
-			:xy(PL[pn].Player:GetX(), std.SCY)
+			:xy(SCX + PP[pn]:GetX(), SCY)
 			:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 		PL[pn].Player
 			:visible(false)

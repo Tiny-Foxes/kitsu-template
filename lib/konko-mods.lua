@@ -83,7 +83,7 @@ local function UpdateMods()
 		for j, v in ipairs(m.Modifiers) do
 			-- If the player where we're trying to access is not available, then don't even update.
 			if m.Player and not POptions[m.Player] then break end
-			local BEAT = std.BEAT()
+			local BEAT = std.BEAT
 			local pn = m.Player
 			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) or m.Length == 0 then
 				if m.Type == 'Player' then
