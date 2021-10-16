@@ -18,16 +18,10 @@
 | `SCREEN`: *ActorFrame* | Top screen |
 | `SW`, `SH`: *float*, *float* | Screen width, screen height |
 | `SCX`, `SCY`: *float*, *float* | Screen center X, screen center Y |
-| `DT`(): *float* | Time since last update via frame |
-| `TICK`(): *float* | Time since last update via ticks |
-| `CONST_TICK`: *bool* | If mods and nodes should be processed by ticks instead of frames |
-| `TICKRATE`: *int* | Rate at which mods and nodes are processed if `CONST_TICK` is true |
 | `BEAT`(): *float* | Current beat in song |
 | `BPS`(): *float* | Current beats per second |
 | `BPM`(): *float* | Current beats per minute |
-| `BPT`(): *float* | Current beats per tick |
 | `SPB`(): *float* | Current seconds per beat |
-| `TPB`(): *float* | Current ticks per beat |
 
 ---
 
