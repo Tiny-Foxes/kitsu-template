@@ -7,15 +7,16 @@ sudo()
 
 -- Now we have our main ActorFrame.
 return Def.ActorFrame {
-	-- Our Init command. We sleep this ActorFrame indefinitely, so that ScreenGameplay can't
+	-- Our InitCommand. We sleep this ActorFrame indefinitely, so that ScreenGameplay can't
 	-- immediately unload our Actors after Init is finished.
     InitCommand = function(self)
         self:sleep(9e9)
     end,
-	-- This On command is here just to tell everything to ready up.
+	-- This OnCommand is here just to tell everything to ready up.
     OnCommand = function(self)
 		self:playcommand('Ready')
     end,
 	-- Now it's safe to run out mods.lua.
-	run 'lua/mods'
+	run 'lua/mods',
+	FG
 }

@@ -74,4 +74,4 @@ function input(event)
 
 end
 
-return FG
+return Def.ActorFrame {}
