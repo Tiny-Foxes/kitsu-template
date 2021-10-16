@@ -24,8 +24,6 @@
 
 ]]--
 
--- If we're in ScreenEdit, don't even do anything. This will be removed after OutFox Alpha 5.
-if SCREENMAN:GetTopScreen() and SCREENMAN:GetTopScreen().GetEditState then return Def.Actor {} end
 -- Let's get our song directory real quick.
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 -- This loads the absolutely necessary stuff for the template's environment to work properly.

@@ -2,6 +2,10 @@ local std = import 'stdlib'
 local Node = import 'konko-node'
 local Mods = import 'konko-mods'
 
+local PL, PP, PJ, PC
+local SW, SH, SCX, SCY
+
+-- Proxies
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
 	Node.new('ActorProxy'):AddToNodeTree('PP'..pn)
 	Node.new('ActorProxy'):AddToNodeTree('PJ'..pn)
@@ -10,14 +14,21 @@ end
 
 -- Called on InitCommand
 function init()
-
+	-- Localize stdlib variables
+	SW, SH = std.SW, std.SH
+	SCX, SCY = std.SCX, std.SCY
 end
+
 -- Called on ReadyCommand
 function ready()
 
-	local PL = std.PL
-	-- Variables for iterating proxies
-	local PP, PJ, PC = table.unpack {
+	-- Hide overlay elements
+	Node.HideOverlay(true)
+
+
+	-- Localize players and proxies
+	PL = std.PL
+	PP, PJ, PC = table.unpack {
 		{PP1, PP2},
 		{PJ1, PJ2},
 		{PC1, PC2}
@@ -29,10 +40,12 @@ function ready()
 			:SetTarget(PL[pn].Player)
 		PJ[pn]
 			:SetTarget(PL[pn].Judgment)
-			:xy(PL[pn].Player:GetX(), std.SCY)
+			:xy(SCX + PP[pn]:GetX(), SCY)
+			:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 		PC[pn]
 			:SetTarget(PL[pn].Combo)
-			:xy(PL[pn].Player:GetX(), std.SCY)
+			:xy(SCX + PP[pn]:GetX(), SCY)
+			:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 		PL[pn].Player
 			:visible(false)
 		PL[pn].Judgment
@@ -63,4 +76,4 @@ function input(event)
 
 end
 
-return FG
+return Def.ActorFrame {}

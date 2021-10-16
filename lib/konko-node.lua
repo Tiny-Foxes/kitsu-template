@@ -7,7 +7,7 @@
 --	Node.func({start, len, ease, amt, amt2, function}, ...) - Eases a function
 --	Node.signal({beat, message}, ...) - Broadcasts a message command
 --	Node.HideOverlay(hide) - Sets hiding of overlay at the start of the file
---	Node.GetNodeTree() - Gets NodeTree
+--	Node.GetTree() - Gets NodeTree
 --	Node:AttachScript(path) - Attaches a script with init, ready, update, and input functions
 --	Node:SetAttribute(attr, value) - Sets an attribute of a Node
 --	Node:SetCommand(cmd, function) - Sets the command of a Node
@@ -87,7 +87,7 @@ end
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
 		local s = self
-		Node.GetNodeTree = function() return s end
+		Node.GetTree = function() return s end
 		Node.GetActor = function(this) return s:GetChild(this) end
 		local function NameActors(actor)
 			for i = 1, actor:GetNumChildren() do
@@ -166,11 +166,11 @@ local function AttachScript(self, scriptpath)
 	self.ReadyCommand = function(self)
 		if src.ready then return src.ready(self) end
 	end
-	self.UpdateMessageCommand = function(self)
-		if src.update then return src.update(self, DT) end
+	self.UpdateMessageCommand = function(self, param)
+		if src.update then return src.update(self, param[1]) end
 	end
-	self.InputMessageCommand = function(self, args)
-		if src.input then return src.input(self, args[1]) end
+	self.InputMessageCommand = function(self, param)
+		if src.input then return src.input(self, param[1]) end
 	end
 	kitsu = nil
 end
@@ -236,14 +236,14 @@ end
 local function SetUpdate(self, func)
 	--print('Node:SetUpdate')
 	self.UpdateMessageCommand = function(self)
-		return func(self, DT)
+		return func(self, std.DT)
 	end
 	return self
 end
 local function SetInput(self, func)
 	--print('Node:SetInput')
-	self.InputMessageCommand = function(self, args)
-		return func(self, args[1])
+	self.InputMessageCommand = function(self, param)
+		return func(self, param[1])
 	end
 	return self
 end
@@ -322,16 +322,28 @@ local function AddToNodeTree(self, idx, name)
 	end
 	return self
 end
+local function GetOverlay()
+	local ret = {}
+	ret[#ret + 1] = std.SCREEN:GetChild('Underlay')
+	for i = 1, #std.PL do
+		ret[#ret + 1] = std.PL[i].Life
+		ret[#ret + 1] = std.PL[i].Score
+	end
+	ret[#ret + 1] = std.SCREEN:GetChild('Overlay')
+	return ret
+end
 local function HideOverlay(b)
 	--print('Node.HideOverlay')
-	if type(b) == 'boolean' and b then
-		std.SRT_STYLE = b
-	elseif type(b) ~= 'boolean' then
+	if type(b) == 'boolean' then
+		for _, v in ipairs(GetOverlay()) do
+			v:visible(tobool(not b))
+		end
+	else
 		printerr('Node.HideOverlay: argument must be boolean value')
 	end
 end
-local function GetNodeTree()
-	--print('Node.GetNodeTree')
+local function GetTree()
+	--print('Node.GetTree')
 	return NodeTree
 end
 
@@ -356,8 +368,9 @@ Node = {
 	AddChild = AddChild,
 	GetChildIndex = GetChildIndex,
 	AddToNodeTree = AddToNodeTree,
+	GetOverlay = GetOverlay,
 	HideOverlay = HideOverlay,
-	GetNodeTree = GetNodeTree,
+	GetTree = GetTree,
 	GetActor = function(this) printerr('Node.GetActor: Function not available before ready()') end,
 }
 Node.__index = Node
