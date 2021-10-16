@@ -2,6 +2,7 @@ local std = import 'stdlib'
 local Node = import 'konko-node'
 local Mods = import 'konko-mods'
 
+-- Proxies
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
 	Node.new('ActorProxy'):AddToNodeTree('PP'..pn)
 	Node.new('ActorProxy'):AddToNodeTree('PJ'..pn)
@@ -10,12 +11,16 @@ end
 
 -- Called on InitCommand
 function init()
-
+	--Node.HideOverlay(true)
 end
 -- Called on ReadyCommand
 function ready()
 
+	-- Localize stdlib variables
 	local PL = std.PL
+	local SW, SH = std.SW, std.SH
+	local SCX, SCY = std.SCX, std.SCY
+
 	-- Variables for iterating proxies
 	local PP, PJ, PC = table.unpack {
 		{PP1, PP2},
@@ -30,9 +35,11 @@ function ready()
 		PJ[pn]
 			:SetTarget(PL[pn].Judgment)
 			:xy(PL[pn].Player:GetX(), std.SCY)
+			:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 		PC[pn]
 			:SetTarget(PL[pn].Combo)
 			:xy(PL[pn].Player:GetX(), std.SCY)
+			:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 		PL[pn].Player
 			:visible(false)
 		PL[pn].Judgment
@@ -55,7 +62,7 @@ end
 
 -- Called on UpdateMessageCommand
 function update(dt)
-
+	
 end
 
 -- Called on InputMessageCommand

@@ -9,19 +9,12 @@ local songdir = GAMESTATE:GetCurrentSong():GetSongDir()
 local SW, SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 local SCX, SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
 
-local TICKRATE = 60 -- tickrate
-local TICK = 1 / TICKRATE -- seconds since last tick
-local CONST_TICK = false -- set this to true for automagic frame limiting!!!! o A o
-
 local DT = 0 -- seconds since last frame
 
-local BEAT = GAMESTATE:GetSongPosition():GetSongBeat() -- current beat
-local BPS = GAMESTATE:GetSongPosition():GetCurBPS() -- current beats per second
-local BPM = BPS * 60 -- beats per minute
-local BPT = TICK * BPS -- beats per tick
-local SPB = 1 / BPS -- seconds per beat
-local TPB = SPB * TICKRATE -- ticks per beat
-local CENTER_PLAYERS = false
+local BEAT = function() return GAMESTATE:GetSongPosition():GetSongBeat() end -- current beat
+local BPS = function() return GAMESTATE:GetSongPosition():GetCurBPS() end -- current beats per second
+local BPM = function() return BPS() * 60 end -- beats per minute
+local SPB = function() return 1 / BPS() end -- seconds per beat
 local SRT_STYLE = false
 local PL = {}
 
@@ -76,36 +69,11 @@ local InputHandler = function(event)
 end
 
 -- Our foreground to put everything in. If FG is not set, this will take its place.
-FG = FG or Def.ActorFrame {
+FG[#FG + 1] = Def.Actor {
 	InitCommand = function(self)
 		if sudo.init then
 			sudo.init()
 		end
-	end,
-	BeginFrameCommand = function(self)
-		TICK = 1 / TICKRATE
-		if CONST_TICK then
-			DT = TICK
-		else
-			DT = self:GetEffectDelta()
-		end
-		BEAT = GAMESTATE:GetSongPosition():GetSongBeat()
-		BPS = GAMESTATE:GetSongPosition():GetCurBPS()
-		BPM = BPS * 60
-		BPT = TICK * BPS
-		SPB = 1 / BPS
-		TPB = SPB * TICKRATE
-		MESSAGEMAN:Broadcast('Update')
-	end,
-	UpdateMessageCommand = function(self)
-		if sudo.update then
-			sudo.update(DT)
-		end
-		self:queuecommand('EndFrame')
-	end,
-	EndFrameCommand = function(self)
-		self:sleep(DT)
-		self:queuecommand('BeginFrame')
 	end,
 	ReadyCommand = function(self)
 		-- Actor variables
@@ -138,23 +106,27 @@ FG = FG or Def.ActorFrame {
 		if sudo.ready then
 			sudo.ready()
 		end
-		self:queuecommand('Start')
 	end,
-	StartCommand = function(self)
-		if SRT_STYLE then
-			SCREEN:GetChild('Underlay'):visible(false)
-			for i = 1, #PL do
-				PL[i].Life:visible(false)
-				PL[i].Score:visible(false)
-			end
-			SCREEN:GetChild('Overlay'):visible(false)
+	UpdateMessageCommand = function(self, param)
+		DT = param[1]
+		if sudo.update then
+			sudo.update(DT)
 		end
-		self:queuecommand('BeginFrame')
 	end,
 	OffCommand = function(self)
 		SCREEN:RemoveInputCallback(InputHandler)
 	end,
 }
+
+--[[
+for k, v in pairs(fgcmd) do
+	local func = FG[k]
+	FG[k] = function(self)
+		if func then func(self)
+		v(self)
+	end
+end
+--]]
 
 std = {
 	songdir = songdir,

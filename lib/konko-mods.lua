@@ -26,7 +26,7 @@ setmetatable(Mods, {})
 -- Keep the player options from the enabled players that are available.
 local POptions = {}
 for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
-    POptions[i] = (std.PL[i] and std.PL[i].Options) or GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
+    POptions[i] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
 end
 
 local modlist = {}
@@ -83,9 +83,9 @@ local function UpdateMods()
 		for j, v in ipairs(m.Modifiers) do
 			-- If the player where we're trying to access is not available, then don't even update.
 			if m.Player and not POptions[m.Player] then break end
-			local BEAT = std.BEAT
+			local BEAT = std.BEAT()
 			local pn = m.Player
-			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) then
+			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) or m.Length == 0 then
 				if m.Type == 'Player' then
 					-- Ease blending is a work in progress. Try to make sure two eases don't use the same mod.
 					v[3] = v[3] or mod_percents[pn][v[2]] or 0
@@ -99,10 +99,10 @@ local function UpdateMods()
 						local cur_v1 = cur_m.Modifiers[j][1]
 						local cur_v3 = cur_m.Modifiers[j][3]
 						local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
+						if m.Length == 0 then cur_ease = 1 end
 						local cur_perc = cur_ease * (cur_v1 - cur_v3)
 						--perc = perc + (cur_v3 + cur_perc)
 						if #active[pn][v[2]] == n then
-							--lua.Trace(perc)
 							perc = perc + (cur_v3 + cur_perc)
 						end
 					end
@@ -121,6 +121,7 @@ local function UpdateMods()
 						local cur_v3 = cur_m.Modifiers[j][3]
 						local cur_v5 = cur_m.Modifiers[j][5]
 						local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
+						if m.Length == 0 then cur_ease = 1 end
 						local cur_perc = cur_ease * (cur_v3 - cur_v5)
 						--perc = perc + (cur_v5 + cur_perc)
 						if #active[pn][notemod] == n then
@@ -153,11 +154,11 @@ local function UpdateMods()
 end
 
 
-local fgupdate = FG.UpdateMessageCommand
-FG.UpdateMessageCommand = function(self)
-	fgupdate(self)
-	UpdateMods()
-end
+FG[#FG + 1] = Def.Actor {
+	UpdateMessageCommand = function(self, param)
+		UpdateMods()
+	end
+}
 
 
 -- TODO: Create a GetPercent function to get the current mod percent

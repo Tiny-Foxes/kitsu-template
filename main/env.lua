@@ -67,4 +67,21 @@ end
 function sudo.print(s) lua.Trace('KITSU: '..s) end
 function sudo.printerr(s) lua.ReportScriptError('KITSU: '..s) end
 
-sudo.FG = nil
+sudo.FG = Def.ActorFrame {
+	ReadyCommand = function(self)
+		self:queuecommand('Start')
+	end,
+	StartCommand = function(self)
+		self:queuecommand('BeginFrame')
+	end,
+	BeginFrameCommand = function(self)
+		MESSAGEMAN:Broadcast('Update', {self:GetEffectDelta()})
+	end,
+	UpdateMessageCommand = function(self, param)
+		self:queuecommand('EndFrame')
+	end,
+	EndFrameCommand = function(self)
+		self:sleep(self:GetEffectDelta())
+		self:queuecommand('BeginFrame')
+	end,
+}

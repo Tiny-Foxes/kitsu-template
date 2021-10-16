@@ -104,7 +104,7 @@ There's really no limit to what you can write for a library. Since the only requ
 
 1. If you need a certain library to function, include it! remember to use `import` for anything you'll need.
 1. Try to keep your library local to avoid interfering with other libraries. Even the included standard library is local!
-1. If you write your own standard library, a good practice is to set an ActorFrame for the foreground. You should do this with `FG = FG or Def.ActorFrame {}`. This is the same `FG` that is returned in `mods.lua`.
+1. If you write a library and you need to add an actor, you should do this with `FG[#FG + 1] = Def.ActorFrame {}`. This is the same `FG` that is returned in `mods.lua` and created in `env.lua`. This `FG` ActorFrame has an update loop already provided that will broadcast an `Update` message every frame.
 1. Another thing to consider if you write your own standard library is that you may need to write your own mod loader as well. This is why one is included. It may not make writing a mod loader clear, but it will give you an idea of what it may expect from your standard library.
 
 Generally, a library is written as follows:
@@ -132,4 +132,13 @@ MyLib.__index = MyLib
 -- It's a nice gesture to let the log know we've loaded in.
 print('Loaded MyLib')
 return MyLib
+```
+
+You should name be able to import your library into `mods.lua` or other libraries by using `import`.
+```lua
+local lib = import 'MyLib'
+
+print(lib.var) -- Will print the value of SCREEN_CENTER_X
+local newvar = lib.func(7)
+print(newvar) -- Will print the value of SCREEN_CENTER_X + 7
 ```
