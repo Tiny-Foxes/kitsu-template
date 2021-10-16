@@ -1,6 +1,6 @@
 # Kitsu Template
 #### For Outfox
-The Kitsu Template is a template designed to make modcharting feel more friendly to the object-oriented mindset. It also aims to make minigame creation fun, easy, and accessible to those used to making games in Love2D or most other high-level languaged, update-loop focused game engines.
+The Kitsu Template is designed with the mindset that a template should be fully customizable, yet easy to get started with. It remedies this with only including vital functions at the core of its code, and layering libraries on top that can be added, exchanged, or even removed if desired. Everything you need is included, and anything you want is supported.
 
 You can view the docs [here](https://tiny-foxes.github.io/kitsu-template).  
 NotITG version (albeit rarely maintained) [here](https://github.com/sudospective/kitsu-template-notitg)
