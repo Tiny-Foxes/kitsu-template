@@ -47,10 +47,20 @@ end
 -- It's dangerous to go alone; take this!
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
+-- Debug and Error prints
+function sudo.print(s) lua.Trace('KITSU: '..s) end
+function sudo.printerr(s) lua.ReportScriptError('KITSU: '..s) end
+
 -- Library importer
 function sudo.import(lib)
 	-- Catch in case we add .lua to our path.
 	if lib:find('.lua') then lib = lib:sub(1, lib:find('.lua') - 1) end
+	-- Make sure the file is there
+	local file = dir..'lib/'..lib..'.lua'
+	if not loadfile(file) then
+		sudo.printerr('Unable to import library "'..lib..'": No file found.')
+		return
+	end
 	-- Return our file in our environment
 	return sudo(assert(loadfile(dir..'lib/'..lib..'.lua')))()
 end
@@ -59,13 +69,15 @@ end
 function sudo.run(path)
 	-- Catch in case we add .lua to our path.
 	if path:find('.lua') then path = path:sub(1, path:find('.lua') - 1) end
+	-- Make sure the file is there
+	local file = dir..path..'.lua'
+	if not loadfile(file) then
+		sudo.printerr('Unable to run file "'..path..'": No file found.')
+		return
+	end
 	-- Return our file in our environment
 	return sudo(assert(loadfile(dir..path..'.lua')))()
 end
-
--- Debug and Error prints
-function sudo.print(s) lua.Trace('KITSU: '..s) end
-function sudo.printerr(s) lua.ReportScriptError('KITSU: '..s) end
 
 sudo.FG = Def.ActorFrame {
 	ReadyCommand = function(self)

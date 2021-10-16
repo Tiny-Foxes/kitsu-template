@@ -7,7 +7,7 @@
 --	Node.func({start, len, ease, amt, amt2, function}, ...) - Eases a function
 --	Node.signal({beat, message}, ...) - Broadcasts a message command
 --	Node.HideOverlay(hide) - Sets hiding of overlay at the start of the file
---	Node.GetNodeTree() - Gets NodeTree
+--	Node.GetTree() - Gets NodeTree
 --	Node:AttachScript(path) - Attaches a script with init, ready, update, and input functions
 --	Node:SetAttribute(attr, value) - Sets an attribute of a Node
 --	Node:SetCommand(cmd, function) - Sets the command of a Node
@@ -87,7 +87,7 @@ end
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
 		local s = self
-		Node.GetNodeTree = function() return s end
+		Node.GetTree = function() return s end
 		Node.GetActor = function(this) return s:GetChild(this) end
 		local function NameActors(actor)
 			for i = 1, actor:GetNumChildren() do
@@ -342,8 +342,8 @@ local function HideOverlay(b)
 		printerr('Node.HideOverlay: argument must be boolean value')
 	end
 end
-local function GetNodeTree()
-	--print('Node.GetNodeTree')
+local function GetTree()
+	--print('Node.GetTree')
 	return NodeTree
 end
 
@@ -370,7 +370,7 @@ Node = {
 	AddToNodeTree = AddToNodeTree,
 	GetOverlay = GetOverlay,
 	HideOverlay = HideOverlay,
-	GetNodeTree = GetNodeTree,
+	GetTree = GetTree,
 	GetActor = function(this) printerr('Node.GetActor: Function not available before ready()') end,
 }
 Node.__index = Node

@@ -2,6 +2,9 @@ local std = import 'stdlib'
 local Node = import 'konko-node'
 local Mods = import 'konko-mods'
 
+local PL, PP, PJ, PC
+local SW, SH, SCX, SCY
+
 -- Proxies
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
 	Node.new('ActorProxy'):AddToNodeTree('PP'..pn)
@@ -11,7 +14,9 @@ end
 
 -- Called on InitCommand
 function init()
-
+	-- Localize stdlib variables
+	SW, SH = std.SW, std.SH
+	SCX, SCY = std.SCX, std.SCY
 end
 
 -- Called on ReadyCommand
@@ -20,13 +25,10 @@ function ready()
 	-- Hide overlay elements
 	Node.HideOverlay(true)
 
-	-- Localize stdlib variables
-	local PL = std.PL
-	local SW, SH = std.SW, std.SH
-	local SCX, SCY = std.SCX, std.SCY
 
-	-- Variables for iterating proxies
-	local PP, PJ, PC = table.unpack {
+	-- Localize players and proxies
+	PL = std.PL
+	PP, PJ, PC = table.unpack {
 		{PP1, PP2},
 		{PJ1, PJ2},
 		{PC1, PC2}
@@ -66,7 +68,7 @@ end
 
 -- Called on UpdateMessageCommand
 function update(dt)
-	
+
 end
 
 -- Called on InputMessageCommand
