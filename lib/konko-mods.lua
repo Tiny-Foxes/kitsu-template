@@ -85,7 +85,7 @@ local function UpdateMods()
 			if m.Player and not POptions[m.Player] then break end
 			local BEAT = std.BEAT
 			local pn = m.Player
-			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) or m.Length == 0 then
+			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) then
 				if m.Type == 'Player' then
 					-- Ease blending is a work in progress. Try to make sure two eases don't use the same mod.
 					v[3] = v[3] or mod_percents[pn][v[2]] or 0
@@ -148,6 +148,7 @@ local function UpdateMods()
 					end
 					ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 				end
+				if modlist[j] then table.remove(modlist, j) end
 			end
 		end
     end

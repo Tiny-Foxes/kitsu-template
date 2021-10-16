@@ -104,8 +104,8 @@ There's really no limit to what you can write for a library. Since the only requ
 
 1. If you need a certain library to function, include it! remember to use `import` for anything you'll need.
 1. Try to keep your library local to avoid interfering with other libraries. Even the included standard library is local!
-1. If you write a library and you need to add an actor, you should do this with `FG[#FG + 1] = Def.ActorFrame {}`. This is the same `FG` that is returned in `mods.lua` and created in `env.lua`. This `FG` ActorFrame has an update loop already provided that will broadcast an `Update` message every frame.
-1. Another thing to consider if you write your own standard library is that you may need to write your own mod loader as well. This is why one is included. It may not make writing a mod loader clear, but it will give you an idea of what it may expect from your standard library.
+2. If you write a library and you need to add an actor, you should do this with `FG[#FG + 1] = Def.ActorFrame {}`. This is the same `FG` that is created in `env.lua` and added to the ActorFrame in `init.lua`. This `FG` ActorFrame has an update loop already provided that will broadcast an `Update` message every frame.
+3. Another thing to consider if you write your own standard library is that you may need to write your own mod loader as well. This is why one is included. It may not make writing a mod loader clear, but it will give you an idea of what it may expect from your standard library.
 
 Generally, a library is written as follows:
 ```lua

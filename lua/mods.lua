@@ -7,9 +7,9 @@ local SW, SH, SCX, SCY
 
 -- Proxies
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	Node.new('ActorProxy'):AddToNodeTree('PP'..pn)
-	Node.new('ActorProxy'):AddToNodeTree('PJ'..pn)
-	Node.new('ActorProxy'):AddToNodeTree('PC'..pn)
+	Node.new('ActorProxy'):AddToTree('PP'..pn)
+	Node.new('ActorProxy'):AddToTree('PJ'..pn)
+	Node.new('ActorProxy'):AddToTree('PC'..pn)
 end
 
 -- Called on InitCommand

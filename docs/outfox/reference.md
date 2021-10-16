@@ -39,7 +39,7 @@
 | Node.`new`(type: *string*): *Node* | Create and return a new Node. |
 | Node.`ease`(\{actor: *string, table*, start: *float*, len: *float*, ease: *function*, amp1: *float*, amp2: *float*, property: *string*\}): *function* | Ease `property` of `actor` at `start` from `amp1` to `amp2` for `len` beats using `ease` to calculate strength. Returns `Node.ease`. |
 | Node.`func`(\{actor: *string, table*, start: *float*, len: *float*, ease: *function*, from: *float*, to: *float*, func: *function(self, p)*\}): *function* | Ease `function` passing `actor` as function's self at beat `start` from `amp1` to `amp2` for `len` beats using `ease` to calculate strength. `p` returns current amplitude. Returns `Node.ease`. |
-| Node:`GetNodeTree`(): *table* | Returns the node tree. |
+| Node.`GetTree`(): *table/ActorFrame* | Returns the node tree as a table or ActorFrame, depending on if called before or after ReadyCommand. |
 | Node:`AttachScript`(path: *string*): *Node* | Attach a script to a Node. Self-returns. |
 | Node:`SetInit`(func: *function(self)*): *Node* | Set a function the Node will run when the Node is initialized. Self-returns. |
 | Node:`SetReady`(func: *function(self)*): *Node* | Set a function the Node will run right after OnCommand is called. Self-returns. |
@@ -47,7 +47,7 @@
 | Node:`SetInput`(func: *function(self, event)*): *Node* | Set a function the Node will run on every `InputEvent`. Self-returns. |
 | Node:`SetCommand`(name: *string*, func: *function*): *Node* | Set a custom Command on a Node. Self-returns. |
 | Node:`SetMessage`(name: *string*, func: *function*): *Node* | Set a custom  MessageCommand on a Node. Self-returns. |
-| Node.`AddToNodeTree`(\[name\]: *string*, \[index\]: *int*): *Node* | Add a Node to the node tree. Self-returns. |
+| Node:`AddToTree`(\[name\]: *string*, \[index\]: *int*): *Node* | Add a Node to the node tree. Self-returns. |
 
 ---
 ###### [Return to Home](/kitsu-template)

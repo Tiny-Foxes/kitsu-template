@@ -15,7 +15,7 @@
 --	Node:SetMessage(msg, function) - Sets the message command of a Node
 --	Node:GetMessage(msg) - Gets the message command of a Node
 --	Node:AddChild(node, index, name) - Adds a child to a Node (Must inherit ActorFrame)
---	Node:AddToNodeTree(name, index) - Adds a Node to the NodeTree (Name and index can be in any order)
+--	Node:AddToTree(name, index) - Adds a Node to the NodeTree (Name and index can be in any order)
 ---------------------------
 local std = import 'stdlib'
 
@@ -306,8 +306,8 @@ local function GetChildIndex(self, name)
 		end
 	end
 end
-local function AddToNodeTree(self, idx, name)
-	--print('Node:AddToNodeTree')
+local function AddToTree(self, idx, name)
+	--print('Node:AddToTree')
 	if type(idx) == 'string' then
 		name = idx
 		idx = nil
@@ -367,7 +367,7 @@ Node = {
 	SetAttribute = SetAttribute,
 	AddChild = AddChild,
 	GetChildIndex = GetChildIndex,
-	AddToNodeTree = AddToNodeTree,
+	AddToTree = AddToTree,
 	GetOverlay = GetOverlay,
 	HideOverlay = HideOverlay,
 	GetTree = GetTree,
