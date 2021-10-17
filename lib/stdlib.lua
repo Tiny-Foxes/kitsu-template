@@ -3,15 +3,19 @@
 local std = {}
 setmetatable(std, {})
 
+std.VERSION = '1.1'
+
 -- Standard library variables, mostly shortcuts
-std.songdir = GAMESTATE:GetCurrentSong():GetSongDir()
+std.POS = GAMESTATE:GetSongPosition()
+std.DIR = GAMESTATE:GetCurrentSong():GetSongDir()
 
 std.SW, std.SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 std.SCX, std.SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
 
 std.DT = 0 -- time since last frame in seconds
-std.BEAT = GAMESTATE:GetSongPosition():GetSongBeat() -- current beat
-std.BPS = GAMESTATE:GetSongPosition():GetCurBPS() -- current beats per second
+
+std.BEAT = std.POS:GetSongBeat() -- current beat
+std.BPS = std.POS:GetCurBPS() -- current beats per second
 std.BPM = std.BPS * 60 -- beats per minute
 std.SPB = 1 / std.BPS -- seconds per beat
 std.PL = {}
@@ -114,8 +118,8 @@ FG[#FG + 1] = Def.Actor {
 		end
 	end,
 	UpdateMessageCommand = function(self, param)
-		std.BEAT = GAMESTATE:GetSongPosition():GetSongBeat() -- current beat
-		std.BPS = GAMESTATE:GetSongPosition():GetCurBPS() -- current beats per second
+		std.BEAT = std.POS:GetSongBeat() -- current beat
+		std.BPS = std.POS:GetCurBPS() -- current beats per second
 		std.BPM = std.BPS * 60 -- beats per minute
 		std.SPB = 1 / std.BPS -- seconds per beat
 		std.DT = param[1] -- time since last frame in seconds
@@ -140,5 +144,5 @@ end
 
 std.__index = std
 
-print('Loaded Kitsu Standard Library')
+print('Loaded Kitsu Standard Library v1.0')
 return std

@@ -86,7 +86,7 @@ local function UpdateMods()
 			local BEAT = std.BEAT
 			local pn = m.Player
 			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) then
-				if m.Type == 'Player' then
+				if m.Type == 'WIP' then
 					-- Ease blending is a work in progress. Try to make sure two eases don't use the same mod.
 					v[3] = v[3] or mod_percents[pn][v[2]] or 0
 					active[pn][v[2]] = active[pn][v[2]] or {}
@@ -99,7 +99,7 @@ local function UpdateMods()
 						local cur_v1 = cur_m.Modifiers[j][1]
 						local cur_v3 = cur_m.Modifiers[j][3]
 						local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
-						if m.Length == 0 then cur_ease = 1 end
+						if m.Length == 0 then cur_ease = cur_m.Ease(1) - offset end
 						local cur_perc = cur_ease * (cur_v1 - cur_v3)
 						--perc = perc + (cur_v3 + cur_perc)
 						if #active[pn][v[2]] == n then
@@ -108,9 +108,16 @@ local function UpdateMods()
 					end
 					mod_percents[pn][v[2]] = perc
 					ApplyMods(v[2], mod_percents[pn][v[2]], pn)
+				elseif m.Type == 'Player' then
+					v[3] = v[3] or mod_percents[pn][v[2]] or default_mods[pn][v[2]] or 0
+					local ease = m.Ease((BEAT - m.Start) / m.Length)
+					if m.Length == 0 then ease = m.Ease(1) end
+					local perc = ease * (v[1] - v[3])
+					mod_percents[pn][v[2]] = perc + v[3]
+					ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 				elseif m.Type == 'Note' then
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
-					v[5] = v[5] or note_percents[pn][notemod] or 0
+					v[5] = v[5] or note_percents[pn][notemod] or default_mods[pn][notemod] or 0
 					active[pn][notemod] = active[pn][notemod] or {}
 					v[6] = v[6] or (#active[pn][notemod] + 1)
 					active[pn][notemod][v[6]] = m
@@ -134,29 +141,36 @@ local function UpdateMods()
 				end
 			elseif BEAT >= (m.Start + m.Length) then
 				if m.Type == 'Player' then
-					mod_percents[pn][v[2]] = m.Ease(1) * v[1]
+					v[3] = v[3] or mod_percents[pn][v[2]] or 0
+					mod_percents[pn][v[2]] = m.Ease(1) * (v[1] - v[3]) + v[3]
 					if v[4] and active[pn][v[2]] then
-						local v4 = active[pn][v[2]][v[4]]
 						active[pn][v[2]][v[4]] = nil
 					end
 					ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 				elseif m.Type == 'Note' then
+					v[5] = v[5] or note_percents[pn][notemod] or 0
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
-					note_percents[pn][notemod] = m.Ease(1) * v[3]
+					note_percents[pn][notemod] = m.Ease(1) * (v[3] - v[5]) + v[5]
 					if v[6] and active[pn][notemod] then
 						active[pn][notemod][v[6]] = nil
 					end
 					ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 				end
-				if modlist[j] then table.remove(modlist, j) end
+				if j >= #m.Modifiers then
+					m = nil
+					table.remove(modlist, i)
+					break
+				end
+				--table.remove(m.Modifiers, j)
 			end
 		end
+		--if #m.Modifiers < 1 then table.remove(modlist, i) end
     end
 end
 
 
 FG[#FG + 1] = Def.Actor {
-	UpdateMessageCommand = function(self, param)
+	UpdateCommand = function(self, param)
 		UpdateMods()
 	end
 }
@@ -317,6 +331,7 @@ local function Exsch(self, start, len, str1, str2, mod, timing, ease, pn)
 end
 
 Mods = {
+	VERSION = '1.0',
 	FromFile = FromFile,
 	Define = Define,
 	Insert = Insert,
@@ -327,6 +342,6 @@ Mods = {
 }
 Mods.__index = Mods
 
-print('Loaded Konko Mods')
+print('Loaded Konko Mods v1.0')
 
 return Mods
