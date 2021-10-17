@@ -378,5 +378,5 @@ Node.__index = Node
 
 FG[#FG + 1] = NodeTree
 
-print('Loaded Konko Node v1.0')
+print('Loaded Konko Node v'..Node.VERSION)
 return Node

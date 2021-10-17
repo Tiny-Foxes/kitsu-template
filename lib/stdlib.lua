@@ -144,5 +144,5 @@ end
 
 std.__index = std
 
-print('Loaded Kitsu Standard Library v1.0')
+print('Loaded Kitsu Standard Library v'..std.VERSION)
 return std
