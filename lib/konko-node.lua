@@ -348,6 +348,7 @@ local function GetTree()
 end
 
 Node = {
+	VERSION = '1.0',
 	new = new,
 	FromFile = FromFile,
 	ease = ease,
@@ -377,5 +378,5 @@ Node.__index = Node
 
 FG[#FG + 1] = NodeTree
 
-print('Loaded Konko Node')
+print('Loaded Konko Node v1.0')
 return Node
