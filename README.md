@@ -3,7 +3,7 @@
 The Kitsu Template is designed with the mindset that a template should be fully customizable, yet easy to get started with. It remedies this with only including vital functions at the core of its code, and layering libraries on top that can be added, exchanged, or even removed if desired. Everything you need is included, and anything you want is supported.
 
 You can view the docs [here](https://tiny-foxes.github.io/kitsu-template).  
-NotITG version (albeit rarely maintained) [here](https://github.com/sudospective/kitsu-template-notitg)
+The NotITG version (albeit no longer maintained) can be found [here](https://github.com/sudospective/kitsu-template-notitg).
 
 # Getting Started
 Kitsu template is special in the sense that you don't have to use a built-in mod loader. You can use a different mod loader or even make your own. You don't even have to use the included standard library; you can make an entirely custom one and use that instead!
@@ -15,17 +15,7 @@ local Node = import 'konko-node' -- Konko Node
 local Mods = import 'konko-mods' -- Konko Mods
 ```
 
-There are two other libraries included that you can use if you wish, `mirin-syntax` and `ease-names`.
-- `mirin-syntax` will stylize the Konko Mods syntax to be like Mirin, and allow you to call `mirin.ease` instead of `Mods:Mirin`.
-- `ease-names` will allow you to use different names for ease functions like `inOutExpo` instead of `Tweens.inoutexpo`.
-
-You can include them like this:
-```lua
-local mirin = import 'mirin-syntax'
-import 'ease-names'
-```
-
-(If you import `mirin-syntax`, you do not have to import `konko-mods`, unless you want to still be able to use the `Mods` object directly.)
+There are more libraries you can find [here](https://github.com/Tiny-Foxes/kitsu-template-libraries/).
 
 ## Using Konko Node
 Konko Node allows a new, streamlined syntax that reduces the need for actor tables.To create a node, simply call the `Node.new` function.
@@ -100,12 +90,13 @@ More documentation available in `konko-mods.lua`.
 
 ## Writing Libraries
 
-There's really no limit to what you can write for a library. Since the only requirements you have are the requirements you give yourself, you can write any library you want. `mirin-syntax` is a good starting example on how to write a library for the Kitsu template, but there are some important things to consider.
+There's really no limit to what you can write for a library. Since the only requirements you have are the requirements you give yourself, you can write any library you want, but there are a few important things to consider.
 
 1. If you need a certain library to function, include it! remember to use `import` for anything you'll need.
 1. Try to keep your library local to avoid interfering with other libraries. Even the included standard library is local!
-2. If you write a library and you need to add an actor, you should do this with `FG[#FG + 1] = Def.ActorFrame {}`. This is the same `FG` that is created in `env.lua` and added to the ActorFrame in `init.lua`. This `FG` ActorFrame has an update loop already provided that will broadcast an `Update` message every frame.
+2. If you write a library and you need to add an actor, you should do this with `FG[#FG + 1] = Def.ActorFrame {}`. This is the same `FG` that is created in `env.lua` and added to the ActorFrame in `init.lua`. This `FG` ActorFrame has an update loop already provided that will call `UpdateCommand` every frame.
 3. Another thing to consider if you write your own standard library is that you may need to write your own mod loader as well. This is why one is included. It may not make writing a mod loader clear, but it will give you an idea of what it may expect from your standard library.
+4. You're more than welcome to submit your library to the [Template Library Repository](https://github.com/Tiny-Foxes/kitsu-template-libraries/)! Once approved, it will be listed with others in an easy-to-find location.
 
 Generally, a library is written as follows:
 ```lua
@@ -122,15 +113,16 @@ local function MyFunc(n)
 	return MyVar + n
 end
 
--- List only what you want to export. internal variables should stay hidden to prevent other things from messing with them.
+-- List only what you want to export. Internal variables should stay hidden to prevent other things from messing with them.
 MyLib = {
+	VERSION = '1.0',
 	var = MyVar,
 	func = MyFunc
 }
 MyLib.__index = MyLib
 
 -- It's a nice gesture to let the log know we've loaded in.
-print('Loaded MyLib')
+print('Loaded MyLib v'..MyLib.VERSION)
 return MyLib
 ```
 
