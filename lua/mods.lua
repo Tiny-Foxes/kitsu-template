@@ -8,7 +8,6 @@ local Mods = import 'konko-mods'
 local SW, SH = std.SW, std.SH
 local SCX, SCY = std.SCX, std.SCY
 
-
 -- Proxies
 local P = {}
 local PP, PJ, PC = {}, {}, {}
@@ -38,10 +37,14 @@ function ready()
 	-- Default mods
 	Mods:Default {
 		{1.5, 'xmod'},
-		{100, 'modtimersong'}
+		{100, 'modtimersong'},
 	}
-
-	-- Mod code here
+	--[[
+	Mods:Insert(0, 1, Tweens.outexpo, {
+		{-100, 'invert'},
+		{100, 'flip'}
+	})
+	--]]
 
 end
 
@@ -58,15 +61,12 @@ end
 
 -- Actors
 table.insert(FG, 1,
-
 	Def.ActorFrame {
+
 		-- Proxies
 		table.unpack(PP),
 		table.unpack(PJ),
 		table.unpack(PC),
 
-		-- Actor code here
-
 	}
-
 )
