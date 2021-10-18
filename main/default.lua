@@ -28,8 +28,19 @@
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 -- This loads the absolutely necessary stuff for the template's environment to work properly.
 assert(loadfile(dir .. 'main/env.lua'))()
--- This loads our overarching ActorFrame and initial playground. We need to return this one.
-return assert(loadfile(dir .. 'main/init.lua'))()
+-- This loads our environment.
+sudo()
+-- This loads our mods.lua, and our overarching ActorFrame.
+run 'lua/mods'
+return Def.ActorFrame {
+	OnCommand = function(self)
+		self:queuecommand('Ready')
+	end,
+	ReadyCommand = function(self)
+		self:queuecommand('Start')
+	end,
+	FG
+}
 
 --[[
 

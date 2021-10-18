@@ -22,7 +22,7 @@ std.PL = {}
 
 -- A bit of work to get the true start of our FG changes.
 local f = RageFileUtil.CreateRageFile()
-f:Open(std.songdir .. 'notes.ssc', 1)
+f:Open(std.DIR .. 'notes.ssc', 1)
 local chart = f:Read()
 f:Close()
 local fgfirst = chart:find('#FGCHANGES:') + ('#FGCHANGES:'):len()
@@ -33,36 +33,6 @@ std.MOD_START = tonumber(chart:sub(fgfirst, fglast))
 -- This might not be added on the engine side yet.
 if not Tweens.instant then
 	Tweens.instant = function(x) return 1 end
-end
-
-function std.aftmult(a)
-	return a * 0.9
-end
-
-function std.InitAFT(aft, recursive)
-	if not recursive then
-		aft
-			:SetSize(std.SW, std.SH)
-			:EnableFloat(false)
-			:EnableDepthBuffer(true)
-			:EnableAlphaBuffer(true)
-			:EnablePreserveTexture(false)
-			:Create()
-	else
-		aft
-			:SetSize(std.SW, std.SH)
-			:EnableFloat(false)
-			:EnableDepthBuffer(true)
-			:EnableAlphaBuffer(false)
-			:EnablePreserveTexture(true)
-			:Create()
-	end
-end
-
-function std.MapAFT(aft, sprite)
-	sprite
-		:Center()
-		:SetTexture(aft:GetTexture())
 end
 
 
@@ -117,7 +87,7 @@ FG[#FG + 1] = Def.Actor {
 			sudo.ready()
 		end
 	end,
-	UpdateMessageCommand = function(self, param)
+	UpdateCommand = function(self, param)
 		std.BEAT = std.POS:GetSongBeat() -- current beat
 		std.BPS = std.POS:GetCurBPS() -- current beats per second
 		std.BPM = std.BPS * 60 -- beats per minute
@@ -132,15 +102,77 @@ FG[#FG + 1] = Def.Actor {
 	end,
 }
 
---[[
-for k, v in pairs(fgcmd) do
-	local func = FG[k]
-	FG[k] = function(self)
-		if func then func(self)
-		v(self)
+
+function std.aftmult(a)
+	return a * 0.9
+end
+
+function std.InitAFT(aft, recursive)
+	if not recursive then
+		aft
+			:SetSize(std.SW, std.SH)
+			:EnableFloat(false)
+			:EnableDepthBuffer(true)
+			:EnableAlphaBuffer(true)
+			:EnablePreserveTexture(false)
+			:Create()
+	else
+		aft
+			:SetSize(std.SW, std.SH)
+			:EnableFloat(false)
+			:EnableDepthBuffer(true)
+			:EnableAlphaBuffer(false)
+			:EnablePreserveTexture(true)
+			:Create()
 	end
 end
---]]
+
+function std.MapAFT(aft, sprite)
+	sprite
+		:Center()
+		:SetTexture(aft:GetTexture())
+end
+
+function std.ProxyPlayer(pn)
+	return Def.ActorProxy {
+		ReadyCommand = function(self)
+			local plr = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn)
+			self:SetTarget(plr)
+			plr:visible(false)
+		end
+	}
+end
+
+function std.ProxyJudgment(pn)
+	return Def.ActorProxy {
+		ReadyCommand = function(self)
+			local plr = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn)
+			self
+				:SetTarget(plr:GetChild('Judgment'))
+				:xy(plr:GetX(), std.SCY)
+				:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
+			plr:GetChild('Judgment')
+				:visible(false)
+				:sleep(9e9)
+		end
+	}
+end
+
+function std.ProxyCombo(pn)
+	return Def.ActorProxy {
+		ReadyCommand = function(self)
+			local plr = SCREENMAN:GetTopScreen():GetChild('PlayerP'..pn)
+			self
+				:SetTarget(plr:GetChild('Combo'))
+				:xy(plr:GetX(), std.SCY)
+				:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
+			plr:GetChild('Combo')
+				:visible(false)
+				:sleep(9e9)
+		end
+	}
+end
+
 
 std.__index = std
 

@@ -54,7 +54,7 @@ function sudo.printerr(s) lua.ReportScriptError('KITSU: '..s) end
 -- Library importer
 function sudo.import(lib)
 	-- Catch in case we add .lua to our path.
-	if lib:find('.lua') then lib = lib:sub(1, lib:find('.lua') - 1) end
+	if lib:find('%.lua') then lib = lib:sub(1, lib:find('%.lua') - 1) end
 	-- Make sure the file is there
 	local file = dir..'lib/'..lib..'.lua'
 	if not loadfile(file) then
@@ -68,7 +68,7 @@ end
 -- Lua runner
 function sudo.run(path)
 	-- Catch in case we add .lua to our path.
-	if path:find('.lua') then path = path:sub(1, path:find('.lua') - 1) end
+	if path:find('%.lua') then path = path:sub(1, path:find('%.lua') - 1) end
 	-- Make sure the file is there
 	local file = dir..path..'.lua'
 	if not loadfile(file) then
@@ -80,20 +80,10 @@ function sudo.run(path)
 end
 
 sudo.FG = Def.ActorFrame {
-	ReadyCommand = function(self)
-		self:queuecommand('Start')
-	end,
+    InitCommand = function(self)
+        self:sleep(9e9)
+    end,
 	StartCommand = function(self)
-		self:queuecommand('BeginFrame')
-	end,
-	BeginFrameCommand = function(self)
-		MESSAGEMAN:Broadcast('Update', {self:GetEffectDelta()})
-	end,
-	UpdateMessageCommand = function(self, param)
-		self:queuecommand('EndFrame')
-	end,
-	EndFrameCommand = function(self)
-		self:sleep(self:GetEffectDelta())
-		self:queuecommand('BeginFrame')
-	end,
+		self:luaeffect('Update')
+	end
 }
