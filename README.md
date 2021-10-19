@@ -48,7 +48,7 @@ MyNode:SetAttribute('Texture', 'path/to/texture.png')
 
 Finally, you can add your node to the node tree. You can give it a name, and index, both, or neither. Giving it a name will allow you to use this node in its Actor form after its construction.
 ```lua
-MyNode:AddToNodeTree('MyNode', 1)
+MyNode:AddToTree('MyNode', 1)
 ```
 More documentation avaiable in `konko-nodes.lua`.
 
