@@ -43,7 +43,7 @@ for pn = 1, #POptions do
 	default_mods[pn] = {}
 	active[pn] = {}
 end
-
+--[[
 local function ApplyMods(mod, percent, pn)
 	if custom_mods[pn][mod] ~= nil then
 		local new_perc = custom_mods[pn][mod].Function(percent, pn)
@@ -66,6 +66,30 @@ local function ApplyMods(mod, percent, pn)
 		end
 	end
 end
+--]]
+local function ApplyMods()
+	for pn = 1, #POptions do
+		local modstring = ''
+		for mod, percent in pairs(mod_percents[pn]) do
+			if custom_mods[pn][mod] ~= nil then
+				local new_perc = custom_mods[pn][mod].Function(percent, pn)
+				local new_mod = custom_mods[pn][mod].Return
+				percent = new_perc -- haha :TacMeme2:
+				mod = new_mod
+			end
+			if mod then
+				-- TODO: Fix mod ease calculations so percentage doesn't end up backwards
+				if mod:sub(2):lower() == 'mod' then
+					modstring = modstring..'*-1 '..percent..mod:sub(1, 1):lower()..','
+				else
+					modstring = modstring..'*-1 '..(percent)..' '..mod:lower()..','
+				end
+			end
+		end
+		if modstring ~= '' then POptions[pn]:FromString(modstring) end
+	end
+end
+
 local function ApplyNotes(beat, col, mod, percent, pn)
 	-- Code to turn on notemods once will go here once function is implemented engine side
 	mod = mod:lower()
@@ -107,14 +131,14 @@ local function UpdateMods()
 						end
 					end
 					mod_percents[pn][v[2]] = perc
-					ApplyMods(v[2], mod_percents[pn][v[2]], pn)
+					--ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 				elseif m.Type == 'Player' then
 					v[3] = v[3] or mod_percents[pn][v[2]] or default_mods[pn][v[2]] or 0
 					local ease = m.Ease((BEAT - m.Start) / m.Length)
 					if m.Length == 0 then ease = m.Ease(1) end
 					local perc = ease * (v[1] - v[3])
 					mod_percents[pn][v[2]] = perc + v[3]
-					ApplyMods(v[2], mod_percents[pn][v[2]], pn)
+					--ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 				elseif m.Type == 'Note' then
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
 					v[5] = v[5] or note_percents[pn][notemod] or default_mods[pn][notemod] or 0
@@ -137,7 +161,7 @@ local function UpdateMods()
 						end
 					end
 					note_percents[pn][notemod] = perc
-					ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
+					--ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 				end
 			elseif BEAT >= (m.Start + m.Length) then
 				if m.Type == 'Player' then
@@ -146,7 +170,7 @@ local function UpdateMods()
 					if v[4] and active[pn][v[2]] then
 						active[pn][v[2]][v[4]] = nil
 					end
-					ApplyMods(v[2], mod_percents[pn][v[2]], pn)
+					--ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 				elseif m.Type == 'Note' then
 					v[5] = v[5] or note_percents[pn][notemod] or 0
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
@@ -154,7 +178,7 @@ local function UpdateMods()
 					if v[6] and active[pn][notemod] then
 						active[pn][notemod][v[6]] = nil
 					end
-					ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
+					--ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 				end
 				if j >= #m.Modifiers then
 					m = nil
@@ -172,11 +196,12 @@ end
 FG[#FG + 1] = Def.Actor {
 	ReadyCommand = function(self)
 		for pn = 1, #std.PL do
-			ApplyMods('clearall', 100, pn)
+			POptions[pn]:FromString('*-1 clearall')
 		end
 	end,
 	UpdateCommand = function(self)
 		UpdateMods()
+		ApplyMods()
 	end
 }
 

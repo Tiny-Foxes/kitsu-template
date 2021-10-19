@@ -57,7 +57,7 @@ function sudo.import(lib)
 	if lib:find('%.lua') then lib = lib:sub(1, lib:find('%.lua') - 1) end
 	-- Make sure the file is there
 	local file = dir..'lib/'..lib..'.lua'
-	if not loadfile(file) then
+	if not assert(loadfile(file)) then
 		sudo.printerr('Unable to import library "'..lib..'": No file found.')
 		return
 	end
@@ -71,7 +71,7 @@ function sudo.run(path)
 	if path:find('%.lua') then path = path:sub(1, path:find('%.lua') - 1) end
 	-- Make sure the file is there
 	local file = dir..path..'.lua'
-	if not loadfile(file) then
+	if not assert(loadfile(file)) then
 		sudo.printerr('Unable to run file "'..path..'": No file found.')
 		return
 	end
@@ -81,6 +81,7 @@ end
 
 sudo.FG = Def.ActorFrame {
     InitCommand = function(self)
+		sudo.FG = self
         self:sleep(9e9)
     end,
 	StartCommand = function(self)

@@ -9,12 +9,12 @@ local SW, SH = std.SW, std.SH
 local SCX, SCY = std.SCX, std.SCY
 
 -- Proxies
-local P = {}
+local P, PL = {}, {}
 local PP, PJ, PC = {}, {}, {}
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	PP[pn] = std.ProxyPlayer(pn)
-	PJ[pn] = std.ProxyJudgment(pn)
-	PC[pn] = std.ProxyCombo(pn)
+	PP[pn] = std.ProxyPlayer(pn, 'PP'..pn)
+	PJ[pn] = std.ProxyJudgment(pn, 'PJ'..pn)
+	PC[pn] = std.ProxyCombo(pn, 'PC'..pn)
 end
 
 
@@ -30,8 +30,9 @@ function ready()
 	Node.HideOverlay(true)
 
 	-- Player shorthand variables
-	for pn = 1, #std.PL do
-		P[pn] = std.PL[pn].Player
+	PL = std.PL
+	for pn = 1, #PL do
+		P[pn] = PL[pn].Player
 	end
 
 	-- Default mods
@@ -39,12 +40,12 @@ function ready()
 		{1.5, 'xmod'},
 		{100, 'modtimersong'},
 	}
-	--[[
-	Mods:Insert(0, 1, Tweens.outexpo, {
-		{-100, 'invert'},
-		{100, 'flip'}
-	})
-	--]]
+	-- Mode code here
+	for beat = 0, 300 do
+		Mods
+			:Mirin {beat - 0.25, 0.5, Tweens.inoutquad, 100, 'flip', -100, 'invert', 100, 'drunk', -100, 'tipsy'}
+			:Mirin {beat + 0.25, 0.5, Tweens.inoutquad, 0, 'flip', 0, 'invert', -100, 'drunk', 100, 'tipsy'}
+	end
 
 end
 
@@ -53,26 +54,21 @@ function input(event)
 
 end
 
--- Called on UpdateMessageCommand
+-- Called on UpdateCommand
 function update(dt)
-
+	
 end
 
 -- Called on FG.Draw
 function draw()
-	
+
 end
 
 
-
 -- Actors
-table.insert(FG, 1,
-	Def.ActorFrame {
-
-		-- Proxies
-		table.unpack(PP),
-		table.unpack(PJ),
-		table.unpack(PC),
-
-	}
-)
+table.insert(FG, Def.ActorFrame {
+	table.unpack(PP),
+	table.unpack(PJ),
+	table.unpack(PC),
+	Node.GetTree(),
+})

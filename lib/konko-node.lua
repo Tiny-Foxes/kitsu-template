@@ -97,7 +97,6 @@ local NodeTree = Def.ActorFrame {
 			end
 		end
 		NameActors(s)
-		print('NodeTree')
 	end,
 	UpdateMessageCommand = function(self)
 		UpdateEases()
@@ -375,8 +374,6 @@ Node = {
 	GetActor = function(this) printerr('Node.GetActor: Function not available before ready()') end,
 }
 Node.__index = Node
-
-FG[#FG + 1] = NodeTree
 
 print('Loaded Konko Node v'..Node.VERSION)
 return Node
