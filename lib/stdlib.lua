@@ -3,7 +3,7 @@
 local std = {}
 setmetatable(std, {})
 
-std.VERSION = '1.1'
+std.VERSION = '1.2'
 
 -- Standard library variables, mostly shortcuts
 std.POS = GAMESTATE:GetSongPosition()

@@ -336,7 +336,7 @@ local function Exsch(self, start, len, str1, str2, mod, timing, ease, pn)
 end
 
 Mods = {
-	VERSION = '1.0',
+	VERSION = '1.1',
 	FromFile = FromFile,
 	Define = Define,
 	Insert = Insert,
