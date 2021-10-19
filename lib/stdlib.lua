@@ -196,53 +196,38 @@ function std.MapAFT(aft, sprite)
 		:SetTexture(aft:GetTexture())
 end
 
-function std.ProxyPlayer(pn, name)
-	return Def.ActorProxy {
-		Name = name or nil,
-		ReadyCommand = function(self)
-			std.PL[pn].ProxyP = self
-			local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
-			local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
-			self:SetTarget(plr)
-			plr:visible(false)
-		end
-	}
+function std.ProxyPlayer(proxy, pn)
+	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
+	local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
+	proxy:SetTarget(plr)
+	plr:visible(false)
+	std.PL[pn].ProxyP = proxy
 end
 
-function std.ProxyJudgment(pn, name)
-	return Def.ActorProxy {
-		Name = name or nil,
-		ReadyCommand = function(self)
-			std.PL[pn].ProxyJ = self
-			local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
-			local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
-			self
-				:SetTarget(plr:GetChild('Judgment'))
-				:xy(plr:GetX(), std.SCY)
-				:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
-			plr:GetChild('Judgment')
-				:visible(false)
-				:sleep(9e9)
-		end
-	}
+function std.ProxyJudgment(proxy, pn)
+	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
+	local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
+	proxy
+		:SetTarget(plr:GetChild('Judgment'))
+		:xy(plr:GetX(), std.SCY)
+		:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
+	plr:GetChild('Judgment')
+		:visible(false)
+		:sleep(9e9)
+	std.PL[pn].ProxyJ = proxy
 end
 
-function std.ProxyCombo(pn, name)
-	return Def.ActorProxy {
-		Name = name or nil,
-		ReadyCommand = function(self)
-			std.PL[pn].ProxyC = self
-			local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
-			local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
-			self
-				:SetTarget(plr:GetChild('Combo'))
-				:xy(plr:GetX(), std.SCY)
-				:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
-			plr:GetChild('Combo')
-				:visible(false)
-				:sleep(9e9)
-		end
-	}
+function std.ProxyCombo(proxy, pn)
+	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
+	local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
+	proxy
+		:SetTarget(plr:GetChild('Combo'))
+		:xy(plr:GetX(), std.SCY)
+		:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
+	plr:GetChild('Combo')
+		:visible(false)
+		:sleep(9e9)
+	std.PL[pn].ProxyC = proxy
 end
 
 
