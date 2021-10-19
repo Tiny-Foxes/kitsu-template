@@ -49,11 +49,6 @@ function ready()
 		{100, 'modtimersong'},
 	}
 	-- Mode code here
-	for beat = 0, 300 do
-		Mods
-			:Mirin {beat - 0.25, 0.5, Tweens.inoutquad, 100, 'flip', -100, 'invert', 100, 'drunk', -100, 'tipsy'}
-			:Mirin {beat + 0.25, 0.5, Tweens.inoutquad, 0, 'flip', 0, 'invert', -100, 'drunk', 100, 'tipsy'}
-	end
 
 end
 
