@@ -48,8 +48,8 @@ end
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
 -- Debug and Error prints
-function sudo.print(s) lua.Trace('KITSU: '..s) end
-function sudo.printerr(s) lua.ReportScriptError('KITSU: '..s) end
+function sudo.print(s) lua.Trace('KITSU: '..(s or 'nil')) end
+function sudo.printerr(s) lua.ReportScriptError('KITSU: '..(s or 'nil')) end
 
 -- Library importer
 function sudo.import(lib)

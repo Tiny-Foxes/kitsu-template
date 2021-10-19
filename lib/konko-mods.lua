@@ -170,7 +170,12 @@ end
 
 
 FG[#FG + 1] = Def.Actor {
-	UpdateCommand = function(self, param)
+	ReadyCommand = function(self)
+		for pn = 1, #std.PL do
+			ApplyMods('clearall', 100, pn)
+		end
+	end,
+	UpdateCommand = function(self)
 		UpdateMods()
 	end
 }

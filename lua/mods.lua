@@ -48,15 +48,21 @@ function ready()
 
 end
 
+-- Called on InputMessageCommand
+function input(event)
+
+end
+
 -- Called on UpdateMessageCommand
 function update(dt)
 
 end
 
--- Called on InputMessageCommand
-function input(event)
-
+-- Called on FG.Draw
+function draw()
+	
 end
+
 
 
 -- Actors

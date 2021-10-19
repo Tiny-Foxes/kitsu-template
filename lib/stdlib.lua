@@ -41,7 +41,7 @@ local InputHandler = function(event)
 end
 
 -- Our foreground to put everything in. If FG is not set, this will take its place.
-FG[#FG + 1] = Def.Actor {
+FG[#FG + 1] = Def.ActorFrame {
 	InitCommand = function(self)
 		if sudo.init then
 			sudo.init()
@@ -68,7 +68,7 @@ FG[#FG + 1] = Def.Actor {
 			info.Judgment = pl:GetChild('Judgment')
 			info.NoteField = pl:GetChild('NoteField')
 			info.NoteData = pl:GetNoteData()
-			info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
+			info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
 	
 			std.PL[i] = info
 		end
@@ -85,6 +85,9 @@ FG[#FG + 1] = Def.Actor {
 	StartCommand = function(self)
 		if sudo.ready then
 			sudo.ready()
+		end
+		if sudo.draw then
+			self:SetDrawFunction(sudo.draw)
 		end
 	end,
 	UpdateCommand = function(self, param)
