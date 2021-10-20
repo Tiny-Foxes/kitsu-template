@@ -54,7 +54,7 @@ end
 
 -- Called on InputMessageCommand
 function input(event)
-
+	
 end
 
 -- Called on UpdateCommand
