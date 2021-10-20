@@ -121,6 +121,7 @@ else
 				info.NoteField = pl:GetChild('NoteField')
 				info.Proxy = nil
 				info.NoteData = pl:GetNoteData()
+				info.State = GAMESTATE:GetPlayerState(v)
 				info.Stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(v)
 				info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
 		
