@@ -62,7 +62,7 @@ function sudo.import(lib)
 		return
 	end
 	-- Return our file in our environment
-	return sudo(assert(loadfile(dir..'lib/'..lib..'.lua')))()
+	return sudo(loadfile(file))()
 end
 
 -- Lua runner
@@ -76,7 +76,7 @@ function sudo.run(path)
 		return
 	end
 	-- Return our file in our environment
-	return sudo(assert(loadfile(dir..path..'.lua')))()
+	return sudo(loadfile(file))()
 end
 
 sudo.FG = Def.ActorFrame {
