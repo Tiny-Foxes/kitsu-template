@@ -113,6 +113,7 @@ else
 					end
 				end
 				info.Player = pl
+				info.Number = v
 				info.Life = std.SCREEN:GetChild('Life'..ToEnumShortString(v))
 				info.Score = std.SCREEN:GetChild('Score'..ToEnumShortString(v))
 				info.Combo = pl:GetChild('Combo')
@@ -120,6 +121,7 @@ else
 				info.NoteField = pl:GetChild('NoteField')
 				info.Proxy = nil
 				info.NoteData = pl:GetNoteData()
+				info.Stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(v)
 				info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
 		
 				std.PL[i] = info
