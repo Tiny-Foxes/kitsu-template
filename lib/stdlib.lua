@@ -3,7 +3,7 @@
 local std = {}
 setmetatable(std, {})
 
-std.VERSION = '1.2'
+std.VERSION = '1.3'
 
 -- Standard library variables, mostly shortcuts
 std.POS = GAMESTATE:GetSongPosition()
@@ -21,6 +21,7 @@ std.SPB = 1 / std.BPS -- seconds per beat
 std.PL = {}
 
 -- A bit of work to get the true start of our FG changes.
+-- Take this out as soon as getting FG changes is possible in Lua. ~Sudo
 local f = RageFileUtil.CreateRageFile()
 f:Open(std.DIR .. 'notes.ssc', 1)
 local chart = f:Read()
@@ -29,6 +30,11 @@ local fgfirst = chart:find('#FGCHANGES:') + ('#FGCHANGES:'):len()
 local fglast = chart:find('=', fgfirst) - 1
 
 std.MOD_START = tonumber(chart:sub(fgfirst, fglast))
+
+fglast = nil
+fgfirst = nil
+chart = nil
+f = nil
 
 -- This might not be added on the engine side yet.
 if not Tweens.instant then
@@ -123,7 +129,10 @@ else
 				info.NoteData = pl:GetNoteData()
 				info.State = GAMESTATE:GetPlayerState(v)
 				info.Stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(v)
+				-- Change this to have a Read() and Write() using Current and Song level, respectively. ~Sudo
 				info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
+				-- I put this hear because I dream of the day that I can play dance with one player and pump with another. ~Sudo
+				info.Columns = GAMESTATE:GetCurrentStyle():ColumnsPerPlayer()
 		
 				std.PL[i] = info
 			end
@@ -176,7 +185,7 @@ end
 function std.InitAFT(aft, recursive)
 	if not recursive then
 		aft
-		:SetSize(std.SW, std.SH)
+			:SetSize(std.SW, std.SH)
 			:EnableFloat(false)
 			:EnableDepthBuffer(false)
 			:EnableAlphaBuffer(false)
