@@ -147,12 +147,12 @@ else
 			})
 		end,
 		StartCommand = function(self)
-			-- We need new values for these, since before init give bad values.
-			std.BEAT = std.POS:GetSongBeat()
-			std.BPS = std.POS:GetCurBPS()
-			std.BPM = std.BPS * 60
-			std.SPB = 1 / std.BPS
-			std.DT = self:GetEffectDelta()
+			-- We need new values for these ASAP, since before init gives us bad values.
+			std.BEAT = std.POS:GetSongBeat() -- current beat
+			std.BPS = std.POS:GetCurBPS() -- current beats per second
+			std.BPM = std.BPS * 60 -- beats per minute
+			std.SPB = 1 / std.BPS -- seconds per beat
+			std.DT = self:GetEffectDelta() -- time since last frame in seconds
 			if sudo.ready then
 				sudo.ready()
 			end
@@ -161,11 +161,11 @@ else
 			end
 		end,
 		UpdateCommand = function(self)
-			std.BEAT = std.POS:GetSongBeat() -- current beat
-			std.BPS = std.POS:GetCurBPS() -- current beats per second
-			std.BPM = std.BPS * 60 -- beats per minute
-			std.SPB = 1 / std.BPS -- seconds per beat
-			std.DT = self:GetEffectDelta() -- time since last frame in seconds
+			std.BEAT = std.POS:GetSongBeat()
+			std.BPS = std.POS:GetCurBPS()
+			std.BPM = std.BPS * 60
+			std.SPB = 1 / std.BPS
+			std.DT = self:GetEffectDelta()
 			if sudo.update then
 				sudo.update(std.DT)
 			end

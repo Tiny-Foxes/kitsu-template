@@ -21,12 +21,16 @@ local std = import 'stdlib'
 
 local Node = {}
 
+-- Version number
+local VERSION = '1.1'
+
 local ease_table = {}
 local func_table = {}
 local msg_table = {}
 
 local node_idx = 1
 
+-- These run every frame. They update the eases, functions, and signals.
 local function UpdateEases()
 	local BEAT = std.BEAT
 	for i, v in ipairs(ease_table) do
@@ -120,6 +124,7 @@ local function new(obj)
 	return t
 end
 local function FromFile(path)
+	--print('Node.FromFile')
 	local t = run('lua/'..path)
 	if not t.Name then t.Name = 'Node'..node_idx end
 	node_idx = node_idx + 1
@@ -127,6 +132,7 @@ local function FromFile(path)
 	return t
 end
 local function ease(t)
+	--print('Node.ease')
 	if type(t) ~= 'table' then
 		printerr('Node.ease: Table expected, got '..type(t))
 	end
@@ -134,6 +140,7 @@ local function ease(t)
 	return ease
 end
 local function func(t)
+	--print('Node.func')
 	if type(t) ~= 'table' then
 		printerr('Node.ease: Table expected, got '..type(t))
 	end
@@ -142,6 +149,7 @@ local function func(t)
 end
 
 local function signal(t)
+	--print('Node.signal')
 	if type(t) ~= 'table' then
 		printerr('Node.ease: Table expected, got '..type(t))
 	end
@@ -174,6 +182,7 @@ local function AttachScript(self, scriptpath)
 	kitsu = nil
 end
 local function AddEase(self, t)
+	--print('Node:AddEase')
 	if type(t) ~= 'table' then
 		printerr('Node.AddEase: Table expected, got '..type(t))
 		return
@@ -187,12 +196,13 @@ local function AddEase(self, t)
 	return self
 end
 local function AddFunc(self, t)
+	--print('Node:AddFunc')
 	if type(t) ~= 'table' then
 		printerr('Node.AddEase: Table expected, got '..type(t))
 		return
 	end
 	if self.Name == '' then
-		printerr('Node.AddEase: Node name is blank')
+		printerr('Node.AddEase: Node name cannot be blank')
 		return
 	end
 	table.insert(t, 1, self.Name)
@@ -201,16 +211,49 @@ local function AddFunc(self, t)
 end
 
 local function SetName(self, name)
+	--print('Node:SetName')
 	self.Name = name
 	--_G.sudo[name] = self
 	return self
 end
 local function SetTexture(self, path)
+	--print('Node:SetTexture')
 	if self.Type ~= 'Sprite' then
-		printerr('Node.SetTexture: Cannot set texture of type'..self.Type)
+		printerr('Node.SetTexture: Cannot set texture of type '..self.Type)
 		return
 	end
 	self.Texture = path
+	return self
+end
+local function SetFont(self, font)
+	--print('Node:SetFont')
+	if self.Type ~= 'BitmapText' then
+		printerr('Node.SetFont: Cannot set font of type '..self.Type)
+		return
+	end
+	self.Font = font
+	return self
+end
+local function SetInit(self, func)
+	--print('Node:SetInit')
+	return self:SetCommand('Init', func)
+end
+local function SetReady(self, func)
+	--print('Node:SetReady')
+	return self:SetCommand('Ready', func)
+end
+local function SetUpdate(self, func)
+	--print('Node:SetUpdate')
+	self.UpdateCommand = function(self)
+		return func(self, std.DT)
+	end
+	return self
+end
+local function SetInput(self, func)
+	--print('Node:SetInput')
+	self.InputMessageCommand = function(self, param)
+		return func(self, param[1])
+	end
 	return self
 end
 local function SetCommand(self, name, func)
@@ -224,36 +267,14 @@ local function SetCommand(self, name, func)
 	end
 	return self
 end
-local function SetInit(self, func)
-	--print('Node:SetInit')
-	return self:SetCommand('Init', func)
-end
-local function SetReady(self, func)
-	--print('Node:SetReady')
-	return self:SetCommand('Ready', func)
-end
-local function SetUpdate(self, func)
-	--print('Node:SetUpdate')
-	self.UpdateMessageCommand = function(self)
-		return func(self, std.DT)
-	end
-	return self
-end
-local function SetInput(self, func)
-	--print('Node:SetInput')
-	self.InputMessageCommand = function(self, param)
-		return func(self, param[1])
-	end
-	return self
-end
 local function GetCommand(self, name)
 	--print('Node:GetCommand')
 	return self[name..'Command']
 end
-local function SetMessage(self, name, func)
-	--print('Node:SetMessage')
+local function SetSignal(self, name, func)
+	--print('Node:SetSignal')
 	if type(func) ~= 'function' then
-		printerr('Node.SetMessage: Invalid argument #2 (expected function, got '..type(func)..')')
+		printerr('Node.SetSignal: Invalid argument #2 (expected function, got '..type(func)..')')
 		return
 	end
 	self[name..'MessageCommand'] = function(self)
@@ -273,6 +294,19 @@ end
 local function GetAttribute(self, attr)
 	--print('Node:GetAttribute')
 	return self[attr]
+end
+local function SetDraw(self, func)
+	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
+		printerr('Node.SetDraw: Cannot set draw function of type '..self.Type)
+		return
+	end
+	local ready = FG.ReadyCommand
+	FG.ReadyCommand = function(this)
+		local self = self
+		local func = func
+		ready(this)
+		self:SetDrawFunction(func)
+	end
 end
 local function AddChild(self, child, idx, name)
 	--print('Node:AddChild')
@@ -347,7 +381,7 @@ local function GetTree()
 end
 
 Node = {
-	VERSION = '1.0',
+	VERSION = VERSION,
 	new = new,
 	FromFile = FromFile,
 	ease = ease,
@@ -358,13 +392,16 @@ Node = {
 	AddFunc = AddFunc,
 	SetName = SetName,
 	SetTexture = SetTexture,
+	SetFont = SetFont,
 	SetInit = SetInit,
 	SetReady = SetReady,
 	SetUpdate = SetUpdate,
 	SetInput = SetInput,
 	SetCommand = SetCommand,
-	SetMessage = SetMessage,
+	SetSignal = SetSignal,
+	SetMessage = SetSignal,
 	SetAttribute = SetAttribute,
+	SetDraw = SetDraw,
 	AddChild = AddChild,
 	GetChildIndex = GetChildIndex,
 	AddToTree = AddToTree,

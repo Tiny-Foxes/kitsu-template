@@ -7,7 +7,7 @@
 --      ease - Ease function
 --      modpairs - {{end_p, mod, [begin_p]}, ...}
 --          end_p - Ending percent
---          mod - Mod to activate (MUST be written in PascalCase)
+--          mod - Mod to activate (PascalCase preferred)
 --          begin_p - Beginning percent (optional)
 --      offset - Offset between each mod in modpairs (optional)
 --      plr - Player to apply mods (optional)
@@ -22,6 +22,8 @@ local std = import 'stdlib'
 local Mods = {}
 setmetatable(Mods, {})
 
+-- Version number
+local VERSION = '1.2'
 
 -- Keep the player options from the enabled players that are available.
 local POptions = {}
@@ -67,6 +69,7 @@ local function ApplyMods(mod, percent, pn)
 	end
 end
 --]]
+-- TODO: Make sure this doesn't run on unnecessary frames. ~Sudo
 local function ApplyMods()
 	for pn = 1, #POptions do
 		local modstring = ''
@@ -74,12 +77,17 @@ local function ApplyMods()
 			if custom_mods[pn][mod] ~= nil then
 				local new_perc = custom_mods[pn][mod].Function(percent, pn)
 				local new_mod = custom_mods[pn][mod].Return
-				percent = new_perc -- haha :TacMeme2:
+				percent = new_perc
 				mod = new_mod
 			end
 			if mod then
-				-- TODO: Fix mod ease calculations so percentage doesn't end up backwards
-				if mod:sub(2):lower() == 'mod' then
+				if POptions[pn][mod] then
+					if mod:sub(2) == 'Mod' then
+						POptions[pn][mod](POptions[pn], percent, 9e9)
+					else
+						POptions[pn][mod](POptions[pn], percent * 0.01, 9e9)
+					end
+				elseif mod:sub(2):lower() == 'mod' then
 					modstring = modstring..'*-1 '..percent..mod:sub(1, 1):lower()..','
 				else
 					modstring = modstring..'*-1 '..(percent)..' '..mod:lower()..','
@@ -236,7 +244,7 @@ local function Define(self, name, func, ret)
 	end
 	return self
 end
--- Write to a mod branch.
+-- Insert a mod.
 local function Insert(self, start, len, ease, modtable, offset, pn)
     --printerr('Mods:Insert')
     local t1, t2 = {}, {}
@@ -338,7 +346,16 @@ local function Note(self, start, len, ease, notemodtable, offset, pn)
 	end
 	return self
 end
--- Write to a mod branch now Mirin approved!
+-- Insert a mod but you like extra wasabi
+local function Exsch(self, start, len, str1, str2, mod, timing, ease, pn)
+    --printerr('Mods:Exsch')
+    if timing == 'end' then
+        len = len - start
+    end
+    local res = self:Insert(start, len, ease, {{str2, mod, str1}}, 0, pn)
+    return res
+end
+-- so-called "free thinkers" when mirin template
 local function Mirin(self, t, offset, pn)
     --printerr('Mods:Mirin')
     local tmods = {}
@@ -350,18 +367,9 @@ local function Mirin(self, t, offset, pn)
     local res = self:Insert(t[1], t[2], t[3], tmods, offset, pn)
     return res
 end
--- Write to a mod branch but you like extra wasabi~
-local function Exsch(self, start, len, str1, str2, mod, timing, ease, pn)
-    --printerr('Mods:Exsch')
-    if timing == 'end' then
-        len = len - start
-    end
-    local res = self:Insert(start, len, ease, {{str2, mod, str1}}, 0, pn)
-    return res
-end
 
 Mods = {
-	VERSION = '1.1',
+	VERSION = VERSION,
 	FromFile = FromFile,
 	Define = Define,
 	Insert = Insert,
