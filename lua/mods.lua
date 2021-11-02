@@ -45,8 +45,8 @@ function ready()
 
 	-- Default mods
 	Mods:Default {
-		{1.5, 'xmod'},
-		{100, 'modtimersong'},
+		{1.5, 'XMod'},
+		{100, 'ModTimerSong'},
 	}
 	-- Mode code here
 

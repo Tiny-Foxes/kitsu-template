@@ -7,7 +7,7 @@
 --      ease - Ease function
 --      modpairs - {{end_p, mod, [begin_p]}, ...}
 --          end_p - Ending percent
---          mod - Mod to activate (PascalCase preferred)
+--          mod - Mod to activate (PascalCase uses player option functions)
 --          begin_p - Beginning percent (optional)
 --      offset - Offset between each mod in modpairs (optional)
 --      plr - Player to apply mods (optional)
