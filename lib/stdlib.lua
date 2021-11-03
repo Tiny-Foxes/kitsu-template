@@ -9,6 +9,9 @@ std.VERSION = '1.3'
 std.POS = GAMESTATE:GetSongPosition()
 std.DIR = GAMESTATE:GetCurrentSong():GetSongDir()
 
+std.COLNUM = GAMESTATE:GetCurrentStyle():ColumnsPerPlayer()
+std.GAME = GAMESTATE:GetCurrentGame()
+
 std.SW, std.SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 std.SCX, std.SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
 
@@ -73,7 +76,10 @@ if FG.stdlib then
 				info.Judgment = pl:GetChild('Judgment')
 				info.NoteField = pl:GetChild('NoteField')
 				info.NoteData = pl:GetNoteData()
+				info.State = GAMESTATE:GetPlayerState(v)
+				info.Stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(v)
 				info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
+				info.Columns = pl:GetChild('NoteField'):GetColumnActors()
 		
 				std.PL[i] = info
 			end
@@ -125,14 +131,11 @@ else
 				info.Combo = pl:GetChild('Combo')
 				info.Judgment = pl:GetChild('Judgment')
 				info.NoteField = pl:GetChild('NoteField')
-				info.Proxy = nil
 				info.NoteData = pl:GetNoteData()
 				info.State = GAMESTATE:GetPlayerState(v)
 				info.Stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(v)
-				-- Change this to have a Read() and Write() using Current and Song level, respectively. ~Sudo
 				info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
-				-- I put this hear because I dream of the day that I can play dance with one player and pump with another. ~Sudo
-				info.Columns = GAMESTATE:GetCurrentStyle():ColumnsPerPlayer()
+				info.Columns = pl:GetChild('NoteField'):GetColumnActors()
 		
 				std.PL[i] = info
 			end
