@@ -26,7 +26,7 @@ sudo.__index = _G
 local function nop() end
 
 -- nah just kidding here it is
-function sudo:__call(f, name)
+local function envcall(self, f, name)
 	if type(f) == 'string' then
 		-- If we call sudo with a string, we need to load it as code.
 		local err
@@ -44,15 +44,61 @@ function sudo:__call(f, name)
 	return f
 end
 
+-- And this ties it to our call function (i.e., sudo())
+function sudo:__call(f, name)
+	return envcall(self, f, name)
+end
+
+-- Special thanks to Chegg for helping me help him help me get this working
+function sudo.using(ns)
+	local env = getfenv(2)
+	local newenv = setmetatable(env[ns] or {}, {
+		__index = env,
+	})
+	env[ns] = env[ns] or {}
+	env[ns]._scope = ns
+	if not sudo.Actors[ns] then
+		sudo.Actors[ns] = true
+		env[ns].FG = Def.ActorFrame {
+			InitCommand = function(self)
+				env[ns].FG = self
+			end
+		}
+		table.insert(sudo.Actors, env[ns].FG)
+	end
+	return function(f)
+		return envcall(newenv, f)()
+		--[[
+		--print(tostring(ret))
+		for k, v in pairs(newenv) do
+			if type(env[ns][k]) == 'table' and env[ns][k]._scope then
+				env[ns][k] = DeepCopy(v)
+			else
+				env[ns][k] = v
+			end
+		end
+		--]]
+	end
+end
+
 -- It's dangerous to go alone; take this!
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
 -- Debug and Error prints
-function sudo.print(s) lua.Trace('KITSU: '..(s or 'nil')) end
-function sudo.printerr(s) lua.ReportScriptError('KITSU: '..(s or 'nil')) end
+function sudo.print(s, ret)
+	if s and type(s) == 'table' then
+		print('KITSU: Printing '..tostring(s))
+		PrintTable(s)
+	else
+		print('KITSU: '..(s or 'nil'))
+	end
+	return ret
+end
+function sudo.printerr(s, ret) lua.ReportScriptError('KITSU: '..(s or 'nil')) return ret end
 
 -- Library importer
 function sudo.import(lib)
+	local env = getfenv(2)
 	-- Catch in case we add .lua to our path.
 	if lib:find('%.lua') then lib = lib:sub(1, lib:find('%.lua') - 1) end
 	-- Make sure the file is there
@@ -62,11 +108,12 @@ function sudo.import(lib)
 		return
 	end
 	-- Return our file in our environment
-	return sudo(loadfile(file))()
+	return envcall(env, loadfile(file))()
 end
 
 -- Lua runner
 function sudo.run(path)
+	local env = getfenv(2)
 	-- Catch in case we add .lua to our path.
 	if path:find('%.lua') then path = path:sub(1, path:find('%.lua') - 1) end
 	-- Make sure the file is there
@@ -76,10 +123,12 @@ function sudo.run(path)
 		return
 	end
 	-- Return our file in our environment
-	return sudo(loadfile(file))()
+	return envcall(env, loadfile(file))()
 end
 
-sudo.FG = Def.ActorFrame {
+-- TODO: Have an 'extern' function that will grab a variable from parent file. ~Sudo
+
+sudo.Actors = Def.ActorFrame {
     InitCommand = function(self)
 		sudo.FG = self
         self:sleep(9e9)

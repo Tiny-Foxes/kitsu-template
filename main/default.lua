@@ -24,14 +24,45 @@
 
 ]]--
 
--- Let's get our song directory real quick.
+-- First off, let's take out the trash.
+collectgarbage()
+
+-- Now let's get our song directory real quick.
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
+
 -- This loads the absolutely necessary stuff for the template's environment to work properly.
 assert(loadfile(dir .. 'main/env.lua'))()
+
 -- This loads our environment.
 sudo()
--- This loads our mods.lua, and our overarching ActorFrame.
-run 'lua/mods'
+
+-- This loads our fg.lua, mods.lua, and bg.lua, all in their own environments.
+using 'bg' (function()
+	function init() end
+	function ready() end
+	function update(dt) end
+	function input(event) end
+	function draw() end
+	run 'lua/bg'
+end)
+using 'mods' (function()
+	function init() end
+	function ready() end
+	function update(dt) end
+	function input(event) end
+	function draw() end
+	run 'lua/mods'
+end)
+using 'fg' (function()
+	function init() end
+	function ready() end
+	function update(dt) end
+	function input(event) end
+	function draw() end
+	run 'lua/fg'
+end)
+
+-- This is our overarching ActorFrame which will hold everything on screen.
 return Def.ActorFrame {
 	OnCommand = function(self)
 		self:queuecommand('Ready')
@@ -39,7 +70,7 @@ return Def.ActorFrame {
 	ReadyCommand = function(self)
 		self:queuecommand('Start')
 	end,
-	FG
+	Actors
 }
 
 --[[

@@ -24,6 +24,8 @@ local Node = {}
 -- Version number
 local VERSION = '1.1'
 
+local env = getfenv(2)
+
 local ease_table = {}
 local func_table = {}
 local msg_table = {}
@@ -36,7 +38,7 @@ local function UpdateEases()
 	for i, v in ipairs(ease_table) do
 		local actor
 		if type(v[1]) == 'string' then
-			actor = _G.sudo[v[1]]
+			actor = env[v[1]]
 		else
 			actor = v[1]
 		end
@@ -61,7 +63,7 @@ local function UpdateFuncs()
 	for i, v in ipairs(func_table) do
 		local actor
 		if type(v[1]) == 'string' then
-			actor = _G.sudo[v[1]]
+			actor = env[v[1]]
 		else
 			actor = v[1]
 		end
@@ -88,6 +90,11 @@ local function UpdateSignals()
 	end
 end
 
+local function GetActor(this)
+	for i, v in ipairs(Node.GetTree()) do
+		if v.Name == this then return v end
+	end
+end
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
 		local s = self
@@ -96,7 +103,7 @@ local NodeTree = Def.ActorFrame {
 		local function NameActors(actor)
 			for i = 1, actor:GetNumChildren() do
 				local this = actor:GetChildAt(i)
-				_G.sudo[this:GetName()] = this
+				env[this:GetName()] = this
 				if this.GetChildren then NameActors(this) end
 			end
 		end
@@ -213,7 +220,7 @@ end
 local function SetName(self, name)
 	--print('Node:SetName')
 	self.Name = name
-	--_G.sudo[name] = self
+	--env[name] = self
 	return self
 end
 local function SetTexture(self, path)
@@ -328,15 +335,28 @@ local function AddChild(self, child, idx, name)
 	return self
 end
 local function GetChildIndex(self, name)
-	--print('Node:GetChildIndex')
+	print('Node:GetChildIndex')
 	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
-		printerr('Node.AddChild: Cannot add child to type '..self.Type)
+		printerr('Node.GetChildIndex: Cannot add child to type '..self.Type)
 		return
 	end
 	for i, v in ipairs(self) do
 		if v.Name == name then
 			return i
 		end
+	end
+end
+local function HideOverlay(b)
+	if not std.SCREEN.HideGameplayElements then return end
+	if b == nil then
+		printerr('Node.HideOverlay: Must have boolean argument')
+		return
+	elseif type(b) ~= 'boolean' then
+		printerr('Node.HideOverlay: Argument must be boolean')
+		return
+	end
+	if b then
+		std.SCREEN:HideGameplayElements()
 	end
 end
 local function AddToTree(self, idx, name)
@@ -354,26 +374,6 @@ local function AddToTree(self, idx, name)
 		table.insert(NodeTree, self)
 	end
 	return self
-end
-local function GetOverlay()
-	local ret = {}
-	ret[#ret + 1] = std.SCREEN:GetChild('Underlay')
-	for i = 1, #std.PL do
-		ret[#ret + 1] = std.PL[i].Life
-		ret[#ret + 1] = std.PL[i].Score
-	end
-	ret[#ret + 1] = std.SCREEN:GetChild('Overlay')
-	return ret
-end
-local function HideOverlay(b)
-	--print('Node.HideOverlay')
-	if type(b) == 'boolean' then
-		for _, v in ipairs(GetOverlay()) do
-			v:visible(tobool(not b))
-		end
-	else
-		printerr('Node.HideOverlay: argument must be boolean value')
-	end
 end
 local function GetTree()
 	--print('Node.GetTree')
@@ -404,11 +404,10 @@ Node = {
 	SetDraw = SetDraw,
 	AddChild = AddChild,
 	GetChildIndex = GetChildIndex,
-	AddToTree = AddToTree,
-	GetOverlay = GetOverlay,
 	HideOverlay = HideOverlay,
+	AddToTree = AddToTree,
 	GetTree = GetTree,
-	GetActor = function(this) printerr('Node.GetActor: Function not available before ready()') end,
+	GetActor = GetActor,
 }
 Node.__index = Node
 

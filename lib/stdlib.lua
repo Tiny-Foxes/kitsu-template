@@ -21,6 +21,7 @@ std.BEAT = std.POS:GetSongBeat() -- current beat
 std.BPS = std.POS:GetCurBPS() -- current beats per second
 std.BPM = std.BPS * 60 -- beats per minute
 std.SPB = 1 / std.BPS -- seconds per beat
+
 std.PL = {}
 
 -- A bit of work to get the true start of our FG changes.
@@ -39,6 +40,8 @@ fgfirst = nil
 chart = nil
 f = nil
 
+local env = getfenv(2)
+
 -- This might not be added on the engine side yet.
 if not Tweens.instant then
 	Tweens.instant = function(x) return 1 end
@@ -46,11 +49,12 @@ end
 
 
 local InputHandler = function(event)
-	if sudo.input then
-		sudo.input(event)
+	if env.input then
+		env.input(event)
 	end
 	MESSAGEMAN:Broadcast('Input', {event})
 end
+
 
 -- Our foreground to put everything in. If FG is not set, this will take its place.
 if FG.stdlib then
@@ -106,8 +110,8 @@ else
 	FG[#FG + 1] = Def.ActorFrame {
 		Name = 'stdlib',
 		InitCommand = function(self)
-			if sudo.init then
-				sudo.init()
+			if init then
+				init()
 			end
 		end,
 		ReadyCommand = function(self)
@@ -156,11 +160,11 @@ else
 			std.BPM = std.BPS * 60 -- beats per minute
 			std.SPB = 1 / std.BPS -- seconds per beat
 			std.DT = self:GetEffectDelta() -- time since last frame in seconds
-			if sudo.ready then
-				sudo.ready()
+			if ready then
+				ready()
 			end
-			if sudo.draw then
-				self:SetDrawFunction(sudo.draw)
+			if draw then
+				self:SetDrawFunction(draw)
 			end
 		end,
 		UpdateCommand = function(self)
@@ -169,15 +173,14 @@ else
 			std.BPM = std.BPS * 60
 			std.SPB = 1 / std.BPS
 			std.DT = self:GetEffectDelta()
-			if sudo.update then
-				sudo.update(std.DT)
+			if update then
+				update(std.DT)
 			end
 		end,
 		OffCommand = function(self)
 			std.SCREEN:RemoveInputCallback(InputHandler)
 		end,
 	}
-	print('Loaded Kitsu Standard Library v'..std.VERSION)
 end
 
 
@@ -247,5 +250,7 @@ end
 
 
 std.__index = std
+
+print('Loaded Kitsu Standard Library v'..std.VERSION)
 
 return std
