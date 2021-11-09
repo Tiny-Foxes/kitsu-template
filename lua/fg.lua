@@ -8,7 +8,7 @@ local SW, SH = std.SW, std.SH
 local SCX, SCY = std.SCX, std.SCY
 
 -- Proxies
-local P, PP = {}, {}
+local P, PL = {}, {}
 local PP, PJ, PC = {}, {}, {}
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
 	PP[pn] = Node.new('ActorProxy'):AddToTree('PP'..pn)
@@ -62,9 +62,6 @@ end
 -- Actors
 table.insert(FG, Def.ActorFrame {
 
-	table.unpack(PP),
-	table.unpack(PJ),
-	table.unpack(PC),
 	Node.GetTree()
 
 })

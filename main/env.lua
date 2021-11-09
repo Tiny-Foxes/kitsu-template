@@ -49,38 +49,6 @@ function sudo:__call(f, name)
 	return envcall(self, f, name)
 end
 
--- Special thanks to Chegg for helping me help him help me get this working
-function sudo.using(ns)
-	local env = getfenv(2)
-	local newenv = setmetatable(env[ns] or {}, {
-		__index = env,
-	})
-	env[ns] = env[ns] or {}
-	env[ns]._scope = ns
-	if not sudo.Actors[ns] then
-		sudo.Actors[ns] = true
-		env[ns].FG = Def.ActorFrame {
-			InitCommand = function(self)
-				env[ns].FG = self
-			end
-		}
-		table.insert(sudo.Actors, env[ns].FG)
-	end
-	return function(f)
-		return envcall(newenv, f)()
-		--[[
-		--print(tostring(ret))
-		for k, v in pairs(newenv) do
-			if type(env[ns][k]) == 'table' and env[ns][k]._scope then
-				env[ns][k] = DeepCopy(v)
-			else
-				env[ns][k] = v
-			end
-		end
-		--]]
-	end
-end
-
 -- It's dangerous to go alone; take this!
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
@@ -124,6 +92,20 @@ function sudo.run(path)
 	end
 	-- Return our file in our environment
 	return envcall(env, loadfile(file))()
+end
+
+
+-- Special thanks to Chegg for helping me help him help me get this working
+function sudo.using(ns)
+	local env = getfenv(2)
+	local newenv = setmetatable(env[ns] or {}, {
+		__index = env,
+	})
+	env[ns] = env[ns] or {}
+	env[ns]._scope = ns
+	return function(f)
+		return envcall(newenv, f)()
+	end
 end
 
 -- TODO: Have an 'extern' function that will grab a variable from parent file. ~Sudo

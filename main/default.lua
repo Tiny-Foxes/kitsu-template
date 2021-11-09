@@ -43,6 +43,14 @@ using 'bg' (function()
 	function update(dt) end
 	function input(event) end
 	function draw() end
+	FG = Def.ActorFrame {
+		Name = 'BG',
+		InitCommand = function(self)
+			FG = self
+			sudo.Actors.BG = self
+		end
+	}
+	table.insert(sudo.Actors, FG)
 	run 'lua/bg'
 end)
 using 'mods' (function()
@@ -51,6 +59,14 @@ using 'mods' (function()
 	function update(dt) end
 	function input(event) end
 	function draw() end
+	FG = Def.ActorFrame {
+		Name = 'Mods',
+		InitCommand = function(self)
+			FG = self
+			sudo.Actors.Mods = self
+		end
+	}
+	table.insert(sudo.Actors, FG)
 	run 'lua/mods'
 end)
 using 'fg' (function()
@@ -59,6 +75,14 @@ using 'fg' (function()
 	function update(dt) end
 	function input(event) end
 	function draw() end
+	FG = Def.ActorFrame {
+		Name = 'FG',
+		InitCommand = function(self)
+			FG = self
+			sudo.Actors.FG = self
+		end
+	}
+	table.insert(sudo.Actors, FG)
 	run 'lua/fg'
 end)
 
