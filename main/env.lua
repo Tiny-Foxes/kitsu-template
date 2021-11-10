@@ -116,6 +116,26 @@ function sudo.using(ns)
 	end
 end
 
+function sudo.switch(var)
+	local env = getfenv(2)
+	local ret = nop
+	if not var then
+		return sudo.printerr('switch: given variable is nil')
+	else
+		return function(t)
+			ret = t['_'] or ret
+			for k, v in pairs(t) do
+				if type(v) ~= 'function' then
+					return sudo.printerr('switch: expected case argument of type function, got '..type(v))
+				elseif tostring(var) == k then
+					ret = v or ret
+				end
+			end
+			return ret()
+		end
+	end
+end
+
 -- TODO: Have an 'extern' function that will grab a variable from parent file. ~Sudo
 
 sudo.Actors = Def.ActorFrame {
