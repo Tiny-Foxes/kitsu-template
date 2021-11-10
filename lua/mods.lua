@@ -13,4 +13,5 @@ using 'mirin' (function()
 
 end)
 
+
 table.insert(FG, Def.ActorFrame {})

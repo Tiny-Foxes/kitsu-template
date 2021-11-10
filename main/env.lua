@@ -104,7 +104,15 @@ function sudo.using(ns)
 	env[ns] = env[ns] or {}
 	env[ns]._scope = ns
 	return function(f)
-		return envcall(newenv, f)()
+		local ret = envcall(newenv, f)()
+		for k, v in pairs(newenv) do
+			if type(v) == 'table' and newenv._scope == ns then
+				env[ns][k] = DeepCopy(v)
+			else
+				env[ns][k] = v
+			end
+		end
+		return ret
 	end
 end
 
