@@ -228,7 +228,7 @@ local function Default(self, modtable)
 	for pn = 1, #POptions do
 		default_mods[pn] = modtable
 	end
-	local res = self:Insert(std.MOD_START, 0, Tweens.instant, modtable)
+	local res = self:Insert(std.BEAT, 0, Tweens.instant, modtable)
 	return res
 end
 -- Define a new mod.
