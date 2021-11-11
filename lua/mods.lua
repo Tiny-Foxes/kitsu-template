@@ -15,7 +15,7 @@ getfrom 'fg' {
 -- Called on ReadyCommand
 function ready()
 
-	HideOverlay()
+	HideOverlay(true)
 
 	P, PP, PJ, PC = {}, {}, {}, {}
 	for pn = 1, #PL do
@@ -43,6 +43,6 @@ end
 -- Actors
 table.insert(Actors.Mods, Def.ActorFrame {
 
-	
+
 
 })
