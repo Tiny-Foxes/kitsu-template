@@ -105,9 +105,6 @@ local modfile = subo(function()
 		OnCommand = function(self)
 			self:queuecommand('Ready')
 		end,
-		ReadyCommand = function(self)
-			self:queuecommand('Start')
-		end,
 		Actors
 	}
 end)

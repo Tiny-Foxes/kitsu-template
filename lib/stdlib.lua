@@ -3,7 +3,7 @@
 local std = {}
 setmetatable(std, {})
 
-std.VERSION = '1.3'
+std.VERSION = '1.4'
 
 -- Standard library variables, mostly shortcuts
 std.POS = GAMESTATE:GetSongPosition()
@@ -152,8 +152,6 @@ else
 					return this
 				end
 			})
-		end,
-		StartCommand = function(self)
 			-- We need new values for these ASAP, since before init gives us bad values.
 			std.BEAT = std.POS:GetSongBeat() -- current beat
 			std.BPS = std.POS:GetCurBPS() -- current beats per second
