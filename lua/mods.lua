@@ -1,17 +1,41 @@
-local std = import 'stdlib'
+-- Libraries
 mirin = import 'mirin-syntax'
 
 
-using 'mirin' (function()
+-- Called on ReadyCommand
+function ready()
 
-	-- Default mods
-	setdefault {
-		1.5, 'xmod',
-		100, 'modtimersong'
+	-- Variables
+	getfrom 'fg' {
+		'SW', 'SH',
+		'SCX', 'SCY',
+		'PL', 'BEAT',
+		'HideOverlay',
+		'PP', 'PJ', 'PC',
 	}
-	-- Mode code goes hode
+	
+	-- Mods
+	using 'mirin' (function()
 
-end)
+		for pn = 1, #PL do
+			P[pn] = PL[pn].Player
+			L[pn] = PL[pn].Life
+			S[pn] = PL[pn].Score
+		end
+	
+		-- Default mods
+		setdefault {
+			1.5, 'xmod',
+			100, 'modtimersong'
+		}
+		-- Mode code goes hode
+	
+	end)
+
+	HideOverlay(true)
+
+end
 
 
-table.insert(FG, Def.ActorFrame {})
+-- Actors
+table.insert(Actors.Mods, Def.ActorFrame {})
