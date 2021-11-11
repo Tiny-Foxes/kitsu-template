@@ -1,3 +1,4 @@
 .dist/
 *.sm
 *.old
+*.ats

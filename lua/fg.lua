@@ -1,21 +1,25 @@
 -- Libraries
-local std = import 'stdlib'
-local Node = import 'konko-node'
+std = import 'stdlib'
+Node = import 'konko-node'
 
 
 -- Variables
-SW, SH = std.SW, std.SH
-SCX, SCY = std.SCX, std.SCY
-PL, BEAT = std.PL, std.BEAT
-HideOverlay = Node.HideOverlay
-PP, PJ, PC = {}, {}, {}
+getfrom 'std' {
+	'SW', 'SH',
+	'SCX', 'SCY',
+	'PL', 'BEAT',
+	'POS',
+}
+getfrom 'Node' {'HideOverlay'}
 
 -- Proxies
-local P = {}
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	PP[pn] = Node.new('ActorProxy'):AddToTree('PP'..pn)
-	PJ[pn] = Node.new('ActorProxy'):AddToTree('PJ'..pn)
-	PC[pn] = Node.new('ActorProxy'):AddToTree('PC'..pn)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self) std.ProxyPlayer(self, pn) end)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self) std.ProxyJudgment(self, pn) end)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self) std.ProxyCombo(self, pn) end)
 end
 
 
@@ -26,20 +30,6 @@ end
 
 -- Called on ReadyCommand
 function ready()
-
-	-- Player shorthand variables
-	PL = std.PL
-	PP, PJ, PC = table.unpack {
-		{PP1, PP2},
-		{PJ1, PJ2},
-		{PC1, PC2}
-	}
-	for pn = 1, #PL do
-		P[pn] = PL[pn].Player
-		std.ProxyPlayer(PP[pn], pn)
-		std.ProxyJudgment(PJ[pn], pn)
-		std.ProxyCombo(PC[pn], pn)
-	end
 
 end
 

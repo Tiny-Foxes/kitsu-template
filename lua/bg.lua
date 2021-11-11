@@ -1,11 +1,15 @@
 -- Libraries
-local std = import 'stdlib'
-local Node = import 'konko-node'
+std = import 'stdlib'
+Node = import 'konko-node'
 
 
 -- Variables
-SW, SH = std.SW, std.SH
-SCX, SCY = std.SCX, std.SCY
+getfrom 'std' {
+	'SW', 'SH',
+	'SCX', 'SCY',
+	'PL', 'BEAT',
+	'POS',
+}
 
 -- Nodes
 Node.new('Quad'):AddToTree(1, 'HideEvent')
@@ -23,11 +27,13 @@ end
 
 -- Called on ReadyCommand
 function ready()
+
 	HideEvent
-		:sleep(math.abs(std.POS:GetMusicSeconds()))
+		:sleep(math.abs(POS:GetMusicSeconds()))
 		:easeoutexpo(1)
 		:diffusebottomedge(color('#101010'))
 		:diffuserightedge(color('#202020'))
+	
 end
 
 -- Called on InputMessageCommand

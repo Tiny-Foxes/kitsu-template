@@ -1,27 +1,32 @@
 -- Libraries
+std = import 'stdlib'
 mirin = import 'mirin-syntax'
+
+
+-- Variables
+getfrom 'fg' {
+	'SW', 'SH',
+	'SCX', 'SCY',
+	'PL', 'BEAT',
+	'POS', 'HideOverlay',
+}
 
 
 -- Called on ReadyCommand
 function ready()
 
-	-- Variables
-	getfrom 'fg' {
-		'SW', 'SH',
-		'SCX', 'SCY',
-		'PL', 'BEAT',
-		'HideOverlay',
-		'PP', 'PJ', 'PC',
-	}
-	
+	HideOverlay()
+
+	P, PP, PJ, PC = {}, {}, {}, {}
+	for pn = 1, #PL do
+		P[pn] = PL[pn].Player
+		PP[pn] = PL[pn].ProxyP
+		PJ[pn] = PL[pn].ProxyJ
+		PC[pn] = PL[pn].ProxyC
+	end
+
 	-- Mods
 	using 'mirin' (function()
-
-		for pn = 1, #PL do
-			P[pn] = PL[pn].Player
-			L[pn] = PL[pn].Life
-			S[pn] = PL[pn].Score
-		end
 	
 		-- Default mods
 		setdefault {
@@ -31,8 +36,6 @@ function ready()
 		-- Mode code goes hode
 	
 	end)
-
-	HideOverlay(true)
 
 end
 
