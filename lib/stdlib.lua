@@ -21,24 +21,7 @@ std.BEAT = std.POS:GetSongBeat() -- current beat
 std.BPS = std.POS:GetCurBPS() -- current beats per second
 std.BPM = std.BPS * 60 -- beats per minute
 std.SPB = 1 / std.BPS -- seconds per beat
-
 std.PL = {}
-
--- A bit of work to get the true start of our FG changes.
--- Take this out as soon as getting FG changes is possible in Lua. ~Sudo
-local f = RageFileUtil.CreateRageFile()
-f:Open(std.DIR .. 'notes.ssc', 1)
-local chart = f:Read()
-f:Close()
-local fgfirst = chart:find('#FGCHANGES:') + ('#FGCHANGES:'):len()
-local fglast = chart:find('=', fgfirst) - 1
-
-std.MOD_START = tonumber(chart:sub(fgfirst, fglast))
-
-fglast = nil
-fgfirst = nil
-chart = nil
-f = nil
 
 local env = getfenv(2)
 
