@@ -33,69 +33,77 @@ local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 -- This loads the absolutely necessary stuff for the template's environment to work properly.
 assert(loadfile(dir .. 'main/env.lua'))()
 
--- This loads our environment.
-sudo()
+-- This loads our fg.lua, mods.lua, and bg.lua, all in their own environments,
+-- and all within the sudo environment.
+-- This means a global variable 'bup' assigned in bg.lua will ultimately be assigned to
+-- sudo.bg.bup, and likewise for environments within *those* environments.
+-- Can I just call them scopes or namespaces now? Typing environment over and over sucks.
+-- After compiling it returns our full ActorFrame to a function assigned to a variable,
+-- which we in turn call in a return.
 
--- This loads our fg.lua, mods.lua, and bg.lua, all in their own environments.
-using 'bg' (function()
-	function init() end
-	function ready() end
-	function update(dt) end
-	function input(event) end
-	function draw() end
-	FG = Def.ActorFrame {
-		Name = 'BG',
-		InitCommand = function(self)
-			FG = self
-			sudo.Actors.BG = self
-		end
+local modfile = sudo(function()
+	using 'bg' (function()
+		function init() end
+		function ready() end
+		function update(dt) end
+		function input(event) end
+		function draw() end
+		FG = Def.ActorFrame {
+			Name = 'BG',
+			InitCommand = function(self)
+				FG = self
+				sudo.Actors.BG = self
+			end
+		}
+		table.insert(sudo.Actors, FG)
+		run 'lua/bg'
+	end)
+	using 'mods' (function()
+		function init() end
+		function ready() end
+		function update(dt) end
+		function input(event) end
+		function draw() end
+		FG = Def.ActorFrame {
+			Name = 'Mods',
+			InitCommand = function(self)
+				FG = self
+				sudo.Actors.Mods = self
+			end
+		}
+		table.insert(sudo.Actors, FG)
+		run 'lua/mods'
+	end)
+	using 'fg' (function()
+		function init() end
+		function ready() end
+		function update(dt) end
+		function input(event) end
+		function draw() end
+		FG = Def.ActorFrame {
+			Name = 'FG',
+			InitCommand = function(self)
+				FG = self
+				sudo.Actors.FG = self
+			end
+		}
+		table.insert(sudo.Actors, FG)
+		run 'lua/fg'
+	end)
+
+	-- This is our overarching ActorFrame which will hold everything on screen.
+	return Def.ActorFrame {
+		OnCommand = function(self)
+			self:queuecommand('Ready')
+		end,
+		ReadyCommand = function(self)
+			self:queuecommand('Start')
+		end,
+		Actors
 	}
-	table.insert(sudo.Actors, FG)
-	run 'lua/bg'
-end)
-using 'mods' (function()
-	function init() end
-	function ready() end
-	function update(dt) end
-	function input(event) end
-	function draw() end
-	FG = Def.ActorFrame {
-		Name = 'Mods',
-		InitCommand = function(self)
-			FG = self
-			sudo.Actors.Mods = self
-		end
-	}
-	table.insert(sudo.Actors, FG)
-	run 'lua/mods'
-end)
-using 'fg' (function()
-	function init() end
-	function ready() end
-	function update(dt) end
-	function input(event) end
-	function draw() end
-	FG = Def.ActorFrame {
-		Name = 'FG',
-		InitCommand = function(self)
-			FG = self
-			sudo.Actors.FG = self
-		end
-	}
-	table.insert(sudo.Actors, FG)
-	run 'lua/fg'
 end)
 
--- This is our overarching ActorFrame which will hold everything on screen.
-return Def.ActorFrame {
-	OnCommand = function(self)
-		self:queuecommand('Ready')
-	end,
-	ReadyCommand = function(self)
-		self:queuecommand('Start')
-	end,
-	Actors
-}
+return modfile()
 
 --[[
 
