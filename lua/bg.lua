@@ -4,8 +4,8 @@ local Node = import 'konko-node'
 
 
 -- Variables
-local SW, SH = std.SW, std.SH
-local SCX, SCY = std.SCX, std.SCY
+SW, SH = std.SW, std.SH
+SCX, SCY = std.SCX, std.SCY
 
 -- Nodes
 Node.new('Quad'):AddToTree(1, 'HideEvent')
@@ -47,8 +47,8 @@ end
 
 
 -- Actors
-table.insert(FG, Def.ActorFrame {
+table.insert(Actors.BG, Def.ActorFrame {
 
-	Node.GetTree()
+	Node.GetTree(),
 
 })

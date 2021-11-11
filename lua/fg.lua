@@ -4,12 +4,14 @@ local Node = import 'konko-node'
 
 
 -- Variables
-local SW, SH = std.SW, std.SH
-local SCX, SCY = std.SCX, std.SCY
+SW, SH = std.SW, std.SH
+SCX, SCY = std.SCX, std.SCY
+PL, BEAT = std.PL, std.BEAT
+HideOverlay = Node.HideOverlay
+PP, PJ, PC = {}, {}, {}
 
 -- Proxies
-local P, PL = {}, {}
-local PP, PJ, PC = {}, {}, {}
+local P = {}
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
 	PP[pn] = Node.new('ActorProxy'):AddToTree('PP'..pn)
 	PJ[pn] = Node.new('ActorProxy'):AddToTree('PJ'..pn)
@@ -24,9 +26,6 @@ end
 
 -- Called on ReadyCommand
 function ready()
-
-	-- Hide overlay
-	Node.HideOverlay(true)
 
 	-- Player shorthand variables
 	PL = std.PL
@@ -59,8 +58,9 @@ function draw()
 
 end
 
+
 -- Actors
-table.insert(FG, Def.ActorFrame {
+table.insert(Actors.FG, Def.ActorFrame {
 
 	Node.GetTree()
 
