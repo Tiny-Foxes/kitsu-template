@@ -75,12 +75,24 @@ local function ApplyMods()
 		local modstring = ''
 		for mod, percent in pairs(mod_percents[pn]) do
 			if custom_mods[pn][mod] ~= nil then
-				local new_perc = custom_mods[pn][mod].Function(percent, pn)
+				local new_perc = {custom_mods[pn][mod].Function(percent, pn)}
 				local new_mod = custom_mods[pn][mod].Return
-				percent = new_perc
-				mod = new_mod
-			end
-			if mod then
+				for i = 1, #new_perc do
+					percent = new_perc[i]
+					mod = new_mod[i]
+					if POptions[pn][mod] then
+						if mod:sub(2) == 'Mod' then
+							POptions[pn][mod](POptions[pn], percent, 9e9)
+						else
+							POptions[pn][mod](POptions[pn], percent * 0.01, 9e9)
+						end
+					elseif mod:sub(2):lower() == 'mod' then
+						modstring = modstring..'*-1 '..percent..mod:sub(1, 1):lower()..','
+					else
+						modstring = modstring..'*-1 '..(percent)..' '..mod:lower()..','
+					end
+				end
+			elseif mod then
 				if POptions[pn][mod] then
 					if mod:sub(2) == 'Mod' then
 						POptions[pn][mod](POptions[pn], percent, 9e9)
@@ -235,6 +247,7 @@ end
 local function Define(self, name, func, ret)
 	--printerr('Mods:Define')
 	local t = {}
+	if type(ret) ~= 'table' then ret = {ret} end
 	t = {
 		Function = func,
 		Return = ret

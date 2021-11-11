@@ -32,7 +32,11 @@ end
 
 -- WIP: Not a one-to-one implementation, define mods one at a time
 local function definemod(t)
-	Mods:Define(table.unpack(t))
+	local ret = {}
+	for i = 3, #t do
+		ret[#ret + 1] = t[i]
+	end
+	Mods:Define(t[1], t[2], ret)
 	return definemod
 end
 
