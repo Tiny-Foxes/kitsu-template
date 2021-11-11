@@ -7,8 +7,7 @@ Node = import 'konko-node'
 getfrom 'std' {
 	'SW', 'SH',
 	'SCX', 'SCY',
-	'PL', 'BEAT',
-	'POS',
+	'BEAT', 'POS', 'PL',
 }
 
 -- Nodes

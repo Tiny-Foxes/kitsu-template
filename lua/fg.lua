@@ -52,6 +52,6 @@ end
 -- Actors
 table.insert(Actors.FG, Def.ActorFrame {
 
-	Node.GetTree()
+	Node.GetTree(),
 
 })

@@ -41,4 +41,8 @@ end
 
 
 -- Actors
-table.insert(Actors.Mods, Def.ActorFrame {})
+table.insert(Actors.Mods, Def.ActorFrame {
+
+	
+
+})
