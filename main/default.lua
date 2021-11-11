@@ -31,17 +31,17 @@ collectgarbage()
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
 -- This loads the absolutely necessary stuff for the template's environment to work properly.
-assert(loadfile(dir .. 'main/env.lua'))()
+local subo = assert(loadfile(dir .. 'main/env.lua'))()
 
 -- This loads our fg.lua, mods.lua, and bg.lua, all in their own environments,
--- and all within the sudo environment.
+-- and all within the subo environment.
 -- This means a global variable 'bup' assigned in bg.lua will ultimately be assigned to
--- sudo.bg.bup, and likewise for environments within *those* environments.
+-- subo.bg.bup, and likewise for environments within *those* environments.
 -- Can I just call them scopes or namespaces now? Typing environment over and over sucks.
--- After compiling it returns our full ActorFrame to a function assigned to a variable,
--- which we in turn call in a return.
-
-local modfile = sudo(function()
+-- After compiling it returns our full ActorFrame to a variable, which we return at the
+-- end of this file.
+local modfile = subo(function(env)
+	subo = env
 	using 'bg' (function()
 		function init() end
 		function ready() end
@@ -52,10 +52,10 @@ local modfile = sudo(function()
 			Name = 'BG',
 			InitCommand = function(self)
 				FG = self
-				sudo.Actors.BG = self
+				subo.Actors.BG = self
 			end
 		}
-		table.insert(sudo.Actors, FG)
+		table.insert(subo.Actors, FG)
 		run 'lua/bg'
 	end)
 	using 'mods' (function()
@@ -68,10 +68,10 @@ local modfile = sudo(function()
 			Name = 'Mods',
 			InitCommand = function(self)
 				FG = self
-				sudo.Actors.Mods = self
+				subo.Actors.Mods = self
 			end
 		}
-		table.insert(sudo.Actors, FG)
+		table.insert(subo.Actors, FG)
 		run 'lua/mods'
 	end)
 	using 'fg' (function()
@@ -84,10 +84,10 @@ local modfile = sudo(function()
 			Name = 'FG',
 			InitCommand = function(self)
 				FG = self
-				sudo.Actors.FG = self
+				subo.Actors.FG = self
 			end
 		}
-		table.insert(sudo.Actors, FG)
+		table.insert(subo.Actors, FG)
 		run 'lua/fg'
 	end)
 
@@ -103,14 +103,17 @@ local modfile = sudo(function()
 	}
 end)
 
-return modfile()
+return modfile(subo)
+
+-- Finally, run our compiled function to return our actors, feeding in our subo environment.
+--return modfile
 
 --[[
 
 	The rest is a deep dive through the files of the template. I really encourage you to explore them.
 	I've left a lot of helpful comments. Have fun.
 	
-	~Sudo
+	~ Sudo
 
     ---------------------------------------
     | Kitsu (n.): A clever canid creature |

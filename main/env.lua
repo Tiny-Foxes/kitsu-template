@@ -9,10 +9,10 @@
 -- First, let's define a global variable for our environment. We feel powerful, in our own
 -- castle of logical wizardry. Elevated and even privileged. Let's call it 'sudo'.
 -- For no particular reason at all.
-_G.sudo = {}
+local sudo = {}
 
 -- Let's do a really weird thing that's scary to think about. Don't do this in real life.
-local sudo = setmetatable(sudo, sudo)
+sudo = setmetatable(sudo, sudo)
 
 -- We want our environment to have all of the stuff that _G has, which is everything, including
 -- our environment, which will contain _G, the very one that contains our environment. This is
@@ -147,3 +147,5 @@ sudo.Actors = Def.ActorFrame {
 		self:luaeffect('Update')
 	end
 }
+
+return sudo
