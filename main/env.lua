@@ -60,7 +60,7 @@ function sudo.print(s, ret)
 	else
 		print('KITSU: '..(s or 'nil'))
 	end
-	return ret
+	return ret or nil
 end
 function sudo.printerr(s, ret) lua.ReportScriptError('KITSU: '..(s or 'nil')) return ret end
 
@@ -101,8 +101,7 @@ function sudo.using(ns)
 	local newenv = setmetatable(env[ns] or {}, {
 		__index = env,
 	})
-	env[ns] = env[ns] or {}
-	env[ns]._scope = ns
+	env[ns] = env[ns] or {_scope = ns}
 	return function(f)
 		local ret = envcall(newenv, f)()
 		for k, v in pairs(newenv) do
@@ -113,6 +112,28 @@ function sudo.using(ns)
 			end
 		end
 		return ret
+	end
+end
+
+function sudo.getfrom(ns, deep)
+	local env = getfenv(2)
+	local target = env[ns] or sudo[ns]
+	return function(t)
+		if not target then
+			sudo.printerr('No table or environment "'..ns..'" found (Is table local?)')
+		else
+			for _, v in ipairs(t) do
+				if not target[v] then
+					sudo.printerr('No variable "'..v..'" found (Is variable local?)')
+				else
+					if deep then
+						env[v] = DeepCopy(target[v])
+					else
+						env[v] = target[v]
+					end
+				end
+			end
+		end
 	end
 end
 
