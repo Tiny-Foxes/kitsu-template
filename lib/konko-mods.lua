@@ -23,7 +23,7 @@ local Mods = {}
 setmetatable(Mods, {})
 
 -- Version number
-local VERSION = '1.2'
+local VERSION = '1.3'
 
 -- Keep the player options from the enabled players that are available.
 local POptions = {}
@@ -86,8 +86,10 @@ local function ApplyMods()
 						else
 							POptions[pn][mod](POptions[pn], percent * 0.01, 9e9)
 						end
-					elseif mod:sub(2):lower() == 'mod' then
+					elseif mod:lower() == 'xmod' then
 						modstring = modstring..'*-1 '..percent..mod:sub(1, 1):lower()..','
+					elseif mod:sub(2):lower() == 'mod' then
+						modstring = modstring..'*-1 '..mod:sub(1, 1):lower()..percent..','
 					else
 						modstring = modstring..'*-1 '..(percent)..' '..mod:lower()..','
 					end
@@ -99,8 +101,10 @@ local function ApplyMods()
 					else
 						POptions[pn][mod](POptions[pn], percent * 0.01, 9e9)
 					end
-				elseif mod:sub(2):lower() == 'mod' then
+				elseif mod:lower() == 'xmod' then
 					modstring = modstring..'*-1 '..percent..mod:sub(1, 1):lower()..','
+				elseif mod:sub(2):lower() == 'mod' then
+					modstring = modstring..'*-1 '..mod:sub(1, 1):lower()..percent..','
 				else
 					modstring = modstring..'*-1 '..(percent)..' '..mod:lower()..','
 				end
