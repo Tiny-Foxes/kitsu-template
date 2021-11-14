@@ -15,6 +15,8 @@ std.GAME = GAMESTATE:GetCurrentGame()
 std.SW, std.SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 std.SCX, std.SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
 
+std.SCREEN = SCREENMAN:GetTopScreen()
+
 std.DT = 0 -- time since last frame in seconds
 
 std.BEAT = std.POS:GetSongBeat() -- current beat
@@ -113,6 +115,8 @@ else
 				end
 				info.Player = pl
 				info.Number = v
+				info.InitX = pl:GetX()
+				info.InitY = pl:GetY()
 				info.Life = std.SCREEN:GetChild('Life'..ToEnumShortString(v))
 				info.Score = std.SCREEN:GetChild('Score'..ToEnumShortString(v))
 				info.Combo = pl:GetChild('Combo')
@@ -141,6 +145,9 @@ else
 			std.BPM = std.BPS * 60 -- beats per minute
 			std.SPB = 1 / std.BPS -- seconds per beat
 			std.DT = self:GetEffectDelta() -- time since last frame in seconds
+			self:queuecommand('Start')
+		end,
+		StartCommand = function(self)
 			if ready then
 				ready()
 			end
@@ -200,7 +207,10 @@ function std.ProxyPlayer(proxy, pn)
 	local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
 	proxy:SetTarget(plr)
 	plr:visible(false)
-	std.PL[pn].ProxyP = proxy
+	local t = std.PL[pn].ProxyP or {}
+	t[#t + 1] = proxy
+	std.PL[pn].ProxyP = t
+	return proxy
 end
 
 function std.ProxyJudgment(proxy, pn)
@@ -214,6 +224,7 @@ function std.ProxyJudgment(proxy, pn)
 		:visible(false)
 		:sleep(9e9)
 	std.PL[pn].ProxyJ = proxy
+	return proxy
 end
 
 function std.ProxyCombo(proxy, pn)
@@ -227,6 +238,7 @@ function std.ProxyCombo(proxy, pn)
 		:visible(false)
 		:sleep(9e9)
 	std.PL[pn].ProxyC = proxy
+	return proxy
 end
 
 
