@@ -63,7 +63,7 @@ local modfile = subo(function()
 		}
 		subo.Actors.BG = FG
 		table.insert(subo.Actors, FG)
-		run 'lua/bg'
+		table.insert(FG, run 'lua/bg')
 	end)
 	using 'fg' (function()
 		function init() end
@@ -80,7 +80,7 @@ local modfile = subo(function()
 		}
 		subo.Actors.FG = FG
 		table.insert(subo.Actors, FG)
-		run 'lua/fg'
+		table.insert(FG, run 'lua/fg')
 	end)
 	using 'mods' (function()
 		function init() end
@@ -96,8 +96,8 @@ local modfile = subo(function()
 			end
 		}
 		subo.Actors.Mods = FG
-		table.insert(subo.Actors, FG)
-		run 'lua/mods'
+		table.insert(subo.Actors, 2, FG)
+		table.insert(FG, run 'lua/mods')
 	end)
 
 	-- This is our overarching ActorFrame which will hold everything on screen.
