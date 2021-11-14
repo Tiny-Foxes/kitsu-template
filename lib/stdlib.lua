@@ -204,7 +204,7 @@ end
 
 function std.ProxyPlayer(proxy, pn)
 	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
-	local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
+	local plr = std.PL[pn].Player
 	proxy:SetTarget(plr)
 	plr:visible(false)
 	local t = std.PL[pn].ProxyP or {}
@@ -215,7 +215,7 @@ end
 
 function std.ProxyJudgment(proxy, pn)
 	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
-	local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
+	local plr = std.PL[pn].Player
 	proxy
 		:SetTarget(plr:GetChild('Judgment'))
 		:xy(plr:GetX(), std.SCY)
@@ -229,7 +229,7 @@ end
 
 function std.ProxyCombo(proxy, pn)
 	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
-	local plr = SCREENMAN:GetTopScreen():GetChild('Player'..pn_str)
+	local plr = std.PL[pn].Player
 	proxy
 		:SetTarget(plr:GetChild('Combo'))
 		:xy(plr:GetX(), std.SCY)
