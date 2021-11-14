@@ -307,6 +307,7 @@ local function GetMessage(self, name)
 end
 local function SetAttribute(self, attr, val)
 	--print('Node:SetAttribute')
+	if attr == 'Texture' then val = std.DIR..'lua/'..val end
 	self[attr] = val
 	return self
 end
