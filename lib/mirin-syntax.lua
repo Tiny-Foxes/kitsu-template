@@ -18,19 +18,22 @@ local function set(t)
 	table.insert(t, 2, 0)
 	table.insert(t, 3, Tweens.instant)
 	local pn = (type(t.plr) ~= 'table' and t.plr) or nil
+	local offset = t.offset or nil
 	t.plr = nil
-	Mods:Mirin(t, 0, pn)
+	t.offset = nil
+	Mods:Mirin(t, offset, pn)
 	return set
 end
 
 local function ease(t)
 	local pn = (type(t.plr) ~= 'table' and t.plr) or nil
+	local offset = t.offset or nil
 	t.plr = nil
-	Mods:Mirin(t, 0, pn)
+	t.offset = nil
+	Mods:Mirin(t, offset, pn)
 	return ease
 end
 
--- WIP: Not a one-to-one implementation, define mods one at a time
 local function definemod(t)
 	local ret = {}
 	for i = 3, #t do
@@ -50,7 +53,7 @@ local function setdefault(t)
 end
 
 mirin = {
-	VERSION = '1.1',
+	VERSION = '1.2',
 	ease = ease,
 	set = set,
 	definemod = definemod,
