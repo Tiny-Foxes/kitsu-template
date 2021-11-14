@@ -109,6 +109,9 @@ local NodeTree = Def.ActorFrame {
 		end
 		NameActors(s)
 	end,
+	ReadyCommand = function(self)
+		self:queuecommand('Node')
+	end,
 	UpdateMessageCommand = function(self)
 		UpdateEases()
 		UpdateFuncs()
@@ -116,7 +119,7 @@ local NodeTree = Def.ActorFrame {
 	end,
 }
 
-local function new(obj)
+local function new(obj, len, pat)
 	--print('Node.new')
 	local t
 	if type(obj) == 'string' then
@@ -124,6 +127,11 @@ local function new(obj)
 		if obj == 'BitmapText' then t.Font = 'Common Normal' end
 	else
 		t = obj or {}
+	end
+	if t.Type == 'ProxyWall' then
+		local rotframe = Node.new('ActorFrame')
+		rotframe.IsProxyWall = true
+		return rotframe
 	end
 	if not t.Name then t.Name = 'Node'..node_idx end
 	node_idx = node_idx + 1
@@ -269,8 +277,12 @@ local function SetCommand(self, name, func)
 		printerr('Node.SetCommand: Invalid argument #2 (expected function, got '..type(func)..')')
 		return
 	end
+	if name == 'Node' then
+		printerr('Node.SetCommand: Forbidden command "Node"')
+		return
+	end
 	self[name..'Command'] = function(self)
-		return func(self)
+		func(self)
 	end
 	return self
 end
@@ -314,12 +326,18 @@ local function SetDraw(self, func)
 		ready(this)
 		self:SetDrawFunction(func)
 	end
+	return self
 end
+
+-- ActorFrame
 local function AddChild(self, child, idx, name)
 	--print('Node:AddChild')
 	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
 		printerr('Node.AddChild: Cannot add child to type '..self.Type)
 		return
+	end
+	if child.IsProxyWall then
+		ConfigWall(child)
 	end
 	if type(idx) == 'string' then
 		name = idx
@@ -346,8 +364,99 @@ local function GetChildIndex(self, name)
 		end
 	end
 end
+
+-- ProxyWall
+local function ConfigWall(self)
+	if not self.IsProxyWall then
+		printerr('Node.ConfigWall: Cannot config proxy wall of type '..self.Type)
+		return
+	end
+	local len = self.Length or math.ceil(std.SW * 1.5 / 256)
+	local pat = self.Pattern or {1, 2}
+	--local rotframe = Node.new('ActorFrame')
+	--rotframe.IsProxyWall = true
+	for idx, _ in ipairs(self) do
+		table.remove(self, idx)
+	end
+	local proxyframe = Node.new('ActorFrame')
+	proxyframe.NodeCommand = function(self)
+		self:GetParent()
+			:Center()
+			:fov(70)
+			:rotafterzoom(false)
+	end
+	proxyframe.UpdateCommand = function(self)
+		local rot = self:GetParent()
+		local pos = {
+			x = rot:GetX() - std.SCX,
+			y = rot:GetY() - std.SCY,
+			z = rot:GetZ(),
+		}
+		self:x(self:GetX() + pos.x)
+		self:y(self:GetY() + pos.y)
+		self:z(self:GetZ() + pos.z)
+		rot:Center()
+		rot:z(0)
+	end
+	for i = 1, len do
+		-- Scaling all of this sucked. Be thankful. ~Sudo
+		local width = (std.COLNUM * (64))
+		local px = -(len * width * 0.75) + (width * i)
+		px = px * (std.SH / 480)
+		local proxy = proxyframe[i] or Node.new('ActorProxy')
+		proxy.NodeCommand = function(self)
+			self:GetParent()
+				:fov(70)
+				:rotafterzoom(false)
+			local pn = pat[((i - 1) % #pat) + 1]
+			local plr = std.PL[pn].Player
+			self
+				:SetTarget(plr:GetChild('NoteField'))
+				:basezoom(std.SH / 480)
+				:x(px)
+				:rotafterzoom(false)
+		end
+		proxy.UpdateCommand = function(self)
+			local pn = pat[((i - 1) % #pat) + 1]
+			local wall = self:GetParent()
+			local wx = wall:GetX() / wall:GetZoom()
+			local offx = math.floor((wx / width / (std.SH / 480)) / #pat) * width * #pat * (std.SH / 480)
+			wall:x(wall:GetX() - offx)
+		end
+		proxyframe:AddChild(proxy)
+	end
+	self:AddChild(proxyframe)
+	return self
+end
+local function SetNumProxies(self, len)
+	if not self.IsProxyWall then
+		printerr('Node.SetNumProxies: Cannot set number of proxies for type'..self.Type)
+		return
+	end
+	if type(len) ~= 'number' then
+		printerr('Node.SetNumProxies: Length must be a number')
+		return
+	end
+	self.Length = math.ceil(len)
+	self = ConfigWall(self)
+	return self
+end
+local function SetPattern(self, pat)
+	if not self.IsProxyWall then
+		printerr('Node.SetPattern: Cannot set proxy pattern for type'..self.Type)
+		return
+	end
+	if type(pat) ~= 'table' then
+		printerr('Node.SetPattern: Pattern must be table containing player sequence')
+		return
+	end
+	self.Pattern = pat
+	self = ConfigWall(self)
+	return self
+end
+
 local function HideOverlay(b)
-	if not std.SCREEN.HideGameplayElements then return end
+	if not SCREENMAN:GetTopScreen().HideGameplayElements then return end
 	if b == nil then
 		printerr('Node.HideOverlay: Must have boolean argument')
 		return
@@ -356,7 +465,7 @@ local function HideOverlay(b)
 		return
 	end
 	if b then
-		std.SCREEN:HideGameplayElements()
+		SCREENMAN:GetTopScreen():HideGameplayElements()
 	end
 end
 local function AddToTree(self, idx, name)
@@ -367,6 +476,9 @@ local function AddToTree(self, idx, name)
 	end
 	if name then
 		self:SetName(name)
+	end
+	if self.IsProxyWall then
+		self = ConfigWall(self)
 	end
 	if idx then
 		table.insert(NodeTree, idx, self)
@@ -404,6 +516,8 @@ Node = {
 	SetDraw = SetDraw,
 	AddChild = AddChild,
 	GetChildIndex = GetChildIndex,
+	SetNumProxies = SetNumProxies,
+	SetPattern = SetPattern,
 	HideOverlay = HideOverlay,
 	AddToTree = AddToTree,
 	GetTree = GetTree,
