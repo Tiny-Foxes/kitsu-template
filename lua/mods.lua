@@ -1,48 +1,88 @@
--- Libraries
 std = import 'stdlib'
+Node = import 'konko-node'
+Mods = import 'konko-mods'
 mirin = import 'mirin-syntax'
 
 
--- Variables
-getfrom 'fg' {
+-- Hide Overlay
+Node.HideOverlay(true)
+
+-- Constants from stdlib
+getfrom 'std' {
+	'SCREEN',
 	'SW', 'SH',
 	'SCX', 'SCY',
-	'PL', 'BEAT',
-	'POS', 'HideOverlay',
+	'PL', 'POS',
 }
 
+-- Proxies
+for pn = 1, #GAMESTATE:GetEnabledPlayers() do
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self) std.ProxyPlayer(self, pn) end)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self) std.ProxyJudgment(self, pn) end)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self) std.ProxyCombo(self, pn) end)
+end
+
+
+--[[
+	Constants:
+	-	Screen Width -> SW
+	-	Screen Height -> SH
+	-	Screen Center X -> SCX
+	-	Screen Center Y -> SCY
+
+	Variables:
+	-	Current Beat -> BEAT
+
+	Actors:
+	-	Top Screen -> SCREEN
+	-	Player -> PL[pn].Player
+	-	Judgment -> PL[pn].Judgment
+	-	Combo -> PL[pn].Combo
+	-	Player Proxies -> PL[pn].ProxyP[i]
+	-	Add Player Proxy -> std.ProxyPlayer(proxy, pn)
+]]
+
+
+-- Mods
+using 'mirin' (function()
+
+	-- Default mods
+	setdefault {
+		1.5, 'xmod',
+		100, 'modtimersong',
+	}
+	-- Mode code goes hode
+
+end)
+
+
+-- Called on InitCommand
+function init()
+end
 
 -- Called on ReadyCommand
 function ready()
+end
 
-	HideOverlay(true)
+-- Called on UpdateCommand
+function update(dt)
+end
 
-	P, PP, PJ, PC = {}, {}, {}, {}
-	for pn = 1, #PL do
-		P[pn] = PL[pn].Player
-		PP[pn] = PL[pn].ProxyP
-		PJ[pn] = PL[pn].ProxyJ
-		PC[pn] = PL[pn].ProxyC
-	end
+-- Called on InputMessageCommand
+function input(event)
+end
 
-	-- Mods
-	using 'mirin' (function()
-	
-		-- Default mods
-		setdefault {
-			1.5, 'xmod',
-			100, 'modtimersong'
-		}
-		-- Mode code goes hode
-	
-	end)
-
+-- Called on Actors.Mods:Draw()
+function draw()
 end
 
 
 -- Actors
-table.insert(Actors.Mods, Def.ActorFrame {
+return Def.ActorFrame {
 
+	Node.GetTree(),
 
-
-})
+}

@@ -10,6 +10,7 @@ getfrom 'std' {
 	'BEAT', 'POS', 'PL',
 }
 
+
 -- Nodes
 Node.new('Quad'):AddToTree(1, 'HideEvent')
 	:SetInit(function(self)
@@ -45,15 +46,15 @@ function update(dt)
 
 end
 
--- Called on FG.Draw
+-- Called on Actors.BG:Draw()
 function draw()
 
 end
 
 
 -- Actors
-table.insert(Actors.BG, Def.ActorFrame {
+return Def.ActorFrame {
 
 	Node.GetTree(),
 
-})
+}

@@ -7,20 +7,8 @@ Node = import 'konko-node'
 getfrom 'std' {
 	'SW', 'SH',
 	'SCX', 'SCY',
-	'PL', 'BEAT',
-	'POS',
+	'PL', 'POS',
 }
-getfrom 'Node' {'HideOverlay'}
-
--- Proxies
-for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	Node.new('ActorProxy'):AddToTree()
-		:SetReady(function(self) std.ProxyPlayer(self, pn) end)
-	Node.new('ActorProxy'):AddToTree()
-		:SetReady(function(self) std.ProxyJudgment(self, pn) end)
-	Node.new('ActorProxy'):AddToTree()
-		:SetReady(function(self) std.ProxyCombo(self, pn) end)
-end
 
 
 -- Called on InitCommand
@@ -30,7 +18,6 @@ end
 
 -- Called on ReadyCommand
 function ready()
-
 end
 
 -- Called on InputMessageCommand
@@ -40,18 +27,17 @@ end
 
 -- Called on UpdateCommand
 function update(dt)
-
 end
 
--- Called on FG.Draw
+-- Called on Actors.FG:Draw()
 function draw()
 
 end
 
 
 -- Actors
-table.insert(Actors.FG, Def.ActorFrame {
-
+return Def.ActorFrame {
+	
 	Node.GetTree(),
 
-})
+}
