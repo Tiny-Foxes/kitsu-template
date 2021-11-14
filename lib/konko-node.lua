@@ -237,7 +237,7 @@ local function SetTexture(self, path)
 		printerr('Node.SetTexture: Cannot set texture of type '..self.Type)
 		return
 	end
-	self.Texture = path
+	self.Texture = std.DIR..'lua/'..path
 	return self
 end
 local function SetFont(self, font)
