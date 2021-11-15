@@ -101,7 +101,8 @@ function sudo.using(ns)
 	local newenv = setmetatable(env[ns] or {}, {
 		__index = env,
 	})
-	env[ns] = env[ns] or {_scope = ns}
+	newenv._scope = ns
+	env[ns] = env[ns] or {}
 	return function(f)
 		local ret = envcall(newenv, f)()
 		for k, v in pairs(newenv) do
