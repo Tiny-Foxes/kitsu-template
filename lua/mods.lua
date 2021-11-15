@@ -5,9 +5,6 @@ Mods = import 'konko-mods'
 mirin = import 'mirin-syntax'
 
 
--- Hide Overlay
-Node.HideOverlay(true)
-
 -- Constants from stdlib
 getfrom 'std' {
 	'SCREEN',
@@ -65,22 +62,30 @@ end)
 
 -- Called on InitCommand
 function init()
+
 end
 
 -- Called on ReadyCommand
 function ready()
+
+	-- Hide Overlay
+	Node.HideOverlay(true)
+
 end
 
 -- Called on UpdateCommand
 function update(dt)
+
 end
 
 -- Called on InputMessageCommand
 function input(event)
+
 end
 
 -- Called on Actors.Mods:Draw()
 function draw()
+	
 end
 
 
