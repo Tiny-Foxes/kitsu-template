@@ -266,7 +266,7 @@ local function SetUpdate(self, func)
 end
 local function SetInput(self, func)
 	--print('Node:SetInput')
-	self.InputMessageCommand = function(self, param)
+	self[env._scope..'InputMessageCommand'] = function(self, param)
 		return func(self, param[1])
 	end
 	return self
