@@ -32,12 +32,11 @@ if not Tweens.instant then
 	Tweens.instant = function(x) return 1 end
 end
 
-
 local InputHandler = function(event)
-	if env.input then
-		env.input(event)
+	if input then
+		input(event)
 	end
-	MESSAGEMAN:Broadcast('Input', {event})
+	MESSAGEMAN:Broadcast(env._scope..'Input', {event})
 end
 
 
