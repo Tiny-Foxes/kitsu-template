@@ -3,8 +3,9 @@ std = import 'stdlib'
 Node = import 'konko-node'
 
 
--- Variables
+-- Constants from stdlib
 getfrom 'std' {
+	'SCREEN',
 	'SW', 'SH',
 	'SCX', 'SCY',
 	'PL', 'POS',

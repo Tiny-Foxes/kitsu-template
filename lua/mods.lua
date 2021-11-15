@@ -1,3 +1,4 @@
+-- Libraries
 std = import 'stdlib'
 Node = import 'konko-node'
 Mods = import 'konko-mods'
@@ -17,12 +18,15 @@ getfrom 'std' {
 
 -- Proxies
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	Node.new('ActorProxy'):AddToTree()
+	Node.new('ActorProxy')
 		:SetReady(function(self) std.ProxyPlayer(self, pn) end)
-	Node.new('ActorProxy'):AddToTree()
+		:AddToTree()
+	Node.new('ActorProxy')
 		:SetReady(function(self) std.ProxyJudgment(self, pn) end)
-	Node.new('ActorProxy'):AddToTree()
+		:AddToTree()
+	Node.new('ActorProxy')
 		:SetReady(function(self) std.ProxyCombo(self, pn) end)
+		:AddToTree()
 end
 
 
