@@ -23,9 +23,9 @@ local Mods = {}
 setmetatable(Mods, {})
 
 -- Version number
-local VERSION = '1.3'
+local VERSION = '1.4'
 
--- Keep the player options from the enabled players that are available.
+
 local POptions = {}
 for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
     POptions[i] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
@@ -134,7 +134,7 @@ local function UpdateMods()
 			local BEAT = std.BEAT
 			local pn = m.Player
 			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) then
-				if m.Type == 'WIP' then
+				if m.Type == 'Player' then
 					-- Ease blending is a work in progress. Try to make sure two eases don't use the same mod.
 					v[3] = v[3] or mod_percents[pn][v[2]] or 0
 					active[pn][v[2]] = active[pn][v[2]] or {}
@@ -149,20 +149,17 @@ local function UpdateMods()
 						local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
 						if m.Length == 0 then cur_ease = cur_m.Ease(1) - offset end
 						local cur_perc = cur_ease * (cur_v1 - cur_v3)
-						--perc = perc + (cur_v3 + cur_perc)
 						if #active[pn][v[2]] == n then
 							perc = perc + (cur_v3 + cur_perc)
 						end
 					end
 					mod_percents[pn][v[2]] = perc
-					--ApplyMods(v[2], mod_percents[pn][v[2]], pn)
-				elseif m.Type == 'Player' then
+				elseif m.Type == 'bup' then
 					v[3] = v[3] or mod_percents[pn][v[2]] or default_mods[pn][v[2]] or 0
 					local ease = m.Ease((BEAT - m.Start) / m.Length)
 					if m.Length == 0 then ease = m.Ease(1) end
 					local perc = ease * (v[1] - v[3])
 					mod_percents[pn][v[2]] = perc + v[3]
-					--ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 				elseif m.Type == 'Note' then
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
 					v[5] = v[5] or note_percents[pn][notemod] or default_mods[pn][notemod] or 0
@@ -178,14 +175,11 @@ local function UpdateMods()
 						local cur_ease = cur_m.Ease((BEAT - cur_m.Start) / cur_m.Length) - offset
 						if m.Length == 0 then cur_ease = 1 end
 						local cur_perc = cur_ease * (cur_v3 - cur_v5)
-						--perc = perc + (cur_v5 + cur_perc)
 						if #active[pn][notemod] == n then
-							--lua.Trace(perc)
 							perc = perc + (cur_v5 + cur_perc)
 						end
 					end
 					note_percents[pn][notemod] = perc
-					--ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 				end
 			elseif BEAT >= (m.Start + m.Length) then
 				if m.Type == 'Player' then
@@ -194,7 +188,6 @@ local function UpdateMods()
 					if v[4] and active[pn][v[2]] then
 						active[pn][v[2]][v[4]] = nil
 					end
-					--ApplyMods(v[2], mod_percents[pn][v[2]], pn)
 				elseif m.Type == 'Note' then
 					v[5] = v[5] or note_percents[pn][notemod] or 0
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
@@ -202,27 +195,16 @@ local function UpdateMods()
 					if v[6] and active[pn][notemod] then
 						active[pn][notemod][v[6]] = nil
 					end
-					--ApplyNotes(v[1], v[2], v[4], note_percents[pn][notemod], pn)
 				end
-				if j >= #m.Modifiers then
-					m = nil
-					table.remove(modlist, i)
-					break
+				if j == #m.Modifiers then
+					m.Modifiers = {}
 				end
-				--table.remove(m.Modifiers, j)
 			end
 		end
-		--if #m.Modifiers < 1 then table.remove(modlist, i) end
     end
 end
 
-
 FG[#FG + 1] = Def.Actor {
-	ReadyCommand = function(self)
-		for pn = 1, #std.PL do
-			POptions[pn]:FromString('*-1 clearall')
-		end
-	end,
 	UpdateCommand = function(self)
 		UpdateMods()
 		ApplyMods()
@@ -244,7 +226,7 @@ local function Default(self, modtable)
 	for pn = 1, #POptions do
 		default_mods[pn] = modtable
 	end
-	local res = self:Insert(std.BEAT, 0, Tweens.instant, modtable)
+	local res = self:Insert(std.START, 0, Tweens.instant, modtable)
 	return res
 end
 -- Define a new mod.
@@ -396,6 +378,7 @@ Mods = {
 	Default = Default,
 }
 Mods.__index = Mods
+
 
 print('Loaded Konko Mods v'..Mods.VERSION)
 
