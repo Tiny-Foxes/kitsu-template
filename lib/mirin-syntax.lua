@@ -54,10 +54,10 @@ end
 
 mirin = {
 	VERSION = '1.2',
-	ease = ease,
 	set = set,
+	ease = ease,
 	definemod = definemod,
-	setdefault = setdefault
+	setdefault = setdefault,
 }
 mirin.__index = mirin
 

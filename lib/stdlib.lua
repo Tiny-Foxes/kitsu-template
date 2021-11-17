@@ -23,13 +23,25 @@ std.BEAT = std.POS:GetSongBeat() -- current beat
 std.BPS = std.POS:GetCurBPS() -- current beats per second
 std.BPM = std.BPS * 60 -- beats per minute
 std.SPB = 1 / std.BPS -- seconds per beat
-std.PL = {}
+std.PL = {} -- Player table
+
+local start
+local song = GAMESTATE:GetCurrentSong()
+if song.GetFGChanges then
+	for _, v in ipairs(song:GetFGChanges()) do
+		if v[2] == 'main' then start = v[1] end
+	end
+end
+std.START = start or -10 -- start of the modfile
 
 local env = getfenv(2)
 
 -- This might not be added on the engine side yet.
 if not Tweens.instant then
 	Tweens.instant = function(x) return 1 end
+end
+if not Tweens.sleep then
+	Tweens.sleep = function(x) return (x < 1 and 0) or 1 end
 end
 
 local InputHandler = function(event)
@@ -44,6 +56,14 @@ end
 if FG.stdlib then
 	--print('We have stdlib already, loading mini-actor instead')
 	FG[#FG + 1] = Def.ActorFrame {
+		InitCommand = function(self)
+			std.BEAT = std.POS:GetSongBeat() -- current beat
+			std.BPS = std.POS:GetCurBPS() -- current beats per second
+			std.BPM = std.BPS * 60 -- beats per minute
+			std.SPB = 1 / std.BPS -- seconds per beat
+			std.DT = self:GetEffectDelta() -- time since last frame in seconds
+			std.START = start or -10 -- start of the modfile
+		end,
 		ReadyCommand = function(self)
 			std.SCREEN = SCREENMAN:GetTopScreen()
 			for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
@@ -204,8 +224,13 @@ end
 function std.ProxyPlayer(proxy, pn)
 	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
 	local plr = std.PL[pn].Player
-	proxy:SetTarget(plr)
-	plr:visible(false)
+	proxy
+		:SetTarget(plr)
+		:xy(plr:GetX(), plr:GetY())
+	plr
+		:xy(0, 0)
+		:vanishpoint(SCX, SCY)
+		:visible(false)
 	local t = std.PL[pn].ProxyP or {}
 	t[#t + 1] = proxy
 	std.PL[pn].ProxyP = t
@@ -217,7 +242,7 @@ function std.ProxyJudgment(proxy, pn)
 	local plr = std.PL[pn].Player
 	proxy
 		:SetTarget(plr:GetChild('Judgment'))
-		:xy(plr:GetX(), std.SCY)
+		:xy(std.SCX * 0.5 + (std.SCX * (pn - 1)), std.SCY)
 		:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 	plr:GetChild('Judgment')
 		:visible(false)
@@ -231,7 +256,7 @@ function std.ProxyCombo(proxy, pn)
 	local plr = std.PL[pn].Player
 	proxy
 		:SetTarget(plr:GetChild('Combo'))
-		:xy(plr:GetX(), std.SCY)
+		:xy(std.SCX * 0.5 + (std.SCX * (pn - 1)), std.SCY)
 		:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
 	plr:GetChild('Combo')
 		:visible(false)
