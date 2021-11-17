@@ -62,19 +62,23 @@ local function UpdateFuncs()
 	local BEAT = std.BEAT
 	for i, v in ipairs(func_table) do
 		local actor
-		if type(v[1]) == 'string' then
-			actor = env[v[1]]
-		else
-			actor = v[1]
+		local idx = -1
+		if #func_table == 7 then
+			idx = idx + 1
+			if type(v[idx + 1]) == 'string' then
+				actor = env[v[idx + 1]]
+			else
+				actor = v[idx + 1]
+			end
 		end
-		local func = v[7]
+		local func = v[idx + 7]
 		if type(func) ~= 'function' then return end
-		if BEAT >= v[2] and BEAT < (v[2] + v[3]) then
-			local ease = v[4]((BEAT - v[2]) / v[3])
-			local amp = ease * (v[6] - v[5]) + v[5]
+		if BEAT >= v[idx + 2] and BEAT < (v[idx + 2] + v[idx + 3]) then
+			local ease = v[idx + 4]((BEAT - v[idx + 2]) / v[idx + 3])
+			local amp = ease * (v[idx + 6] - v[idx + 5]) + v[idx + 5]
 			if actor then func(actor, amp) else func(amp) end
-		elseif BEAT >= (v[2] + v[3]) then
-			if actor then func(actor, v[6]) else func(v[6]) end
+		elseif BEAT >= (v[idx + 2] + v[idx + 3]) then
+			if actor then func(actor, v[idx + 6]) else func(v[idx + 6]) end
 			table.remove(func_table, i)
 		end
 	end
@@ -109,7 +113,7 @@ local NodeTree = Def.ActorFrame {
 		end
 		NameActors(s)
 	end,
-	ReadyCommand = function(self)
+	OnCommand = function(self)
 		self:queuecommand('Node')
 	end,
 	UpdateMessageCommand = function(self)
@@ -128,10 +132,143 @@ local function new(obj, len, pat)
 	else
 		t = obj or {}
 	end
-	if t.Type == 'ProxyWall' then
+	if t.Type == 'ActorProxyWall' then
 		local rotframe = Node.new('ActorFrame')
 		rotframe.IsProxyWall = true
 		return rotframe
+	elseif t.Type == 'ActorCamera' then
+		local camRot = Node.new('ActorFrame')
+		camRot.IsCamera = true
+		local camPivot = Node.new('ActorFrame')
+		local camPos = Node.new('ActorFrame')
+		camPos.NodeCommand = function(pos)
+			local pivot = pos:GetParent()
+			local rot = pivot:GetParent()
+			rot.CamFOV = 90
+			local function fixfov(fov)
+				return 360 / math.pi * math.atan(math.tan(math.pi * fov / 360) * SW / SH * 0.75)
+			end
+			local function calcoffset(fov)
+				return SCX / math.tan(math.rad(fixfov(fov) / 2))
+			end
+			function rot:x(x)
+				pos:x(x - SCX)
+				Actor.x(self, SCX)
+				return self
+			end
+			function rot:y(y)
+				pos:y(y - SCY)
+				Actor.y(self, SCY)
+				return self
+			end
+			function rot:z(z)
+				pivot:z(z - calcoffset(self.CamFOV))
+				Actor.z(self, calcoffset(self.CamFOV))
+				return self
+			end
+			function rot:xy(x, y)
+				self:x(x):y(y)
+				return self
+			end
+			function rot:xyz(x, y, z)
+				self:xy(x, y):z(z)
+				return self
+			end
+			function rot:Center()
+				self:xy(SCX, SCY)
+				return self
+			end
+			function rot:GetX()
+				return pos:GetX()
+			end
+			function rot:GetY()
+				return pos:GetY()
+			end
+			function rot:GetZ()
+				return pos:GetZ()
+			end
+			function rot:GetOffset()
+				return calcoffset(self.CamFOV)
+			end
+			local function applyfov(actor, fov)
+				if actor.fov then
+					actor:fov(fov)
+				end
+				if not actor.GetChildren then return end
+				for _, v in ipairs(actor:GetChildren()) do
+					applyfov(v, fov)
+				end
+			end
+			local function applyfardist(actor, fardist)
+				if actor.fardistz then
+					actor:fardistz(fardist)
+				end
+				if not actor.GetChildren then return end
+				for _, v in ipairs(actor:GetChildren()) do
+					applyfardist(v, fardist)
+				end
+			end
+			function rot:fov(fov)
+				if not fov then return self.CamFOV end
+				self.CamFOV = fov
+				ActorFrame.fov(self, fixfov(fov))
+				--self:z(pos:GetZ() + calcoffset(fov))
+				for pn = 1, #std.PL do
+					std.PL[pn].Player:fov(fixfov(fov))
+				end
+				applyfov(pivot, fixfov(fov))
+				return self
+			end
+			function rot:PivotRotX(p)
+				--[[
+				self
+					:rotationx(p)
+					:y(math.sin(math.rad(-p)) * -self:GetOffset())
+					:z((math.cos(math.rad(p)) - 1) * self:GetOffset())
+				--]]
+				pivot:rotationx(p)
+				return self
+			end
+			function rot:PivotRotY(p)
+				--[[
+				self
+					:rotationy(p)
+					:x(math.sin(math.rad(-p)) * self:GetOffset())
+					:z((math.cos(math.rad(-p)) - 1) * -self:GetOffset())
+				--]]
+				pivot:rotationy(p)
+				return self
+			end
+			function rot:PivotRotZ(p)
+				pivot:rotationz(p)
+				return self
+			end
+			function rot:PivotRotXY(x, y)
+				self:PivotRotX(x):PivotRotY(y)
+				return self
+			end
+			function rot:PivotRotYZ(y, z)
+				self:PivotRotY(y):PivotRotZ(z)
+				return self
+			end
+			function rot:PivotRotXZ(x, z)
+				self:PivotRotX(x):PivotRotZ(z)
+				return self
+			end
+			function rot:PivotRotXYZ(x, y, z)
+				self:PivotRotXY(x, y):PivotRotZ(z)
+				return self
+			end
+			applyfardist(rot, 1000000)
+			for pn = 1, #std.PL do
+				std.PL[pn].Player:fardistz(1000000)
+			end
+			rot:fov(rot.CamFOV)
+			rot:xyz(0, 0, 0)
+		end
+		camPivot:AddChild(camPos)
+		camRot:AddChild(camPivot)
+		return camRot
 	end
 	if not t.Name then t.Name = 'Node'..node_idx end
 	node_idx = node_idx + 1
@@ -151,13 +288,30 @@ local function ease(t)
 	if type(t) ~= 'table' then
 		printerr('Node.ease: Table expected, got '..type(t))
 	end
+	if type(t[2]) ~= 'number' then
+		table.insert(t, 2, 0)
+		table.insert(t, 3, Tweens.instant)
+	end
+	if type(t[4]) ~= 'number' then
+		table.insert(t, 4, 0)
+		table.insert(t, 4, 0)
+	end
+	table.insert(t, 1, FG)
 	table.insert(ease_table, t)
 	return ease
 end
 local function func(t)
 	--print('Node.func')
 	if type(t) ~= 'table' then
-		printerr('Node.ease: Table expected, got '..type(t))
+		printerr('Node.func: Table expected, got '..type(t))
+	end
+	if type(t[2]) ~= 'number' then
+		table.insert(t, 2, 0)
+		table.insert(t, 3, Tweens.instant)
+	end
+	if type(t[4]) ~= 'number' then
+		table.insert(t, 4, 0)
+		table.insert(t, 5, 0)
 	end
 	table.insert(func_table, t)
 	return func
@@ -330,42 +484,6 @@ local function SetDraw(self, func)
 	return self
 end
 
--- ActorFrame
-local function AddChild(self, child, idx, name)
-	--print('Node:AddChild')
-	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
-		printerr('Node.AddChild: Cannot add child to type '..self.Type)
-		return
-	end
-	if child.IsProxyWall then
-		ConfigWall(child)
-	end
-	if type(idx) == 'string' then
-		name = idx
-		idx = nil
-	end
-	if name then child:SetName(name) end
-	child = Def[child.Type](child)
-	if idx then
-		table.insert(self, idx, child)
-	else
-		table.insert(self, child)
-	end
-	return self
-end
-local function GetChildIndex(self, name)
-	print('Node:GetChildIndex')
-	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
-		printerr('Node.GetChildIndex: Cannot add child to type '..self.Type)
-		return
-	end
-	for i, v in ipairs(self) do
-		if v.Name == name then
-			return i
-		end
-	end
-end
-
 -- ProxyWall
 local function ConfigWall(self)
 	if not self.IsProxyWall then
@@ -444,7 +562,7 @@ local function SetNumProxies(self, len)
 end
 local function SetPattern(self, pat)
 	if not self.IsProxyWall then
-		printerr('Node.SetPattern: Cannot set proxy pattern for type'..self.Type)
+		printerr('Node.SetPattern: Cannot set proxy pattern for type '..self.Type)
 		return
 	end
 	if type(pat) ~= 'table' then
@@ -469,6 +587,46 @@ local function HideOverlay(b)
 		SCREENMAN:GetTopScreen():HideGameplayElements()
 	end
 end
+
+-- ActorFrame
+local function AddChild(self, child, idx, name)
+	--print('Node:AddChild')
+	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
+		printerr('Node.AddChild: Cannot add child to type '..self.Type)
+		return
+	end
+	if child.IsProxyWall then
+		child = ConfigWall(child)
+	end
+	if type(idx) == 'string' then
+		name = idx
+		idx = nil
+	end
+	if name then child:SetName(name) end
+	child = Def[child.Type](child)
+	local parent = self
+	if self.IsCamera and self.CameraSet then
+		parent = self[1][1]
+	end
+	if idx then
+		table.insert(parent, idx, child)
+	else
+		table.insert(parent, child)
+	end
+	return self
+end
+local function GetChildIndex(self, name)
+	--print('Node:GetChildIndex')
+	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
+		printerr('Node.GetChildIndex: Cannot add child to type '..self.Type)
+		return
+	end
+	for i, v in ipairs(self) do
+		if v.Name == name then
+			return i
+		end
+	end
+end
 local function AddToTree(self, idx, name)
 	--print('Node:AddToTree')
 	if type(idx) == 'string' then
@@ -486,6 +644,7 @@ local function AddToTree(self, idx, name)
 	else
 		table.insert(NodeTree, self)
 	end
+	if self.IsCamera then self.CameraSet = true end
 	return self
 end
 local function GetTree()
