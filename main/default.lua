@@ -34,54 +34,18 @@ local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 local subo = assert(loadfile(dir .. 'main/env.lua'))()
 
 -- We're going to use our subo table to call our subo environment that takes our subo table
--- and assigns it to our subo table in our subo environment, subo subo subo, subo subo, subo
--- subo subo subo.
+-- and assigns it to our subo table in our subo environment, subo subo subo, subo subo,
+-- subo subo subo subo.
 subo.using 'subo' (function()
 	subo = subo
 end)
 
 
--- This loads our fg.lua, mods.lua, and bg.lua, all in their own environments,
--- and all within the subo environment.
--- This means a global variable 'bup' assigned in bg.lua will ultimately be assigned to
--- subo.bg.bup, and likewise for environments within *those* environments.
--- Can I just call them scopes or namespaces now? Typing environment over and over sucks.
+-- This loads our mods.lua in its own environment, within the subo environment.
+-- This means a global variable 'bup' assigned in mods.lua will ultimately be
+-- assigned to subo.mods.bup.
 -- After compiling it returns a function, which we call and return at the end of the file.
 local modfile = subo(function()
-	using 'bg' (function()
-		function init() end
-		function ready() end
-		function update(dt) end
-		function input(event) end
-		function draw() end
-		FG = Def.ActorFrame {
-			Name = 'BG',
-			InitCommand = function(self)
-				FG = self
-				subo.Actors.BG = self
-			end
-		}
-		subo.Actors.BG = FG
-		table.insert(subo.Actors, FG)
-		table.insert(FG, run 'lua/bg')
-	end)
-	using 'fg' (function()
-		function init() end
-		function ready() end
-		function update(dt) end
-		function input(event) end
-		function draw() end
-		FG = Def.ActorFrame {
-			Name = 'FG',
-			InitCommand = function(self)
-				FG = self
-				subo.Actors.FG = self
-			end
-		}
-		subo.Actors.FG = FG
-		table.insert(subo.Actors, FG)
-		table.insert(FG, run 'lua/fg')
-	end)
 	using 'mods' (function()
 		function init() end
 		function ready() end
@@ -96,7 +60,7 @@ local modfile = subo(function()
 			end
 		}
 		subo.Actors.Mods = FG
-		table.insert(subo.Actors, 2, FG)
+		table.insert(subo.Actors, FG)
 		table.insert(FG, run 'lua/mods')
 	end)
 
