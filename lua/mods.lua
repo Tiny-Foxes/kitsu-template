@@ -14,16 +14,23 @@ getfrom 'std' {
 }
 
 -- Proxies
+local cam = Node.new('ActorCamera'):AddToTree('Camera')
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	Node.new('ActorProxy')
-		:SetReady(function(self) std.ProxyPlayer(self, pn) end)
-		:AddToTree()
-	Node.new('ActorProxy')
-		:SetReady(function(self) std.ProxyJudgment(self, pn) end)
-		:AddToTree()
-	Node.new('ActorProxy')
-		:SetReady(function(self) std.ProxyCombo(self, pn) end)
-		:AddToTree()
+	cam:AddChild(
+		Node.new('ActorProxy'):SetReady(function(self)
+			std.ProxyPlayer(self, pn)
+		end), 1 * pn
+	)
+	cam:AddChild(
+		Node.new('ActorProxy'):SetReady(function(self)
+			std.ProxyJudgment(self, pn)
+		end), 2 * pn
+	)
+	cam:AddChild(
+		Node.new('ActorProxy'):SetReady(function(self)
+			std.ProxyCombo(self, pn)
+		end), 3 * pn
+	)
 end
 
 
@@ -58,7 +65,17 @@ using 'mirin' (function()
 	-- Mode code goes hode
 
 end)
+-- Node functions
+using 'Node' (function()
 
+	func {std.START, function()
+		HideOverlay(true)
+		for pn = 1, #PL do
+			PL[pn].ProxyP[1]:x(SCX)
+		end
+	end}
+
+end)
 
 -- Called on InitCommand
 function init()
@@ -67,9 +84,6 @@ end
 
 -- Called on ReadyCommand
 function ready()
-
-	-- Hide Overlay
-	Node.HideOverlay(true)
 
 end
 
@@ -93,5 +107,10 @@ end
 return Def.ActorFrame {
 
 	Node.GetTree(),
+	Def.Actor {
+		InitCommand = function(self)
+			DummyDumbDumb = self
+		end
+	}
 
 }
