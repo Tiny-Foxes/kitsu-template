@@ -141,10 +141,12 @@ local function new(obj, len, pat)
 		camRot.IsCamera = true
 		local camPivot = Node.new('ActorFrame')
 		local camPos = Node.new('ActorFrame')
+		local camBG = Node.new('ActorFrame')
+		local camFG = Node.new('ActorFrame')
 		camPos.NodeCommand = function(pos)
 			local pivot = pos:GetParent()
 			local rot = pivot:GetParent()
-			rot.CamFOV = 90
+			rot.CamFOV = 60
 			local function fixfov(fov)
 				return 360 / math.pi * math.atan(math.tan(math.pi * fov / 360) * SW / SH * 0.75)
 			end
@@ -195,8 +197,8 @@ local function new(obj, len, pat)
 					actor:fov(fov)
 				end
 				if not actor.GetChildren then return end
-				for _, v in ipairs(actor:GetChildren()) do
-					applyfov(v, fov)
+				for i = 1, actor:GetNumChildren() do
+					applyfov(actor:GetChildAt(i), fov)
 				end
 			end
 			local function applyfardist(actor, fardist)
@@ -204,8 +206,8 @@ local function new(obj, len, pat)
 					actor:fardistz(fardist)
 				end
 				if not actor.GetChildren then return end
-				for _, v in ipairs(actor:GetChildren()) do
-					applyfardist(v, fardist)
+				for i = 1, actor:GetNumChildren() do
+					applyfardist(actor:GetChildAt(i), fardist)
 				end
 			end
 			function rot:fov(fov)
@@ -265,7 +267,23 @@ local function new(obj, len, pat)
 			end
 			rot:fov(rot.CamFOV)
 			rot:xyz(0, 0, 0)
+			pos:GetChildAt(1):visible(false)
+			pos:GetChildAt(2):visible(true)
 		end
+		camPos.UpdateCommand = function(self)
+			local pivot = self:GetParent()
+			local rotx = math.abs(self:GetRotationX() + pivot:GetRotationX()) % 360
+			local roty = math.abs(self:GetRotationY() + pivot:GetRotationY()) % 360
+			if (rotx > 90) and (rotx < 270) or (roty > 90) and (roty < 270) then
+				self:GetChildAt(1):visible(true)
+				self:GetChildAt(2):visible(false)
+			else
+				self:GetChildAt(1):visible(false)
+				self:GetChildAt(2):visible(true)
+			end
+		end
+		camPos:AddChild(camFG)
+		camPos:AddChild(camBG, 1)
 		camPivot:AddChild(camPos)
 		camRot:AddChild(camPivot)
 		return camRot
@@ -606,7 +624,29 @@ local function AddChild(self, child, idx, name)
 	child = Def[child.Type](child)
 	local parent = self
 	if self.IsCamera and self.CameraSet then
-		parent = self[1][1]
+		local t = {}
+		for i, v in ipairs(parent[1][1]) do
+			t[i] = v
+		end
+		BG = t[1]
+		print(BG)
+		FG = t[2]
+		print(FG)
+		local i = idx or #FG + 1
+		local proxy = Def.ActorProxy {
+			NodeCommand = function(self)
+				local FG = self:GetParent():GetParent():GetChildAt(2)
+				self:SetTarget(FG:GetChildAt(i))
+			end
+		}
+		if idx then
+			table.insert(BG, (#BG + 1) - (idx - 1), proxy)
+			table.insert(FG, idx, child)
+		else
+			table.insert(BG, 1, proxy)
+			table.insert(FG, child)
+		end
+		return self
 	end
 	if idx then
 		table.insert(parent, idx, child)
