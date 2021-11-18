@@ -7,7 +7,6 @@ mirin = import 'mirin-syntax'
 
 -- Constants from stdlib
 getfrom 'std' {
-	'SCREEN',
 	'SW', 'SH',
 	'SCX', 'SCY',
 	'PL', 'POS',
@@ -53,7 +52,6 @@ end
 	-	Add Player Proxy -> std.ProxyPlayer(proxy, pn)
 ]]
 
-
 -- Mods
 using 'mirin' (function()
 
@@ -70,9 +68,6 @@ using 'Node' (function()
 
 	func {std.START, function()
 		HideOverlay(true)
-		for pn = 1, #PL do
-			PL[pn].ProxyP[1]:x(SCX)
-		end
 	end}
 
 end)
