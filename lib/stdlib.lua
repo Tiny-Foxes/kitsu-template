@@ -224,16 +224,16 @@ end
 function std.ProxyPlayer(proxy, pn)
 	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
 	local plr = std.PL[pn].Player
-	proxy
-		:SetTarget(plr)
-		:xy(plr:GetX(), plr:GetY())
-	plr
-		:xy(0, 0)
-		:vanishpoint(SCX, SCY)
-		:visible(false)
-	local t = std.PL[pn].ProxyP or {}
-	t[#t + 1] = proxy
-	std.PL[pn].ProxyP = t
+	if not proxy:GetTarget() then
+		proxy
+			:SetTarget(plr)
+		plr
+			:vanishpointx(SCX - plr:GetX())
+			:visible(false)
+		local t = std.PL[pn].ProxyP or {}
+		t[#t + 1] = proxy
+		std.PL[pn].ProxyP = t
+	end
 	return proxy
 end
 
