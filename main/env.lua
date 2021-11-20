@@ -58,11 +58,11 @@ function sudo.print(s, ret)
 		print('KITSU: Printing '..tostring(s))
 		PrintTable(s)
 	else
-		print('KITSU: '..(s or 'nil'))
+		print('KITSU: '..tostring(s))
 	end
 	return ret or nil
 end
-function sudo.printerr(s, ret) lua.ReportScriptError('KITSU: '..(s or 'nil')) return ret end
+function sudo.printerr(s, ret) lua.ReportScriptError('KITSU: '..tostring(s)) return ret end
 
 -- Library importer
 function sudo.import(lib)
@@ -127,7 +127,7 @@ function sudo.getfrom(ns, deep)
 				if not target[v] then
 					sudo.printerr('No variable "'..v..'" found (Is variable local?)')
 				else
-					if deep then
+					if deep and type(target[v]) == 'table' then
 						env[v] = DeepCopy(target[v])
 					else
 						env[v] = target[v]
@@ -163,11 +163,10 @@ end
 sudo.Actors = Def.ActorFrame {
     InitCommand = function(self)
 		sudo.FG = self
-        self:sleep(9e9)
     end,
-	StartCommand = function(self)
+	ReadyCommand = function(self)
 		self:luaeffect('Update')
-	end
+	end,
 }
 
 return sudo

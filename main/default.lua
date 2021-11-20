@@ -69,9 +69,7 @@ local modfile = subo(function()
 		OnCommand = function(self)
 			self:queuecommand('Ready')
 		end,
-		ReadyCommand = function(self)
-			self:luaeffect('Update')
-		end,
+		Def.Actor { InitCommand = function(self) self:sleep(9e9) end },
 		Actors
 	}
 end)
