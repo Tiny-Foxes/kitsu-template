@@ -62,23 +62,19 @@ local function UpdateFuncs()
 	local BEAT = std.BEAT
 	for i, v in ipairs(func_table) do
 		local actor
-		local idx = -1
-		if #func_table == 7 then
-			idx = idx + 1
-			if type(v[idx + 1]) == 'string' then
-				actor = env[v[idx + 1]]
-			else
-				actor = v[idx + 1]
-			end
+		if type(v[1]) == 'string' then
+			actor = env[v[1]]
+		else
+			actor = v[1]
 		end
-		local func = v[idx + 7]
+		local func = v[7]
 		if type(func) ~= 'function' then return end
-		if BEAT >= v[idx + 2] and BEAT < (v[idx + 2] + v[idx + 3]) then
-			local ease = v[idx + 4]((BEAT - v[idx + 2]) / v[idx + 3])
-			local amp = ease * (v[idx + 6] - v[idx + 5]) + v[idx + 5]
+		if BEAT >= v[2] and BEAT < (v[2] + v[3]) then
+			local ease = v[4]((BEAT - v[2]) / v[3])
+			local amp = ease * (v[6] - v[5]) + v[5]
 			if actor then func(actor, amp) else func(amp) end
-		elseif BEAT >= (v[idx + 2] + v[idx + 3]) then
-			if actor then func(actor, v[idx + 6]) else func(v[idx + 6]) end
+		elseif BEAT >= (v[2] + v[3]) then
+			if actor then func(actor, v[6]) else func(v[6]) end
 			table.remove(func_table, i)
 		end
 	end
@@ -116,7 +112,7 @@ local NodeTree = Def.ActorFrame {
 	OnCommand = function(self)
 		self:queuecommand('Node')
 	end,
-	UpdateMessageCommand = function(self)
+	UpdateCommand = function(self)
 		UpdateEases()
 		UpdateFuncs()
 		UpdateSignals()
@@ -197,8 +193,8 @@ local function new(obj, len, pat)
 					actor:fov(fov)
 				end
 				if not actor.GetChildren then return end
-				for i = 1, actor:GetNumChildren() do
-					applyfov(actor:GetChildAt(i), fov)
+				for i, v in ipairs(actor:GetChildren()) do
+					applyfov(v, fov)
 				end
 			end
 			local function applyfardist(actor, fardist)
@@ -206,8 +202,8 @@ local function new(obj, len, pat)
 					actor:fardistz(fardist)
 				end
 				if not actor.GetChildren then return end
-				for i = 1, actor:GetNumChildren() do
-					applyfardist(actor:GetChildAt(i), fardist)
+				for i, v in ipairs(actor:GetChildren()) do
+					applyfardist(v, fardist)
 				end
 			end
 			function rot:fov(fov)
@@ -261,7 +257,8 @@ local function new(obj, len, pat)
 				self:PivotRotXY(x, y):PivotRotZ(z)
 				return self
 			end
-			applyfardist(rot, 1000000)
+			--applyfardist(rot, 1000000)
+			rot:fardistz(1000000)
 			for pn = 1, #std.PL do
 				std.PL[pn].Player:fardistz(1000000)
 			end
@@ -312,9 +309,8 @@ local function ease(t)
 	end
 	if type(t[4]) ~= 'number' then
 		table.insert(t, 4, 0)
-		table.insert(t, 4, 0)
+		table.insert(t, 4, 1)
 	end
-	table.insert(t, 1, FG)
 	table.insert(ease_table, t)
 	return ease
 end
@@ -323,14 +319,17 @@ local function func(t)
 	if type(t) ~= 'table' then
 		printerr('Node.func: Table expected, got '..type(t))
 	end
+	if type(t[1]) ~= 'string' or type(t[1]) ~= 'table' then
+	end
 	if type(t[2]) ~= 'number' then
 		table.insert(t, 2, 0)
 		table.insert(t, 3, Tweens.instant)
 	end
 	if type(t[4]) ~= 'number' then
 		table.insert(t, 4, 0)
-		table.insert(t, 5, 0)
+		table.insert(t, 5, 1)
 	end
+	table.insert(t, 1, FG)
 	table.insert(func_table, t)
 	return func
 end
@@ -629,9 +628,7 @@ local function AddChild(self, child, idx, name)
 			t[i] = v
 		end
 		BG = t[1]
-		print(BG)
 		FG = t[2]
-		print(FG)
 		local i = idx or #FG + 1
 		local proxy = Def.ActorProxy {
 			NodeCommand = function(self)
