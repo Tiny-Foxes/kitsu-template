@@ -205,6 +205,11 @@ local function UpdateMods()
 end
 
 FG[#FG + 1] = Def.Actor {
+	ReadyCommand = function(self)
+		for pn = 1, #POptions do
+			POptions[pn]:FromString('*-1 clearall', pn)
+		end
+	end,
 	UpdateCommand = function(self)
 		UpdateMods()
 		ApplyMods()
