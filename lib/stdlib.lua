@@ -34,7 +34,6 @@ if song.GetFGChanges then
 end
 std.START = start or -10 -- start of the modfile
 
-local env = getfenv(2)
 
 -- This might not be added on the engine side yet.
 if not Tweens.instant then
@@ -44,13 +43,15 @@ if not Tweens.sleep then
 	Tweens.sleep = function(x) return (x < 1 and 0) or 1 end
 end
 
+
+local env = getfenv(2)
+
 local InputHandler = function(event)
 	if input then
 		input(event)
 	end
 	MESSAGEMAN:Broadcast(env._scope..'Input', {event})
 end
-
 
 -- Our foreground to put everything in. If FG is not set, this will take its place.
 if FG.stdlib then
@@ -189,7 +190,6 @@ else
 		end,
 	}
 end
-
 
 function std.aftmult(a)
 	return a * 0.9

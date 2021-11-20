@@ -67,8 +67,9 @@ end)
 using 'Node' (function()
 
 	func {std.START, function()
-		HideOverlay(true)
+		Node.HideOverlay(true)
 	end}
+	-- Nod cod gos hod
 
 end)
 
@@ -102,10 +103,6 @@ end
 return Def.ActorFrame {
 
 	Node.GetTree(),
-	Def.Actor {
-		InitCommand = function(self)
-			DummyDumbDumb = self
-		end
-	}
+	-- Actors gactors hactor
 
 }
