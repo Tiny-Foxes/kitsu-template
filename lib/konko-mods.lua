@@ -22,8 +22,9 @@ depend ('konko-mods', std, 'stdlib')
 Mods = {}
 setmetatable(Mods, {})
 
--- Version number
+-- Version and author
 local VERSION = '1.5'
+local AUTHOR = 'Sudospective'
 
 
 local POptions = {}
@@ -398,6 +399,7 @@ end
 
 Mods = {
 	VERSION = VERSION,
+	AUTHOR = AUTHOR,
 	PlayerCount = PlayerCount,
 	RegisterField = RegisterField,
 	FromFile = FromFile,

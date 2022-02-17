@@ -21,8 +21,9 @@ depend ('konko-node', std, 'stdlib')
 
 Node = {}
 
--- Version number
+-- Version and author
 local VERSION = '1.2'
+local AUTHOR = 'Sudospective'
 
 local env = getfenv(2)
 
@@ -800,6 +801,7 @@ end
 
 Node = {
 	VERSION = VERSION,
+	AUTHOR = AUTHOR,
 	new = new,
 	FromFile = FromFile,
 	ease = ease,
