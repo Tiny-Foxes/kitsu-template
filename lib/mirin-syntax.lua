@@ -10,18 +10,25 @@
 	Mirin documentation available at https://xerool.github.io/notitg-mirin
 --]]
 
-local Mods = import 'konko-mods'
+depend ('mirin-syntax', Mods, 'konko-mods')
 
-local mirin = {}
+mirin = {}
 
 local function set(t)
 	table.insert(t, 2, 0)
 	table.insert(t, 3, Tweens.instant)
-	local pn = (type(t.plr) ~= 'table' and t.plr) or nil
+	local plr = t.plr or nil
 	local offset = t.offset or nil
 	t.plr = nil
 	t.offset = nil
-	Mods:Mirin(t, offset, pn)
+	if plr then
+		if type(plr) ~= 'table' then plr = {plr} end
+		for i = 1, #plr do
+			Mods:Mirin(t, offset, plr[i])
+		end
+	else
+		Mods:Mirin(t, offset)
+	end
 	return set
 end
 
@@ -52,15 +59,24 @@ local function setdefault(t)
 	return setdefault
 end
 
+local function players(t)
+	Mods.PlayerCount(t[1])
+end
+
+local function register(t)
+	Mods.RegisterField(t[1], t[2])
+end
+
 mirin = {
-	VERSION = '1.2',
+	VERSION = '1.3',
+	AUTHOR = 'Sudospective',
 	set = set,
 	ease = ease,
 	definemod = definemod,
 	setdefault = setdefault,
+	players = players,
+	register = register,
 }
 mirin.__index = mirin
 
 print('Loaded Mirin Syntax v'..mirin.VERSION)
-
-return mirin

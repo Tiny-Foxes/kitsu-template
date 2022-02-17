@@ -94,6 +94,18 @@ function sudo.run(path)
 	return envcall(env, loadfile(file))()
 end
 
+function sudo.depend(lib, dependency, name)
+	-- If we don't have it, try to load it.
+	if dependency == nil and type(name) == 'string' then
+		local env = getfenv(2)
+		envcall(env, sudo.import(name))
+	end
+	-- If we still don't have it, throw an error.
+	if dependency == nil then
+		sudo.printerr('Error importing library "'..lib..'": Unable to load '..name..' dependency')
+	end
+end
+
 
 -- Special thanks to Chegg for helping me help him help me get this working
 function sudo.using(ns)

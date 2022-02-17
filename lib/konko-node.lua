@@ -17,12 +17,12 @@
 --	Node:AddChild(node, index, name) - Adds a child to a Node (Must inherit ActorFrame)
 --	Node:AddToTree(name, index) - Adds a Node to the NodeTree (Name and index can be in any order)
 ---------------------------
-local std = import 'stdlib'
+depend ('konko-node', std, 'stdlib')
 
-local Node = {}
+Node = {}
 
 -- Version number
-local VERSION = '1.1'
+local VERSION = '1.2'
 
 local env = getfenv(2)
 
@@ -31,6 +31,11 @@ local func_table = {}
 local msg_table = {}
 
 local node_idx = 1
+
+-- Helper function for ModPlayer
+local function metric(str)
+	return tonumber(THEME:GetMetric('Player', str))
+end
 
 -- These run every frame. They update the eases, functions, and signals.
 local function UpdateEases()
@@ -103,7 +108,12 @@ local NodeTree = Def.ActorFrame {
 		local function NameActors(actor)
 			for i = 1, actor:GetNumChildren() do
 				local this = actor:GetChildAt(i)
-				env[this:GetName()] = this
+				local name = this:GetName()
+				if name:find('%.D') then
+					print(name:sub(1, -3))
+					this:name(name:sub(1, -3))
+					env[this:GetName()] = this
+				end
 				if this.GetChildren then NameActors(this) end
 			end
 		end
@@ -128,7 +138,51 @@ local function new(obj, len, pat)
 	else
 		t = obj or {}
 	end
-	if t.Type == 'ActorProxyWall' then
+	if t.Type == 'ModPlayer' then
+		local plr = Node.new('ActorFrame')
+		plr.IsModPlayer = true
+		plr
+			:SetName('PlayerP3')
+			:SetAttribute('FOV', 45)
+		local nf = Node.new('NoteField')
+		nf
+			:SetAttribute('DrawDistanceAfterTargetsPixels', metric 'DrawDistanceAfterTargetsPixels')
+			:SetAttribute('DrawDistanceBeforeTargetsPixels', metric 'DrawDistanceBeforeTargetsPixels')
+			:SetAttribute('YReverseOffsetPixels', metric 'ReceptorArrowsYReverse' - metric 'ReceptorArrowsYStandard')
+		plr.NoteField = nf
+		plr.NodeCommand = function(self)
+			local function scale(var, lower1, upper1, lower2, upper2)
+				return ((upper2 - lower2) * (var - lower1)) / (upper1 - lower1) + lower2
+			end
+			local poptions = self:GetChild('NoteField'):GetPlayerOptions('ModsLevel_Current')
+			local skew = poptions:Skew()
+			local vanishx = self.vanishpointx
+			local vanishy = self.vanishpointy
+			function self:vanishpointx(n)
+				local offset = scale(skew, 0, 1, self:GetX(), SCX)
+				vanishx(self, offset + n)
+				return self
+			end
+			function self:vanishpointy(n)
+				local offset = SCY
+				vanishy(self, offset + n)
+				return self
+			end
+			function self:vanishpoint(x, y)
+				return self:vanishpointx(x):vanishpointy(y)
+			end
+			local nfmid = (metric 'ReceptorArrowsYStandard' + metric 'ReceptorArrowsYReverse')
+			self
+				:Center()
+				:zoom(std.SH / 480)
+			self:GetChild('NoteField')
+				:y(nfmid)
+				
+		end
+		nf:SetName('NoteField')
+		table.insert(plr, nf)
+		return plr
+	elseif t.Type == 'ActorProxyWall' then
 		local rotframe = Node.new('ActorFrame')
 		rotframe.IsProxyWall = true
 		return rotframe
@@ -323,13 +377,15 @@ local function func(t)
 	end
 	if type(t[2]) ~= 'number' then
 		table.insert(t, 2, 0)
+	end
+	if type(t[3]) ~= 'number' then
 		table.insert(t, 3, Tweens.instant)
 	end
 	if type(t[4]) ~= 'number' then
 		table.insert(t, 4, 0)
 		table.insert(t, 5, 1)
 	end
-	table.insert(t, 1, FG)
+	table.insert(t, 1, nil)
 	table.insert(func_table, t)
 	return func
 end
@@ -366,6 +422,7 @@ local function AttachScript(self, scriptpath)
 		if src.input then return src.input(self, param[1]) end
 	end
 	kitsu = nil
+	return self
 end
 local function AddEase(self, t)
 	--print('Node:AddEase')
@@ -396,10 +453,11 @@ local function AddFunc(self, t)
 	return self
 end
 
-local function SetName(self, name)
+local function SetName(self, name, declarative)
 	--print('Node:SetName')
 	self.Name = name
 	--env[name] = self
+	if declarative then self.Name = name..'.D' end
 	return self
 end
 local function SetTexture(self, path)
@@ -590,6 +648,59 @@ local function SetPattern(self, pat)
 	self = ConfigWall(self)
 	return self
 end
+local function SetPlayer(self, pn)
+	if not self.IsModPlayer and self.Type ~= 'NoteField' then
+		printerr('Node.SetPlayer: Cannot set Player for type '..self.Type)
+		return
+	end
+	if self.Type == 'NoteField' then
+		nf = self
+	elseif self.IsModPlayer then
+		nf = self.NoteField
+	end
+	nf
+		:SetAttribute('Player', pn - 1)
+		:SetAttribute('NoteSkin', GAMESTATE:GetPlayerState(pn - 1):GetPlayerOptions('ModsLevel_Stage'):NoteSkin())
+	
+	nf.NodeCommand = function(self)
+		local poptions = GAMESTATE:GetPlayerState(pn - 1):GetPlayerOptions('ModsLevel_Song')
+		local mini = scale(poptions:Mini(), 0, 1, 1, 0.5)
+		local tilt = 1 - (0.1 * math.abs(poptions:Tilt()))
+		local rotx = -30 * poptions:Tilt()
+		self
+			:zoom(mini * tilt)
+			:rotationx(rotx)
+			:sleep(self:GetEffectDelta())
+			:queuecommand('Node')
+	end
+	return self
+end
+local function SetAutoplay(self, b)
+	if not self.IsModPlayer and self.Type ~= 'NoteField' then
+		printerr('Node.SetAutoplay: Cannot set Autoplay for type '..self.Type)
+		return
+	end
+	if self.Type == 'NoteField' then
+		nf = self
+	elseif self.IsModPlayer then
+		nf = self.NoteField
+	end
+	nf:SetAttribute('AutoPlay', b)
+	return self
+end
+local function SetFieldID(self, id)
+	if not self.IsModPlayer and self.Type ~= 'NoteField' then
+		printerr('Node.SetFieldID: Cannot set FieldID for type '..self.Type)
+		return
+	end
+	if self.Type == 'NoteField' then
+		nf = self
+	elseif self.IsModPlayer then
+		nf = self.NoteField
+	end
+	nf:SetAttribute('FieldID', id)
+	return self
+end
 
 local function HideOverlay(b)
 	if not SCREENMAN:GetTopScreen().HideGameplayElements then return end
@@ -619,7 +730,7 @@ local function AddChild(self, child, idx, name)
 		name = idx
 		idx = nil
 	end
-	if name then child:SetName(name) end
+	if name then child:SetName(name, true) end
 	child = Def[child.Type](child)
 	local parent = self
 	if self.IsCamera and self.CameraSet then
@@ -655,7 +766,7 @@ end
 local function GetChildIndex(self, name)
 	--print('Node:GetChildIndex')
 	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
-		printerr('Node.GetChildIndex: Cannot add child to type '..self.Type)
+		printerr('Node.GetChildIndex: Cannot get child index of type '..self.Type)
 		return
 	end
 	for i, v in ipairs(self) do
@@ -670,9 +781,7 @@ local function AddToTree(self, idx, name)
 		name = idx
 		idx = nil
 	end
-	if name then
-		self:SetName(name)
-	end
+	if name then self:SetName(name, true) end
 	if self.IsProxyWall then
 		self = ConfigWall(self)
 	end
@@ -715,6 +824,9 @@ Node = {
 	GetChildIndex = GetChildIndex,
 	SetNumProxies = SetNumProxies,
 	SetPattern = SetPattern,
+	SetPlayer = SetPlayer,
+	SetAutoplay = SetAutoplay,
+	SetFieldID = SetFieldID,
 	HideOverlay = HideOverlay,
 	AddToTree = AddToTree,
 	GetTree = GetTree,
@@ -723,4 +835,3 @@ Node = {
 Node.__index = Node
 
 print('Loaded Konko Node v'..Node.VERSION)
-return Node

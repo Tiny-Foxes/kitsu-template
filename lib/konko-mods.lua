@@ -17,16 +17,17 @@
 --	Mods:Exsch(start, len, begin_p, end_p, mod, timing, ease, [offset], [plr]) - Write mods to branch Exschwasion style
 --	Mods:Default(modpairs) - Writes default mods to branch
 ---------------------------
-local std = import 'stdlib'
+depend ('konko-mods', std, 'stdlib')
 
-local Mods = {}
+Mods = {}
 setmetatable(Mods, {})
 
 -- Version number
-local VERSION = '1.4'
+local VERSION = '1.5'
 
 
 local POptions = {}
+local plrcount = 0
 for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
     POptions[i] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
 end
@@ -38,13 +39,19 @@ local custom_mods = {}
 local default_mods = {}
 local active = {}
 
-for pn = 1, #POptions do
-	mod_percents[pn] = {}
-	note_percents[pn] = {}
-	custom_mods[pn] = {}
-	default_mods[pn] = {}
-	active[pn] = {}
+local function PlayerCount(num)
+	plrcount = num
+	for pn = 1, plrcount do
+		mod_percents[pn] = {}
+		note_percents[pn] = {}
+		custom_mods[pn] = {}
+		default_mods[pn] = {}
+		active[pn] = {}
+	end
 end
+
+PlayerCount(2)
+
 --[[
 local function ApplyMods(mod, percent, pn)
 	if custom_mods[pn][mod] ~= nil then
@@ -62,7 +69,7 @@ local function ApplyMods(mod, percent, pn)
 		if pn then
 			POptions[pn]:FromString(modstring)
 		else
-			for p = 1, #POptions do
+			for p = 1, plrcount do
 				POptions[p]:FromString(modstring)
 			end
 		end
@@ -71,7 +78,7 @@ end
 --]]
 -- TODO: Make sure this doesn't run on unnecessary frames. ~Sudo
 local function ApplyMods()
-	for pn = 1, #POptions do
+	for pn = 1, plrcount do
 		local modstring = ''
 		for mod, percent in pairs(mod_percents[pn]) do
 			if custom_mods[pn][mod] ~= nil then
@@ -120,7 +127,7 @@ local function ApplyNotes(beat, col, mod, percent, pn)
 	if pn then
 		std.PL[pn].Player:AddNoteMod(beat, col, mod, percent * 0.01)
 	else
-		for p = 1, #POptions do
+		for p = 1, plrcount do
 			std.PL[p].Player:AddNoteMod(beat, col, mod, percent * 0.01)
 		end
 	end
@@ -206,8 +213,8 @@ end
 
 FG[#FG + 1] = Def.Actor {
 	ReadyCommand = function(self)
-		for pn = 1, #POptions do
-			POptions[pn]:FromString('*-1 clearall', pn)
+		for pn = 1, plrcount do
+			POptions[pn]:FromString('*-1 clearall')
 		end
 	end,
 	UpdateCommand = function(self)
@@ -216,8 +223,9 @@ FG[#FG + 1] = Def.Actor {
 	end
 }
 
-
--- TODO: Create a GetPercent function to get the current mod percent
+local function RegisterField(notefield, pn)
+	POptions[pn] = notefield:GetPlayerOptions('ModsLevel_Current')
+end
 
 -- Load a mod file.
 local function FromFile(self, scriptpath)
@@ -228,10 +236,12 @@ end
 -- Write default mods.
 local function Default(self, modtable)
 	--printerr('Mods:Default')
-	for pn = 1, #POptions do
-		default_mods[pn] = modtable
+	for pn = 1, plrcount do
+		for i = 1, #modtable do
+			table.insert(default_mods[pn], modtable[i])
+		end
 	end
-	local res = self:Insert(std.START, 0, Tweens.instant, modtable)
+	local res = self:Insert(std.START, 0, function(x) return 1 end, modtable)
 	return res
 end
 -- Define a new mod.
@@ -243,7 +253,7 @@ local function Define(self, name, func, ret)
 		Function = func,
 		Return = ret
 	}
-	for pn = 1, #POptions do
+	for pn = 1, plrcount do
 		custom_mods[pn][name] = t
 	end
 	return self
@@ -251,7 +261,10 @@ end
 -- Insert a mod.
 local function Insert(self, start, len, ease, modtable, offset, pn)
     --printerr('Mods:Insert')
-    local t1, t2 = {}, {}
+	local t1, t = {}, {}
+	for p = 2, plrcount do
+		t[p] = {}
+	end
     if not offset or offset == 0 then
 		t1 = {
 			Start = start,
@@ -263,15 +276,17 @@ local function Insert(self, start, len, ease, modtable, offset, pn)
 		}
 		table.insert(modlist, t1)
 		if not pn then
-			t2 = {
-				Start = start,
-				Length = len,
-				Ease = ease,
-				Modifiers = modtable,
-				Type = 'Player',
-				Player = 2
-			}
-			table.insert(modlist, t2)
+			for p = 2, plrcount do
+				t[p] = {
+					Start = start,
+					Length = len,
+					Ease = ease,
+					Modifiers = modtable,
+					Type = 'Player',
+					Player = p
+				}
+				table.insert(modlist, t[p])
+			end
 		end
     else
         for i, v in ipairs(modtable) do
@@ -285,15 +300,17 @@ local function Insert(self, start, len, ease, modtable, offset, pn)
             }
             table.insert(modlist, t1[i])
 			if not pn then
-				t2[i] = {
-					Start = start + (offset * (i - 1)),
-					Length = len,
-					Ease = ease,
-					Modifiers = {v},
-					Type = 'Player',
-					Player = 2
-				}
-				table.insert(modlist, t2[i])
+				for p = 2, plrcount do
+					t[p][i] = {
+						Start = start + (offset * (i - 1)),
+						Length = len,
+						Ease = ease,
+						Modifiers = {v},
+						Type = 'Player',
+						Player = p
+					}
+					table.insert(modlist, t[p][i])
+				end
 			end
         end
     end
@@ -302,7 +319,10 @@ end
 -- We can't actually add notemods until they stop corrupting the stack.
 local function Note(self, start, len, ease, notemodtable, offset, pn)
 	--printerr(Mods:Note)
-	local t1, t2 = {}, {}
+	local t1, t = {}, {}
+	for p = 2, plrcount do
+		t[p] = {}
+	end
 	if not offset or offset == 0 then
 		t1 = {
 			Start = start,
@@ -314,15 +334,17 @@ local function Note(self, start, len, ease, notemodtable, offset, pn)
 		}
 		table.insert(modlist, t1)
 		if not pn then
-			t2 = {
-				Start = start,
-				Length = len,
-				Ease = ease,
-				Modifiers = notemodtable,
-				Type = 'Note',
-				Player = 2
-			}
-			table.insert(modlist, t2)
+			for p = 2, plrcount do
+				t[p] = {
+					Start = start,
+					Length = len,
+					Ease = ease,
+					Modifiers = notemodtable,
+					Type = 'Note',
+					Player = p
+				}
+				table.insert(modlist, t[p])
+			end
 		end
 	else
 		for i, v in ipairs(notemodtable) do
@@ -336,15 +358,17 @@ local function Note(self, start, len, ease, notemodtable, offset, pn)
 			}
 			table.insert(modlist, t1[i])
 			if not pn then
-				t2[i] = {
-					Start = start + (offset * (i - 1)),
-					Length = len,
-					Ease = ease,
-					Modifiers = {v},
-					Type = 'Note',
-					Player = 2
-				}
-				table.insert(modlist, t2[i])
+				for p = 2, plrcount do
+					t[p][i] = {
+						Start = start + (offset * (i - 1)),
+						Length = len,
+						Ease = ease,
+						Modifiers = {v},
+						Type = 'Note',
+						Player = p
+					}
+					table.insert(modlist, t[p][i])
+				end
 			end
 		end
 	end
@@ -374,6 +398,8 @@ end
 
 Mods = {
 	VERSION = VERSION,
+	PlayerCount = PlayerCount,
+	RegisterField = RegisterField,
 	FromFile = FromFile,
 	Define = Define,
 	Insert = Insert,
@@ -386,5 +412,3 @@ Mods.__index = Mods
 
 
 print('Loaded Konko Mods v'..Mods.VERSION)
-
-return Mods

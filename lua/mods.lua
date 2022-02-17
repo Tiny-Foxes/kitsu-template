@@ -1,8 +1,8 @@
 -- Libraries
-std = import 'stdlib'
-Node = import 'konko-node'
-Mods = import 'konko-mods'
-mirin = import 'mirin-syntax'
+import 'stdlib'
+import 'konko-node'
+import 'konko-mods'
+import 'mirin-syntax'
 
 
 -- Constants from stdlib
@@ -13,23 +13,19 @@ getfrom 'std' {
 }
 
 -- Proxies
-local cam = Node.new('ActorCamera'):AddToTree('Camera')
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	cam:AddChild(
-		Node.new('ActorProxy'):SetReady(function(self)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self)
 			std.ProxyPlayer(self, pn)
-		end), 1 * pn
-	)
-	cam:AddChild(
-		Node.new('ActorProxy'):SetReady(function(self)
+		end)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self)
 			std.ProxyJudgment(self, pn)
-		end), 2 * pn
-	)
-	cam:AddChild(
-		Node.new('ActorProxy'):SetReady(function(self)
+		end)
+	Node.new('ActorProxy'):AddToTree()
+		:SetReady(function(self)
 			std.ProxyCombo(self, pn)
-		end), 3 * pn
-	)
+		end)
 end
 
 
@@ -61,6 +57,7 @@ using 'mirin' (function()
 		100, 'modtimersong',
 	}
 	-- Mode code goes hode
+	ease {0, 1, Tweens.outexpo, 100, 'invert'}
 
 end)
 -- Node functions
