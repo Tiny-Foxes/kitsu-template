@@ -14,59 +14,82 @@ getfrom 'std' {
 
 -- Proxies
 for pn = 1, #GAMESTATE:GetEnabledPlayers() do
-	Node.new('ActorProxy'):AddToTree()
+
+	local proxyp = Node.new('ActorProxy')
+	local proxyj = Node.new('ActorProxy')
+	local proxyc = Node.new('ActorProxy')
+
+	proxyp
 		:SetReady(function(self)
-			std.ProxyPlayer(self, pn)
+			std.ProxyPlayer(self, pn, true)
 		end)
-	Node.new('ActorProxy'):AddToTree()
+		:AddToTree()
+	proxyj
 		:SetReady(function(self)
 			std.ProxyJudgment(self, pn)
 		end)
-	Node.new('ActorProxy'):AddToTree()
+		:AddToTree()
+	proxyc
 		:SetReady(function(self)
 			std.ProxyCombo(self, pn)
 		end)
+		:AddToTree()
+
 end
 
 
 --[[
 	Constants:
-	-	Screen Width -> SW
-	-	Screen Height -> SH
-	-	Screen Center X -> SCX
-	-	Screen Center Y -> SCY
+	-	Screen Width		-> SW
+	-	Screen Height		-> SH
+	-	Screen Center X		-> SCX
+	-	Screen Center Y		-> SCY
+	-	Screen Left			-> SL
+	-	Screen Right		-> SR
+	-	Screen Top			-> ST
+	-	Screen Bottom		-> SB
 
 	Variables:
-	-	Current Beat -> BEAT
+	-	Current Beat		-> BEAT
 
 	Actors:
-	-	Top Screen -> SCREEN
-	-	Player -> PL[pn].Player
-	-	Judgment -> PL[pn].Judgment
-	-	Combo -> PL[pn].Combo
-	-	Player Proxies -> PL[pn].ProxyP[i]
-	-	Add Player Proxy -> std.ProxyPlayer(proxy, pn)
-]]
+	-	Top Screen			-> SCREEN
+	-	Foreground			-> FG
+	-	Player				-> PL[pn].Player
+	-	Judgment			-> PL[pn].Judgment
+	-	Combo				-> PL[pn].Combo
+	-	Player Proxies		-> PL[pn].ProxyP[i]
+	-	Add Player Proxy	-> std.ProxyPlayer(proxy, pn, offsetvanish)
+--]]
 
 -- Mods
-using 'mirin' (function()
+-- (You can look into the konko-mods library to see how these functions work)
+Mods
+	:Default({
+		{1.5, 'XMod'},
+		{100, 'ModTimerSong'}
+	})
+	:Insert(0, 1, Tweens.outexpo, {
+		{100, 'Invert'}
+	})
+	--:Define()
+	--:Exsch()
+	--:Mirin {}
 
-	-- Default mods
-	setdefault {
-		1.5, 'xmod',
-		100, 'modtimersong',
-	}
-	-- Mode code goes hode
-	ease {0, 1, Tweens.outexpo, 100, 'invert'}
+-- Mirin functions
+using 'mirin' (function()
+	
+	-- You can use Mirin modifiers here if you have the 'mirin-syntax' library imported.
+	--ease {0, 1, Tweens.outexpo, 100, 'invert'}
 
 end)
+
 -- Node functions
 using 'Node' (function()
 
 	func {std.START, function()
 		Node.HideOverlay(true)
 	end}
-	-- Nod cod gos hod
 
 end)
 
@@ -100,6 +123,5 @@ end
 return Def.ActorFrame {
 
 	Node.GetTree(),
-	-- Actors gactors hactor
 
 }

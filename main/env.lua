@@ -106,6 +106,7 @@ function sudo.depend(lib, dependency, name)
 	end
 end
 
+sudo._spaces = {}
 
 -- Special thanks to Chegg for helping me help him help me get this working
 function sudo.using(ns)
@@ -116,6 +117,8 @@ function sudo.using(ns)
 	newenv._scope = ns
 	env[ns] = env[ns] or {}
 	return function(f)
+		sudo._spaces[#sudo._spaces + 1] = newenv
+		newenv._spaces = newenv._spaces or sudo._spaces
 		local ret = envcall(newenv, f)()
 		for k, v in pairs(newenv) do
 			if type(v) == 'table' and newenv._scope == ns then
@@ -151,7 +154,6 @@ function sudo.getfrom(ns, deep)
 end
 
 function sudo.switch(var)
-	local env = getfenv(2)
 	local ret = nop
 	if not var then
 		return sudo.printerr('switch: given variable is nil')

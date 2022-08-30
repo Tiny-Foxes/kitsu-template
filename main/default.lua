@@ -31,6 +31,7 @@ collectgarbage()
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
 -- This loads the absolutely necessary stuff for the template's environment to work properly.
+-- This is a special environment as it is completely localized and deleted upon file exit.
 local subo = assert(loadfile(dir .. 'main/env.lua'))()
 
 -- We're going to use our subo table to call our subo environment that takes our subo table
@@ -46,7 +47,7 @@ end)
 -- This means a global variable 'bup' assigned in mods.lua will ultimately be
 -- assigned to subo.mods.bup.
 -- After compiling it returns a function, which we call and return at the end of the file.
-local modfile = subo(function()
+return subo(function()
 	using 'mods' (function()
 		function init() end
 		function ready() end
@@ -73,10 +74,10 @@ local modfile = subo(function()
 		Def.Actor { InitCommand = function(self) self:sleep(9e9) end },
 		Actors
 	}
-end)
+end)()
 
 -- Finally, run our compiled function to return our actors.
-return modfile()
+--return modfile()
 
 --[[
 

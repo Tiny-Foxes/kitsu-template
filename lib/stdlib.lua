@@ -48,8 +48,10 @@ end
 local env = getfenv(2)
 
 local InputHandler = function(event)
-	if input then
-		input(event)
+	for v in ivalues(env._spaces) do
+		if v.input and type(v.input) == 'function' then
+			v.input(event)
+		end
 	end
 	MESSAGEMAN:Broadcast(env._scope..'Input', {event})
 end
@@ -58,13 +60,16 @@ end
 FG[#FG + 1] = Def.ActorFrame {
 	Name = 'stdlib',
 	InitCommand = function(self)
-		if init then
-			init()
+		for v in ivalues(env._spaces) do
+			if v.init and type(v.init) == 'function' then
+				v.init()
+			end
 		end
 	end,
 	ReadyCommand = function(self)
 		std.SCREEN = SCREENMAN:GetTopScreen()
 		std.SCREEN:AddInputCallback(InputHandler)
+		FG:fardistz(10000000)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
 	
@@ -88,9 +93,9 @@ FG[#FG + 1] = Def.ActorFrame {
 			info.NoteData = pl:GetNoteData()
 			info.State = GAMESTATE:GetPlayerState(v)
 			info.Stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(v)
-			info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
+			info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
 			info.Columns = pl:GetChild('NoteField'):GetColumnActors()
-	
+			
 			std.PL[i] = info
 		end
 		std.PL = setmetatable(std.PL, {
@@ -111,12 +116,18 @@ FG[#FG + 1] = Def.ActorFrame {
 		self:queuecommand('Start')
 	end,
 	StartCommand = function(self)
-		if ready then
-			ready()
+		for v in ivalues(env._spaces) do
+			if v.ready and type(v.ready) == 'function' then
+				v.ready()
+			end
 		end
-		if draw then
-			self:SetDrawFunction(draw)
-		end
+		self:SetDrawFunction(function()
+			for v in ivalues(env._spaces) do
+				if v.draw and type(v.draw) == 'function' then
+					v.draw()
+				end
+			end
+		end)
 	end,
 	UpdateCommand = function(self)
 		std.BEAT = std.POS:GetSongBeat()
@@ -124,8 +135,10 @@ FG[#FG + 1] = Def.ActorFrame {
 		std.BPM = std.BPS * 60
 		std.SPB = 1 / std.BPS
 		std.DT = self:GetEffectDelta()
-		if update then
-			update(std.DT)
+		for v in ivalues(env._spaces) do
+			if v.update and type(v.update) == 'function' then
+				v.update(std.DT)
+			end
 		end
 	end,
 	OffCommand = function(self)
@@ -164,7 +177,7 @@ function std.MapAFT(aft, sprite)
 end
 
 function std.RegisterPlayer(plr, pn)
-	local env = getfenv(2)
+
 	local info = {}
 
 	local plrcopy = math.mod(pn - 1, 2) + 1
@@ -185,18 +198,36 @@ function std.RegisterPlayer(plr, pn)
 
 	std.PL[pn] = info
 
-
 end
 
-function std.ProxyPlayer(proxy, pn)
+function std.ProxyPlayer(proxy, pn, bVanish)
 	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
 	local plr = std.PL[pn].Player
 	if not proxy:GetTarget() then
 		proxy
 			:SetTarget(plr)
-		plr
-			:vanishpointx(SCX - plr:GetX())
-			:visible(false)
+		if bVanish then
+			plr
+				:vanishpointx(SCX - plr:GetX())
+				:visible(false)
+			function plr.x(self, p)
+				Actor.x(self, p)
+				self:vanishpointx(SCX - self:GetX())
+				return self
+			end
+			function plr.xy(self, x, y)
+				self:x(x):y(y)
+				return self
+			end
+			function plr.xyz(self, x, y, z)
+				self:xy(x, y):z(z)
+				return self
+			end
+			function plr.Center(self)
+				self:xy(SCX, SCY)
+				return self
+			end
+		end
 		local t = std.PL[pn].ProxyP or {}
 		t[#t + 1] = proxy
 		std.PL[pn].ProxyP = t
@@ -210,7 +241,7 @@ function std.ProxyJudgment(proxy, pn)
 	proxy
 		:SetTarget(plr:GetChild('Judgment'))
 		:xy(std.SCX * 0.5 + (std.SCX * (pn - 1)), std.SCY)
-		:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
+		:zoom(std.SH / 480)
 	plr:GetChild('Judgment')
 		:visible(false)
 		:sleep(9e9)
@@ -224,7 +255,7 @@ function std.ProxyCombo(proxy, pn)
 	proxy
 		:SetTarget(plr:GetChild('Combo'))
 		:xy(std.SCX * 0.5 + (std.SCX * (pn - 1)), std.SCY)
-		:zoom(THEME:GetMetric('Common', 'ScreenHeight') / 720)
+		:zoom(std.SH / 480)
 	plr:GetChild('Combo')
 		:visible(false)
 		:sleep(9e9)

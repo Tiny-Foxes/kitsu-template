@@ -111,7 +111,6 @@ local NodeTree = Def.ActorFrame {
 				local this = actor:GetChildAt(i)
 				local name = this:GetName()
 				if name:find('%.D') then
-					print(name:sub(1, -3))
 					this:name(name:sub(1, -3))
 					env[this:GetName()] = this
 				end
@@ -143,7 +142,6 @@ local function new(obj, len, pat)
 		local plr = Node.new('ActorFrame')
 		plr.IsModPlayer = true
 		plr
-			:SetName('PlayerP3')
 			:SetAttribute('FOV', 45)
 		local nf = Node.new('NoteField')
 		nf
@@ -152,15 +150,11 @@ local function new(obj, len, pat)
 			:SetAttribute('YReverseOffsetPixels', metric 'ReceptorArrowsYReverse' - metric 'ReceptorArrowsYStandard')
 		plr.NoteField = nf
 		plr.NodeCommand = function(self)
-			local function scale(var, lower1, upper1, lower2, upper2)
-				return ((upper2 - lower2) * (var - lower1)) / (upper1 - lower1) + lower2
-			end
-			local poptions = self:GetChild('NoteField'):GetPlayerOptions('ModsLevel_Current')
-			local skew = poptions:Skew()
+			local po = self:GetChild('NoteField'):GetPlayerOptions('ModsLevel_Current')
 			local vanishx = self.vanishpointx
 			local vanishy = self.vanishpointy
 			function self:vanishpointx(n)
-				local offset = scale(skew, 0, 1, self:GetX(), SCX)
+				local offset = scale(po:Skew(), 0, 1, self:GetX(), SCX)
 				vanishx(self, offset + n)
 				return self
 			end
@@ -172,7 +166,7 @@ local function new(obj, len, pat)
 			function self:vanishpoint(x, y)
 				return self:vanishpointx(x):vanishpointy(y)
 			end
-			local nfmid = (metric 'ReceptorArrowsYStandard' + metric 'ReceptorArrowsYReverse')
+			local nfmid = (metric 'ReceptorArrowsYStandard' + metric 'ReceptorArrowsYReverse') / 2
 			self
 				:Center()
 				:zoom(std.SH / 480)
@@ -184,9 +178,19 @@ local function new(obj, len, pat)
 		table.insert(plr, nf)
 		return plr
 	elseif t.Type == 'ActorProxyWall' then
-		local rotframe = Node.new('ActorFrame')
-		rotframe.IsProxyWall = true
-		return rotframe
+		local width = std.COLNUM * THEME:GetMetric('ArrowEffects', 'ArrowSpacing') * (std.SH / 480)
+		local len = t.Length or math.ceil(std.SW * 1.5 / width)
+		local pwall = Node.new('ActorScroller')
+			:SetAttribute('UseScroller', true)
+			:SetAttribute('SecondsPerItem', 0)
+			:SetAttribute('NumItemsToDraw', len * 2)
+			:SetAttribute('ItemPaddingStart', 0)
+			:SetAttribute('ItemPaddingEnd', 0)
+			:SetAttribute('TransformFunction', function(self, offset, itemIndex, numItems)
+				self:x(offset * width)
+			end)
+		pwall.IsProxyWall = true
+		return pwall
 	elseif t.Type == 'ActorCamera' then
 		local camRot = Node.new('ActorFrame')
 		camRot.IsCamera = true
@@ -238,7 +242,7 @@ local function new(obj, len, pat)
 				return pos:GetY()
 			end
 			function rot:GetZ()
-				return pos:GetZ()
+				return pivot:GetZ() + calcoffset(self.CamFOV)
 			end
 			function rot:GetOffset()
 				return calcoffset(self.CamFOV)
@@ -342,12 +346,13 @@ local function new(obj, len, pat)
 	end
 	if not t.Name then t.Name = 'Node'..node_idx end
 	node_idx = node_idx + 1
+	t.IsNode = true
 	setmetatable(t, Node)
 	return t
 end
 local function FromFile(path)
 	--print('Node.FromFile')
-	local t = run('lua/'..path)
+	local t = run(path)
 	if not t.Name then t.Name = 'Node'..node_idx end
 	node_idx = node_idx + 1
 	setmetatable(t, Node)
@@ -378,8 +383,6 @@ local function func(t)
 	end
 	if type(t[2]) ~= 'number' then
 		table.insert(t, 2, 0)
-	end
-	if type(t[3]) ~= 'number' then
 		table.insert(t, 3, Tweens.instant)
 	end
 	if type(t[4]) ~= 'number' then
@@ -566,61 +569,57 @@ local function ConfigWall(self)
 		printerr('Node.ConfigWall: Cannot config proxy wall of type '..self.Type)
 		return
 	end
-	local len = self.Length or math.ceil(std.SW * 1.5 / 256)
+	local width = std.COLNUM * THEME:GetMetric('ArrowEffects', 'ArrowSpacing') * (std.SH / 480)
+	local len = self.Length or math.ceil(std.SW * 1.5 / width)
 	local pat = self.Pattern or {1, 2}
-	--local rotframe = Node.new('ActorFrame')
-	--rotframe.IsProxyWall = true
-	for idx, _ in ipairs(self) do
+	for idx in ipairs(self) do
 		table.remove(self, idx)
 	end
-	local proxyframe = Node.new('ActorFrame')
-	proxyframe.NodeCommand = function(self)
-		self:GetParent()
+	self.NodeCommand = function(self)
+		function self:wallx(offset)
+			self:SetCurrentAndDestinationItem(offset)
+			return self
+		end
+		self
+			:SetLoop(true)
+			:SetFastCatchup(true)
+			:fov(70)
+			:rotafterzoom(false)
+			
+		if self:GetNumWrapperStates() < 1 then
+			self:AddWrapperState()
+		end
+		local wrapper = self:GetWrapperState(1)
+		wrapper
 			:Center()
 			:fov(70)
 			:rotafterzoom(false)
-	end
-	proxyframe.UpdateCommand = function(self)
-		local rot = self:GetParent()
-		local pos = {
-			x = rot:GetX() - std.SCX,
-			y = rot:GetY() - std.SCY,
-			z = rot:GetZ(),
-		}
-		self:x(self:GetX() + pos.x)
-		self:y(self:GetY() + pos.y)
-		self:z(self:GetZ() + pos.z)
-		rot:Center()
-		rot:z(0)
+		function self:rotationx(n)
+			wrapper:rotationx(n)
+			return self
+		end
+		function self:rotationy(n)
+			wrapper:rotationy(n)
+			return self
+		end
+		function self:rotationz(n)
+			wrapper:rotationz(n)
+			return self
+		end
 	end
 	for i = 1, len do
 		-- Scaling all of this sucked. Be thankful. ~Sudo
-		local width = (std.COLNUM * (64))
-		local px = -(len * width * 0.75) + (width * i)
-		px = px * (std.SH / 480)
-		local proxy = proxyframe[i] or Node.new('ActorProxy')
+		local proxy = Node.new('ActorProxy')
 		proxy.NodeCommand = function(self)
-			self:GetParent()
-				:fov(70)
-				:rotafterzoom(false)
 			local pn = pat[((i - 1) % #pat) + 1]
 			local plr = std.PL[pn].Player
 			self
 				:SetTarget(plr:GetChild('NoteField'))
 				:basezoom(std.SH / 480)
-				:x(px)
 				:rotafterzoom(false)
 		end
-		proxy.UpdateCommand = function(self)
-			local pn = pat[((i - 1) % #pat) + 1]
-			local wall = self:GetParent()
-			local wx = wall:GetX() / wall:GetZoom()
-			local offx = math.floor((wx / width / (std.SH / 480)) / #pat) * width * #pat * (std.SH / 480)
-			wall:x(wall:GetX() - offx)
-		end
-		proxyframe:AddChild(proxy)
+		self:AddChild(proxy)
 	end
-	self:AddChild(proxyframe)
 	return self
 end
 local function SetNumProxies(self, len)
@@ -665,7 +664,7 @@ local function SetPlayer(self, pn)
 	
 	nf.NodeCommand = function(self)
 		local poptions = GAMESTATE:GetPlayerState(pn - 1):GetPlayerOptions('ModsLevel_Song')
-		local mini = scale(poptions:Mini(), 0, 1, 1, 0.5)
+		local mini = 1 - 0.5 * poptions:Mini()
 		local tilt = 1 - (0.1 * math.abs(poptions:Tilt()))
 		local rotx = -30 * poptions:Tilt()
 		self
@@ -720,7 +719,7 @@ end
 -- ActorFrame
 local function AddChild(self, child, idx, name)
 	--print('Node:AddChild')
-	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
+	if not _G[self.Type].GetChildren then
 		printerr('Node.AddChild: Cannot add child to type '..self.Type)
 		return
 	end
@@ -732,7 +731,9 @@ local function AddChild(self, child, idx, name)
 		idx = nil
 	end
 	if name then child:SetName(name, true) end
-	child = Def[child.Type](child)
+	if child.IsNode then
+		child = Def[child.Type](child)
+	end
 	local parent = self
 	if self.IsCamera and self.CameraSet then
 		local t = {}
@@ -762,6 +763,7 @@ local function AddChild(self, child, idx, name)
 	else
 		table.insert(parent, child)
 	end
+	if child.IsCamera then child.CameraSet = true end
 	return self
 end
 local function GetChildIndex(self, name)

@@ -10,15 +10,16 @@ Kitsu template is special in the sense that you don't have to use a built-in mod
 
 You can include libraries in `mods.lua` by using the `import` function.
 ```lua
-local std = import 'stdlib' -- Kitsu Standard Library
-local Node = import 'konko-node' -- Konko Node
-local Mods = import 'konko-mods' -- Konko Mods
+import 'stdlib' -- Kitsu Standard Library
+import 'konko-node' -- Konko Node
+import 'konko-mods' -- Konko Mods
+local TweensEXT = import 'extended-tweens' -- Extended Tweens Library
 ```
 
 There are more libraries you can find [here](https://github.com/Tiny-Foxes/kitsu-template-libraries/).
 
 ## Using Konko Node
-Konko Node allows a new, streamlined syntax that reduces the need for actor tables.To create a node, simply call the `Node.new` function.
+Konko Node allows a new, streamlined syntax that reduces the need for actor tables. To create a node, simply call the `Node.new` function.
 ```lua
 local MyNode = Node.new('Sprite') -- You can pass in a string naming the type of Actor, or an entire Actor itself.
 ```
@@ -35,7 +36,7 @@ MyNode:SetUpdate(function(self, dt)
   self:addrotationz(360 * dt) -- dt stands for "delta time" - the amount of seconds since last frame.
 end)
 MyNode:SetInput(function(self, event)
-  if event.type == "InputEventType_FirstPress" then
+  if event.type:find('Press') then
     SCREENMAN:SystemMessage(event.button)
   end
 end)
@@ -48,7 +49,7 @@ MyNode:SetAttribute('Texture', 'path/to/texture.png')
 
 Finally, you can add your node to the node tree. You can give it a name, and index, both, or neither. Giving it a name will allow you to use this node in its Actor form after its construction.
 ```lua
-MyNode:AddToTree('MyNode', 1)
+MyNode:AddToTree(1, 'MyNode')
 ```
 More documentation avaiable in `konko-nodes.lua`.
 
@@ -62,16 +63,17 @@ This will ease `invert` at its current percent to `100` starting at beat `0` for
 
 You can insert mods using three different functions. These examples all do the same thing, but each with their own syntax and advantages.
 ```lua
--- In-house method - Recommended for inserting tables of percent-mod pairs
+-- In-house method
 Mods:Insert(0, 4, Tweens.outelastic, {
   {100, 'invert'},
-  {100, 'tipsy'}
+  -- You can also specify a starting percent.
+  {100, 'tipsy', -100}
 })
 
--- Mirin Method - Recommended for fast mod prototyping
+-- Mirin Method
 Mods:Mirin {0, 4, Tweens.outelastic, 100, 'invert', 100, 'tipsy'}
 
--- Exschwasion Method - Recommended for easy troubleshooting
+-- Exschwasion Method
 Mods:Exsch(0, 4, 0, 100, 'invert', 'len', Tweens.outelastic)
 Mods:Exsch(0, 4, 0, 100, 'tipsy', 'len', Tweens.outelastic)
 ```
@@ -94,14 +96,18 @@ There's really no limit to what you can write for a library. Since the only requ
 
 1. If you need a certain library to function, include it! remember to use `import` for anything you'll need.
 1. Try to keep your library local to avoid interfering with other libraries. Even the included standard library is local!
-2. If you write a library and you need to add an actor, you should do this with `FG[#FG + 1] = Def.ActorFrame {}`. This is the same `FG` that is created in `env.lua` and added to the ActorFrame in `init.lua`. This `FG` ActorFrame has an update loop already provided that will call `UpdateCommand` every frame.
-3. Another thing to consider if you write your own standard library is that you may need to write your own mod loader as well. This is why one is included. It may not make writing a mod loader clear, but it will give you an idea of what it may expect from your standard library.
-4. You're more than welcome to submit your library to the [Template Library Repository](https://github.com/Tiny-Foxes/kitsu-template-libraries/)! Once approved, it will be listed with others in an easy-to-find location.
+1. If you write a library and you need to add an actor, you should do this with `FG[#FG + 1] = Def.ActorFrame {}`. This is the same `FG` that is created in `env.lua` and added to the ActorFrame in `init.lua`. This `FG` ActorFrame has an update loop already provided that will call `UpdateCommand` every frame.
+1. Another thing to consider if you write your own standard library is that you may need to write your own mod loader as well. This is why one is included. It may not make writing a mod loader clear, but it will give you an idea of what it may expect from your standard library.
+1. You're more than welcome to submit your library to the [Template Library Repository](https://github.com/Tiny-Foxes/kitsu-template-libraries/)! Once approved, it will be listed with others in an easy-to-find location.
 
 Generally, a library is written as follows:
 ```lua
+-- mylib.lua --
+
 -- You can import libraries in your library, too! That's what we call a dependency.
-local std = import 'stdlib'
+depend ('mylib', std, 'stdlib')
+-- If the library does not have a global namespace, you can simply import it directly.
+local OtherLib = import 'otherlib'
 
 -- We will fill this and return it in the end.
 local MyLib = {}
@@ -109,15 +115,22 @@ setmetatable(MyLib, {})
 
 -- We write our library definitions here.
 local MyVar = std.SCX
+local function GetVar()
+	return MyVar
+end
 local function MyFunc(n)
 	return MyVar + n
+end
+local function AddVars()
+	return OtherLib.GetVar() + MyVar
 end
 
 -- List only what you want to export. Internal variables should stay hidden to prevent other things from messing with them.
 MyLib = {
 	VERSION = '1.0',
-	var = MyVar,
-	func = MyFunc
+	var = GetVar,
+	func = MyFunc,
+	otherfunc = AddVars
 }
 MyLib.__index = MyLib
 
@@ -128,9 +141,9 @@ return MyLib
 
 You should name be able to import your library into `mods.lua` or other libraries by using `import`.
 ```lua
-local lib = import 'MyLib'
+local lib = import 'mylib'
 
-print(lib.var) -- Will print the value of SCREEN_CENTER_X
+print(lib.var()) -- Will print the value of SCREEN_CENTER_X
 local newvar = lib.func(7)
 print(newvar) -- Will print the value of SCREEN_CENTER_X + 7
 ```

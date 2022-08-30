@@ -1,4 +1,12 @@
 # Staging Notes
+
+### August 29, 2022 7:07pm
+Jesus Christ the docs are so out of date.
+
+I did my best to fix up what I could with the README, but it's gonna take a while before I get to the API reference documentation. There's just a lot on my plate and it'll take a while for me to get through all of it.
+
+I almost accidentally deleted the entire docs, by the way. What the hell is my goddamn problem.
+
 ---
 ### October 15, 2021 1:19am
 I've finally gotten back into the swing of working on the template again. During the time I haven't been around this I've made [an entire theme](https://github.com/Tiny-Foxes/superuser-outfox "god it took forever to actually push myself to do this").

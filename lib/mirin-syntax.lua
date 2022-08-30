@@ -33,11 +33,18 @@ local function set(t)
 end
 
 local function ease(t)
-	local pn = (type(t.plr) ~= 'table' and t.plr) or nil
+	local plr = t.plr or nil
 	local offset = t.offset or nil
 	t.plr = nil
 	t.offset = nil
-	Mods:Mirin(t, offset, pn)
+	if plr then
+		if type(plr) ~= 'table' then plr = {plr} end
+		for i = 1, #plr do
+			Mods:Mirin(t, offset, plr[i])
+		end
+	else
+		Mods:Mirin(t, offset)
+	end
 	return ease
 end
 

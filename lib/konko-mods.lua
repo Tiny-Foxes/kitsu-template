@@ -30,9 +30,10 @@ local AUTHOR = 'Sudospective'
 local POptions = {}
 local plrcount = 0
 for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
-    POptions[i] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Song')
+    POptions[i] = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
 end
 
+local instant_tween = function(t) return 1 end
 local modlist = {}
 local mod_percents = {}
 local note_percents = {}
@@ -141,8 +142,8 @@ local function UpdateMods()
 			if m.Player and not POptions[m.Player] then break end
 			local BEAT = std.BEAT
 			local pn = m.Player
-			if (BEAT >= m.Start and BEAT < (m.Start + m.Length)) then
-				if m.Type == 'Player' then
+			if (BEAT >= m.Start and BEAT <= (m.Start + m.Length)) then
+				if m.Type == 'Blend' then
 					-- Ease blending is a work in progress. Try to make sure two eases don't use the same mod.
 					v[3] = v[3] or mod_percents[pn][v[2]] or 0
 					active[pn][v[2]] = active[pn][v[2]] or {}
@@ -162,7 +163,7 @@ local function UpdateMods()
 						end
 					end
 					mod_percents[pn][v[2]] = perc
-				elseif m.Type == 'bup' then
+				elseif m.Type == 'Player' then
 					v[3] = v[3] or mod_percents[pn][v[2]] or default_mods[pn][v[2]] or 0
 					local ease = m.Ease((BEAT - m.Start) / m.Length)
 					if m.Length == 0 then ease = m.Ease(1) end
@@ -189,40 +190,28 @@ local function UpdateMods()
 					end
 					note_percents[pn][notemod] = perc
 				end
-			elseif BEAT >= (m.Start + m.Length) then
+			elseif BEAT > (m.Start + m.Length) then
 				if m.Type == 'Player' then
 					v[3] = v[3] or mod_percents[pn][v[2]] or 0
 					mod_percents[pn][v[2]] = m.Ease(1) * (v[1] - v[3]) + v[3]
 					if v[4] and active[pn][v[2]] then
-						active[pn][v[2]][v[4]] = nil
+						--active[pn][v[2]][v[4]] = nil
 					end
 				elseif m.Type == 'Note' then
 					v[5] = v[5] or note_percents[pn][notemod] or 0
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
 					note_percents[pn][notemod] = m.Ease(1) * (v[3] - v[5]) + v[5]
 					if v[6] and active[pn][notemod] then
-						active[pn][notemod][v[6]] = nil
+						--active[pn][notemod][v[6]] = nil
 					end
 				end
 				if j == #m.Modifiers then
-					m.Modifiers = {}
+					--m.Modifiers = {}
 				end
 			end
 		end
     end
 end
-
-FG[#FG + 1] = Def.Actor {
-	ReadyCommand = function(self)
-		for pn = 1, plrcount do
-			POptions[pn]:FromString('*-1 clearall')
-		end
-	end,
-	UpdateCommand = function(self)
-		UpdateMods()
-		ApplyMods()
-	end
-}
 
 local function RegisterField(notefield, pn)
 	POptions[pn] = notefield:GetPlayerOptions('ModsLevel_Current')
@@ -230,7 +219,7 @@ end
 
 -- Load a mod file.
 local function FromFile(self, scriptpath)
-	--printerr('Mods:LoadFromFile')
+	--printerr('Mods:FromFile')
 	run('lua/'..scriptpath)
 	return self
 end
@@ -242,7 +231,7 @@ local function Default(self, modtable)
 			table.insert(default_mods[pn], modtable[i])
 		end
 	end
-	local res = self:Insert(std.START, 0, function(x) return 1 end, modtable)
+	local res = self:Insert(std.START, 0, instant_tween, modtable)
 	return res
 end
 -- Define a new mod.
@@ -397,6 +386,20 @@ local function Mirin(self, t, offset, pn)
     return res
 end
 
+FG[#FG + 1] = Def.Actor {
+	ReadyCommand = function(self)
+		for pn = 1, plrcount do
+			if POptions[pn] then POptions[pn]:FromString('*-1 clearall') end
+		end
+		-- Before we include the Note function, make sure we can actually call the required command.
+		if std.PL[1].Player.AddNoteMod then Mods.Note = Note end
+	end,
+	UpdateCommand = function(self)
+		UpdateMods()
+		ApplyMods()
+	end
+}
+
 Mods = {
 	VERSION = VERSION,
 	AUTHOR = AUTHOR,
@@ -405,7 +408,6 @@ Mods = {
 	FromFile = FromFile,
 	Define = Define,
 	Insert = Insert,
-	--Note = Note,
 	Mirin = Mirin,
 	Exsch = Exsch,
 	Default = Default,
