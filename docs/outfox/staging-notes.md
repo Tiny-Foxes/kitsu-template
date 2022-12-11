@@ -1,5 +1,18 @@
 # Staging Notes
 
+### December 10, 2022 5:23pm
+I realize the importance of the stable sort function. I still don't understand what it does but I understand that it works.
+
+I was contemplating splitting `mods.lua` into three different pieces (`bg.lua`, `mods.lua`, and `fg.lua`), but I've decided against it for now. Maybe in a future release.
+
+I'm going to need to update the docs to something that's more like a getting started guide than just a cold slate of function references. It's not very straightforward how the template works and I'm working on that. Although, to be honest, I'm hoping that by then I have at least one person who's willing to help me with writing documentation since I'm terrible with words and writing it myself would likely fail.
+
+I also want to figure out some new libraries to write for this. I've been trying to think of problems that would need solutions so that I could just bang out a couple of libraries to shove in here. I don't want to include every library, but having several of them would be nice. I should really update the library list that I have on GitHub with the new ones I've been writing.
+
+I think the next library will be for textboxes.
+
+---
+
 ### August 29, 2022 7:07pm
 Jesus Christ the docs are so out of date.
 
@@ -8,6 +21,7 @@ I did my best to fix up what I could with the README, but it's gonna take a whil
 I almost accidentally deleted the entire docs, by the way. What the hell is my goddamn problem.
 
 ---
+
 ### October 15, 2021 1:19am
 I've finally gotten back into the swing of working on the template again. During the time I haven't been around this I've made [an entire theme](https://github.com/Tiny-Foxes/superuser-outfox "god it took forever to actually push myself to do this").
 
