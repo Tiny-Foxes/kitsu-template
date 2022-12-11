@@ -39,7 +39,7 @@ local subo = assert(loadfile(dir .. 'main/env.lua'))()
 -- subo subo subo subo.
 subo.using 'subo' (function()
 	subo = subo
-	subo.VERSION = '4.0.0'
+	subo.VERSION = '4.0.1'
 end)
 
 

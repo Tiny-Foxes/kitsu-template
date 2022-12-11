@@ -67,7 +67,8 @@ local function setdefault(t)
 end
 
 local function players(t)
-	Mods.PlayerCount(t[1])
+	if not t then t = {nil} end
+	return Mods.PlayerCount(t[1])
 end
 
 local function register(t)
@@ -75,7 +76,7 @@ local function register(t)
 end
 
 mirin = {
-	VERSION = '1.3',
+	VERSION = '1.4',
 	AUTHOR = 'Sudospective',
 	set = set,
 	ease = ease,
@@ -83,6 +84,7 @@ mirin = {
 	setdefault = setdefault,
 	players = players,
 	register = register,
+	poptions = Mods.GetPercents()
 }
 mirin.__index = mirin
 

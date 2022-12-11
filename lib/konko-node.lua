@@ -22,7 +22,7 @@ depend ('konko-node', std, 'stdlib')
 Node = {}
 
 -- Version and author
-local VERSION = '1.2'
+local VERSION = '1.3'
 local AUTHOR = 'Sudospective'
 
 local env = getfenv(2)
@@ -31,7 +31,74 @@ local ease_table = {}
 local func_table = {}
 local msg_table = {}
 
+local active_ease, active_func, active_msg = {}, {}, {}
+
 local node_idx = 1
+
+-- From the Mirin template. It just works? Fuck me... ~Sudo
+local function insertion_sort(t, l, h, c)
+	for i = l + 1, h do
+		local k = l
+		local v = t[i]
+		for j = i, l + 1, -1 do
+			if c(v, t[j - 1]) then
+				t[j] = t[j - 1]
+			else
+				k = j
+				break
+			end
+		end
+		t[k] = v
+	end
+end
+local function merge(t, b, l, m, h, c)
+	if c(t[m], t[m + 1]) then
+		return
+	end
+	local i, j, k
+	i = 1
+	for j = l, m do
+		b[i] = t[j]
+		i = i + 1
+	end
+	i, j, k = 1, m + 1, l
+	while k < j and j <= h do
+		if c(t[j], b[i]) then
+			t[k] = t[j]
+			j = j + 1
+		else
+			t[k] = b[i]
+			i = i + 1
+		end
+		k = k + 1
+	end
+	for k = k, j - 1 do
+		t[k] = b[i]
+		i = i + 1
+	end
+end
+local magic_number = 12
+local function merge_sort(t, b, l, h, c)
+	if h - l < magic_number then
+		insertion_sort(t, l, h, c)
+	else
+		local m = math.floor((l + h) / 2)
+		merge_sort(t, b, l, m, c)
+		merge_sort(t, b, m + 1, h, c)
+		merge(t, b, l, m, h, c)
+	end
+end
+local function default_comparator(a, b) return a < b end
+local function flip_comparator(c) return function(a, b) return c(b, a) end end
+local function stable_sort(t, c)
+	if not t[2] then return t end
+	c = c or default_comparator
+	local n = t.n
+	local b = {}
+	b[math.floor((n + 1) / 2)] = t[1]
+	merge_sort(t, b, 1, n, c)
+	return t
+end
 
 -- Helper function for ModPlayer
 local function metric(str)
@@ -41,32 +108,27 @@ end
 -- These run every frame. They update the eases, functions, and signals.
 local function UpdateEases()
 	local BEAT = std.BEAT
-	for i, v in ipairs(ease_table) do
+	for i, v in ipairs(active_ease) do
 		local actor
 		if type(v[1]) == 'string' then
 			actor = env[v[1]]
 		else
 			actor = v[1]
 		end
-		if not actor then
-			std.printerr('Cannot find actor ('..tostring(v[1])..')')
-			table.remove(ease_table, i)
-			return
-		end
 		local func = v[7]
 		if BEAT >= v[2] and BEAT < (v[2] + v[3]) then
-			local ease = v[4]((BEAT - v[2]) / (v[3]))
+			local ease = v[4]((BEAT - v[2]) * OFMath.oneoverx(v[3]))
 			local amp = ease * (v[6] - v[5]) + v[5]
 			actor[func](actor, amp)
 		elseif BEAT >= (v[2] + v[3]) then
 			actor[func](actor, v[6])
-			table.remove(ease_table, i)
+			--table.remove(ease_table, i)
 		end
 	end
 end
 local function UpdateFuncs()
 	local BEAT = std.BEAT
-	for i, v in ipairs(func_table) do
+	for i, v in ipairs(active_func) do
 		local actor
 		if type(v[1]) == 'string' then
 			actor = env[v[1]]
@@ -74,24 +136,32 @@ local function UpdateFuncs()
 			actor = v[1]
 		end
 		local func = v[7]
+		if not func then func = v[4] end
 		if type(func) ~= 'function' then return end
-		if BEAT >= v[2] and BEAT < (v[2] + v[3]) then
-			local ease = v[4]((BEAT - v[2]) / v[3])
-			local amp = ease * (v[6] - v[5]) + v[5]
+		if BEAT >= v[2] and BEAT < v[2] + (v[3] or 0) then
+			local amp
+			if #v > 4 then
+				local ease = v[4]((BEAT - v[2]) * OFMath.oneoverx(v[3]))
+				amp = ease * (v[6] - v[5]) + v[5]
+			else
+				amp = 0
+			end
 			if actor then func(actor, amp) else func(amp) end
-		elseif BEAT >= (v[2] + v[3]) then
-			if actor then func(actor, v[6]) else func(v[6]) end
-			table.remove(func_table, i)
+		elseif BEAT >= v[2] + (v[3] or 0) then
+				local amp = (#v > 4 and v[6]) or 1
+				if actor then func(actor, amp) else func(amp) end
+				--table.remove(func_table, i)
 		end
 	end
 end
 local function UpdateSignals()
 	local BEAT = std.BEAT
-	for i, v in ipairs(msg_table) do
+	for i, v in ipairs(active_msg) do
 		local msg = v[2]
+		local params = v[3] or {}
 		if BEAT >= v[1] then
-			MESSAGEMAN:Broadcast(msg)
-			table.remove(msg_table, i)
+			MESSAGEMAN:Broadcast(msg, params)
+			--table.remove(msg_table, i)
 		end
 	end
 end
@@ -103,6 +173,17 @@ local function GetActor(this)
 end
 local NodeTree = Def.ActorFrame {
 	InitCommand = function(self)
+		local compare = function(a, b)
+			return a[2] < b[2]
+		end
+		func_table.n = #func_table
+		ease_table.n = #ease_table
+		msg_table.n = #msg_table
+		stable_sort(func_table, compare)
+		stable_sort(ease_table, compare)
+		stable_sort(msg_table, function(a, b)
+			return a[1] < b[1]
+		end)
 		local s = self
 		Node.GetTree = function() return s end
 		Node.GetActor = function(this) return s:GetChild(this) end
@@ -120,16 +201,47 @@ local NodeTree = Def.ActorFrame {
 		NameActors(s)
 	end,
 	OnCommand = function(self)
-		self:queuecommand('Node')
+		self:playcommand('Node')
 	end,
 	UpdateCommand = function(self)
-		UpdateEases()
+		active_ease, active_func, active_msg = {}, {}, {}
+		for v in ivalues(func_table) do
+			if std.BEAT >= v[2] then
+				table.insert(active_func, v)
+			end
+		end
+		for v in ivalues(ease_table) do
+			if std.BEAT >= v[2] then
+				table.insert(active_ease, v)
+			end
+		end
+		for v in ivalues(msg_table) do
+			if std.BEAT >= v[1] then
+				table.insert(active_msg, v)
+			end
+		end
 		UpdateFuncs()
+		UpdateEases()
 		UpdateSignals()
+		for i, v in ipairs(func_table) do
+			if std.BEAT >= v[2] + v[3] then
+				table.remove(func_table, i)
+			end
+		end
+		for i, v in ipairs(ease_table) do
+			if std.BEAT >= v[2] + v[3] then
+				table.remove(ease_table, i)
+			end
+		end
+		for i, v in ipairs(msg_table) do
+			if std.BEAT >= v[1] then
+				table.remove(msg_table, i)
+			end
+		end
 	end,
 }
 
-local function new(obj, len, pat)
+local function new(obj)
 	--print('Node.new')
 	local t
 	if type(obj) == 'string' then
@@ -178,17 +290,38 @@ local function new(obj, len, pat)
 		table.insert(plr, nf)
 		return plr
 	elseif t.Type == 'ActorProxyWall' then
-		local width = std.COLNUM * THEME:GetMetric('ArrowEffects', 'ArrowSpacing') * (std.SH / 480)
-		local len = t.Length or math.ceil(std.SW * 1.5 / width)
+		local width = std.PLRWIDTH[1] * SH / 480
+		t.Length = t.Length or math.ceil(std.SW * 1.5 / width)
+		t.Pattern = t.Pattern or {1, 2}
+		t.Spacing = t.Spacing or 0
+		local len = t.Length
+		local spacing = t.Spacing
 		local pwall = Node.new('ActorScroller')
 			:SetAttribute('UseScroller', true)
 			:SetAttribute('SecondsPerItem', 0)
-			:SetAttribute('NumItemsToDraw', len * 2)
+			:SetAttribute('NumItemsToDraw', len)
 			:SetAttribute('ItemPaddingStart', 0)
 			:SetAttribute('ItemPaddingEnd', 0)
 			:SetAttribute('TransformFunction', function(self, offset, itemIndex, numItems)
-				self:x(offset * width)
+				self:x((offset + ((len - 1) % 2) * 0.5) * width * (1 + (spacing * 0.01)))
 			end)
+		for v in ivalues(t.Pattern) do
+			-- Scaling all of this sucked. Be thankful. ~Sudo
+			local proxy = Node.new('ActorProxy')
+			proxy.NodeCommand = function(p)
+				local pn = v
+				if not std.PL[pn] then
+					p:sleep(p:GetEffectDelta()):queuecommand('Node')
+					return
+				end
+				local plr = std.PL[pn].Player
+				p
+					:SetTarget(plr:GetChild('NoteField'))
+					:basezoom(std.SH / 480)
+					:rotafterzoom(false)
+			end
+			pwall:AddChild(proxy)
+		end
 		pwall.IsProxyWall = true
 		return pwall
 	elseif t.Type == 'ActorCamera' then
@@ -363,13 +496,13 @@ local function ease(t)
 	if type(t) ~= 'table' then
 		printerr('Node.ease: Table expected, got '..type(t))
 	end
-	if type(t[2]) ~= 'number' then
+	if type(t[3]) ~= 'string' then
 		table.insert(t, 2, 0)
-		table.insert(t, 3, Tweens.instant)
+		table.insert(t, 3, Tweens.linear)
 	end
-	if type(t[4]) ~= 'number' then
+	if type(t[4]) ~= 'string' then
 		table.insert(t, 4, 0)
-		table.insert(t, 4, 1)
+		table.insert(t, 5, 1)
 	end
 	table.insert(ease_table, t)
 	return ease
@@ -379,13 +512,11 @@ local function func(t)
 	if type(t) ~= 'table' then
 		printerr('Node.func: Table expected, got '..type(t))
 	end
-	if type(t[1]) ~= 'string' or type(t[1]) ~= 'table' then
-	end
-	if type(t[2]) ~= 'number' then
+	if type(t[2]) == 'function' then
 		table.insert(t, 2, 0)
-		table.insert(t, 3, Tweens.instant)
+		table.insert(t, 3, Tweens.linear)
 	end
-	if type(t[4]) ~= 'number' then
+	if type(t[4]) == 'function' then
 		table.insert(t, 4, 0)
 		table.insert(t, 5, 1)
 	end
@@ -397,7 +528,7 @@ end
 local function signal(t)
 	--print('Node.signal')
 	if type(t) ~= 'table' then
-		printerr('Node.ease: Table expected, got '..type(t))
+		printerr('Node.signal: Table expected, got '..type(t))
 	end
 	table.insert(msg_table, t)
 	return signal
@@ -549,7 +680,7 @@ local function GetAttribute(self, attr)
 	return self[attr]
 end
 local function SetDraw(self, func)
-	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
+	if not _G[self.Type].GetChildren then
 		printerr('Node.SetDraw: Cannot set draw function of type '..self.Type)
 		return
 	end
@@ -569,58 +700,68 @@ local function ConfigWall(self)
 		printerr('Node.ConfigWall: Cannot config proxy wall of type '..self.Type)
 		return
 	end
-	local width = std.COLNUM * THEME:GetMetric('ArrowEffects', 'ArrowSpacing') * (std.SH / 480)
-	local len = self.Length or math.ceil(std.SW * 1.5 / width)
-	local pat = self.Pattern or {1, 2}
+	local width = std.PLRWIDTH[1] * SH / 480
+	self.Length = self.Length or math.ceil(std.SW * 1.5 / width)
+	self.Pattern = self.Pattern or {1, 2}
+	self.Spacing = self.Spacing or 0
 	for idx in ipairs(self) do
 		table.remove(self, idx)
 	end
-	self.NodeCommand = function(self)
-		function self:wallx(offset)
-			self:SetCurrentAndDestinationItem(offset)
-			return self
+	local t = Node.new {
+		Type = 'ActorProxyWall',
+		Length = self.Length,
+		Pattern = self.Pattern,
+		Spacing = self.Spacing,
+	}
+	for k, v in pairs(self) do
+		if type(k) == 'string' and k:find('Command') then
+			t[k] = v
 		end
-		self
+	end
+	local len = self.Length
+	t.NodeCommand = function(subself)
+		function subself:wallx(offset)
+			subself:SetCurrentAndDestinationItem(offset)
+			return subself
+		end
+		-- offsets from 0 and goes in percent of column width
+		function subself:wallspacing(offset)
+			subself:SetTransformFromFunction(function(subsubself, off)
+				subsubself:x((off + ((len - 1) % 2) * 0.5) * width * (1 + (offset * 0.01)))
+			end)
+			return subself
+		end
+		function subself:SetSpacing(offset)
+			return subself:wallspacing(offset)
+		end
+		subself
 			:SetLoop(true)
 			:SetFastCatchup(true)
 			:fov(70)
 			:rotafterzoom(false)
 			
-		if self:GetNumWrapperStates() < 1 then
-			self:AddWrapperState()
+		if subself:GetNumWrapperStates() < 1 then
+			subself:AddWrapperState()
 		end
-		local wrapper = self:GetWrapperState(1)
+		local wrapper = subself:GetWrapperState(1)
 		wrapper
 			:Center()
 			:fov(70)
 			:rotafterzoom(false)
-		function self:rotationx(n)
+		function subself:rotationx(n)
 			wrapper:rotationx(n)
-			return self
+			return subself
 		end
-		function self:rotationy(n)
+		function subself:rotationy(n)
 			wrapper:rotationy(n)
-			return self
+			return subself
 		end
-		function self:rotationz(n)
+		function subself:rotationz(n)
 			wrapper:rotationz(n)
-			return self
+			return subself
 		end
 	end
-	for i = 1, len do
-		-- Scaling all of this sucked. Be thankful. ~Sudo
-		local proxy = Node.new('ActorProxy')
-		proxy.NodeCommand = function(self)
-			local pn = pat[((i - 1) % #pat) + 1]
-			local plr = std.PL[pn].Player
-			self
-				:SetTarget(plr:GetChild('NoteField'))
-				:basezoom(std.SH / 480)
-				:rotafterzoom(false)
-		end
-		self:AddChild(proxy)
-	end
-	return self
+	return t
 end
 local function SetNumProxies(self, len)
 	if not self.IsProxyWall then
@@ -632,7 +773,6 @@ local function SetNumProxies(self, len)
 		return
 	end
 	self.Length = math.ceil(len)
-	self = ConfigWall(self)
 	return self
 end
 local function SetPattern(self, pat)
@@ -645,7 +785,17 @@ local function SetPattern(self, pat)
 		return
 	end
 	self.Pattern = pat
-	self = ConfigWall(self)
+	return self
+end
+local function SetSpacing(self, spacing)
+	if not self.IsProxyWall then
+		printerr('Node.SetSpacing: Cannot set spacing for type '..self.Type)
+		return
+	end
+	if type(spacing) ~= 'number' then
+		printerr('Node.SetSpacing: Spacing must be number')
+	end
+	self.Spacing = spacing
 	return self
 end
 local function SetPlayer(self, pn)
@@ -768,7 +918,7 @@ local function AddChild(self, child, idx, name)
 end
 local function GetChildIndex(self, name)
 	--print('Node:GetChildIndex')
-	if self.Type ~= 'ActorFrame' and self.Type ~= 'ActorFrameTexture' then
+	if not _G[self.Type].GetChildren then
 		printerr('Node.GetChildIndex: Cannot get child index of type '..self.Type)
 		return
 	end
@@ -780,14 +930,14 @@ local function GetChildIndex(self, name)
 end
 local function AddToTree(self, idx, name)
 	--print('Node:AddToTree')
+	if self.IsProxyWall then
+		self = ConfigWall(self)
+	end
 	if type(idx) == 'string' then
 		name = idx
 		idx = nil
 	end
 	if name then self:SetName(name, true) end
-	if self.IsProxyWall then
-		self = ConfigWall(self)
-	end
 	if idx then
 		table.insert(NodeTree, idx, self)
 	else
@@ -828,6 +978,7 @@ Node = {
 	GetChildIndex = GetChildIndex,
 	SetNumProxies = SetNumProxies,
 	SetPattern = SetPattern,
+	SetSpacing = SetSpacing,
 	SetPlayer = SetPlayer,
 	SetAutoplay = SetAutoplay,
 	SetFieldID = SetFieldID,

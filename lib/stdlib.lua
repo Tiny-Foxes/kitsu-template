@@ -3,28 +3,55 @@
 std = {}
 setmetatable(std, {})
 
-std.VERSION = '1.5'
+std.VERSION = '1.6'
 std.AUTHOR = 'Sudospective'
 
 -- Standard library variables, mostly shortcuts
+std.SONG = GAMESTATE:GetCurrentSong()
 std.POS = GAMESTATE:GetSongPosition()
-std.DIR = GAMESTATE:GetCurrentSong():GetSongDir()
+std.DIR = std.SONG:GetSongDir()
 
-std.COLNUM = GAMESTATE:GetCurrentStyle():ColumnsPerPlayer()
+std.STYLE = GAMESTATE:GetCurrentStyle()
+std.COLNUM = std.STYLE:ColumnsPerPlayer()
+std.PLRWIDTH = {
+	std.STYLE:GetWidth(PLAYER_1),
+	std.STYLE:GetWidth(PLAYER_2),
+}
+std.COLSIZE = {
+	std.STYLE:GetWidth(PLAYER_1) / std.COLNUM,
+	std.STYLE:GetWidth(PLAYER_2) / std.COLNUM,
+}
+std.COLINFO = {{}, {}}
+for col = 1, std.COLNUM do
+	std.COLINFO[1][col] = std.STYLE:GetColumnInfo(PlayerNumber[1], col)
+	std.COLINFO[2][col] = std.STYLE:GetColumnInfo(PlayerNumber[2], col)
+end
 std.GAME = GAMESTATE:GetCurrentGame()
 
 std.SW, std.SH = SCREEN_WIDTH, SCREEN_HEIGHT -- screen width and height
 std.SCX, std.SCY = SCREEN_CENTER_X, SCREEN_CENTER_Y -- screen center x and y
+std.SL, std.SR = SCREEN_LEFT, SCREEN_RIGHT -- screen left and screen right
+std.ST, std.SB = SCREEN_TOP, SCREEN_BOTTOM -- screen top and screen bottom
 
 std.SCREEN = SCREENMAN:GetTopScreen()
 
 std.DT = 0 -- time since last frame in seconds
 
-std.BEAT = std.POS:GetSongBeat() -- current beat
+std.BEAT = std.POS:GetSongBeatNoOffset() -- current beat
 std.BPS = std.POS:GetCurBPS() -- current beats per second
 std.BPM = std.BPS * 60 -- beats per minute
-std.SPB = 1 / std.BPS -- seconds per beat
+std.SPB = 1 /std.BPS -- seconds per beat
 std.PL = {} -- Player table
+
+-- This is so we can get notedata early. ~Sudo
+function std.NOTES(first, last, pn)
+	pn = pn or 1
+	local chart = GAMESTATE:GetCurrentSteps(PlayerNumber[pn])
+	for i, v in ipairs(std.SONG:GetAllSteps()) do
+		if v == chart then return std.SONG:GetNoteData(i, first, last) end
+	end
+	return nil
+end
 
 local start
 local song = GAMESTATE:GetCurrentSong()
@@ -47,42 +74,45 @@ end
 
 local env = getfenv(2)
 
+local allow_input = false
 local InputHandler = function(event)
-	for v in ivalues(env._spaces) do
+	for _, v in pairs(env._spaces) do
 		if v.input and type(v.input) == 'function' then
 			v.input(event)
 		end
 	end
-	MESSAGEMAN:Broadcast(env._scope..'Input', {event})
 end
 
 
 FG[#FG + 1] = Def.ActorFrame {
 	Name = 'stdlib',
 	InitCommand = function(self)
-		for v in ivalues(env._spaces) do
+		for k, v in pairs(env._spaces) do
 			if v.init and type(v.init) == 'function' then
 				v.init()
 			end
 		end
 	end,
-	ReadyCommand = function(self)
+	OnCommand = function(self)
 		std.SCREEN = SCREENMAN:GetTopScreen()
-		std.SCREEN:AddInputCallback(InputHandler)
+		if allow_input then
+			std.SCREEN:AddInputCallback(InputHandler)
+		end
 		FG:fardistz(10000000)
 		for i, v in ipairs( GAMESTATE:GetEnabledPlayers() ) do
 			local info = {}
 	
 			local pl = std.SCREEN:GetChild('Player'..ToEnumShortString(v))
 			if not plr and std.SCREEN.GetEditState then
-				for _,v in pairs(std.SCREEN:GetChild('')) do
-					if string.find(tostring(v),'Player') then
+				for _, v in pairs(std.SCREEN:GetChild('')) do
+					if string.find(tostring(v), 'Player') then
 						pl = v
 					end
 				end
 			end
 			info.Player = pl
 			info.Number = v
+			info.Width = std.STYLE:GetWidth(v)
 			info.InitX = pl:GetX()
 			info.InitY = pl:GetY()
 			info.Life = std.SCREEN:GetChild('Life'..ToEnumShortString(v))
@@ -95,6 +125,11 @@ FG[#FG + 1] = Def.ActorFrame {
 			info.Stats = STATSMAN:GetCurStageStats():GetPlayerStageStats(v)
 			info.Options = GAMESTATE:GetPlayerState(v):GetPlayerOptions('ModsLevel_Current')
 			info.Columns = pl:GetChild('NoteField'):GetColumnActors()
+			info.ColumnSize = info.Width / #info.Columns
+			info.ColumnInfo = {}
+			for col = 1, #info.Columns do
+				table.insert(info.ColumnInfo, std.STYLE:GetColumnInfo(v, col))
+			end
 			
 			std.PL[i] = info
 		end
@@ -113,36 +148,40 @@ FG[#FG + 1] = Def.ActorFrame {
 		std.BPM = std.BPS * 60 -- beats per minute
 		std.SPB = 1 / std.BPS -- seconds per beat
 		std.DT = self:GetEffectDelta() -- time since last frame in seconds
-		self:queuecommand('Start')
 	end,
-	StartCommand = function(self)
-		for v in ivalues(env._spaces) do
+	ReadyCommand = function(self)
+		local draws = {}
+		for _, v in pairs(env._spaces) do
 			if v.ready and type(v.ready) == 'function' then
 				v.ready()
 			end
-		end
-		self:SetDrawFunction(function()
-			for v in ivalues(env._spaces) do
-				if v.draw and type(v.draw) == 'function' then
-					v.draw()
-				end
+			if v.draw and type(v.draw) == 'function' then
+				table.insert(draws, v.draw)
 			end
-		end)
+		end
+		if #draws > 0 then
+			self:SetDrawFunction(function()
+				for v in ivalues(draws) do v() end
+			end)
+		end
+
 	end,
 	UpdateCommand = function(self)
 		std.BEAT = std.POS:GetSongBeat()
 		std.BPS = std.POS:GetCurBPS()
 		std.BPM = std.BPS * 60
-		std.SPB = 1 / std.BPS
+		std.SPB = OFMath.oneoverx(std.BPS)
 		std.DT = self:GetEffectDelta()
-		for v in ivalues(env._spaces) do
+		for _, v in pairs(env._spaces) do
 			if v.update and type(v.update) == 'function' then
 				v.update(std.DT)
 			end
 		end
 	end,
 	OffCommand = function(self)
-		std.SCREEN:RemoveInputCallback(InputHandler)
+		if allow_input then
+			std.SCREEN:RemoveInputCallback(InputHandler)
+		end
 	end,
 }
 
@@ -180,10 +219,10 @@ function std.RegisterPlayer(plr, pn)
 
 	local info = {}
 
-	local plrcopy = math.mod(pn - 1, 2) + 1
+	local plrcopy = ((pn - 1) % 2) + 1
 
 	info.Player = plr
-	info.Number = math.mod(pn - 1, 2)
+	info.Number = PlayerNumber[((pn - 1) % 2) + 1]
 	info.InitX = plr:GetX()
 	info.InitY = plr:GetY()
 	info.Life = std.PL[plrcopy].Life
@@ -191,7 +230,7 @@ function std.RegisterPlayer(plr, pn)
 	info.Judgment = std.PL[plrcopy].Judgment
 	info.NoteField = plr:GetChild('NoteField')
 	info.NoteData = std.PL[plrcopy].NoteData
-	info.State = std.PL[plrcopy].State -- some day.......
+	info.State = plr:GetChild('NoteField'):GetPlayerState() -- it happened
 	info.Stats = std.PL[plrcopy].Stats
 	info.Options = plr:GetChild('NoteField'):GetPlayerOptions('ModsLevel_Current')
 	info.Columns = plr:GetChild('NoteField'):GetColumnActors()
@@ -201,7 +240,7 @@ function std.RegisterPlayer(plr, pn)
 end
 
 function std.ProxyPlayer(proxy, pn, bVanish)
-	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
+	if type(pn) ~= 'number' then pn = PlayerNumber:Reverse()[pn] + 1 end
 	local plr = std.PL[pn].Player
 	if not proxy:GetTarget() then
 		proxy
@@ -236,7 +275,7 @@ function std.ProxyPlayer(proxy, pn, bVanish)
 end
 
 function std.ProxyJudgment(proxy, pn)
-	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
+	if type(pn) ~= 'number' then pn = PlayerNumber:Reverse()[pn] + 1 end
 	local plr = std.PL[pn].Player
 	proxy
 		:SetTarget(plr:GetChild('Judgment'))
@@ -250,7 +289,7 @@ function std.ProxyJudgment(proxy, pn)
 end
 
 function std.ProxyCombo(proxy, pn)
-	local pn_str = ToEnumShortString(GAMESTATE:GetEnabledPlayers()[pn])
+	if type(pn) ~= 'number' then pn = PlayerNumber:Reverse()[pn] + 1 end
 	local plr = std.PL[pn].Player
 	proxy
 		:SetTarget(plr:GetChild('Combo'))
@@ -261,6 +300,10 @@ function std.ProxyCombo(proxy, pn)
 		:sleep(9e9)
 	std.PL[pn].ProxyC = proxy
 	return proxy
+end
+
+function std.UseInput(b)
+	allow_input = b
 end
 
 
