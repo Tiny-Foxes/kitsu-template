@@ -52,17 +52,39 @@ end
 -- It's dangerous to go alone; take this!
 local dir = GAMESTATE:GetCurrentSong():GetSongDir()
 
--- Debug and Error prints
-function sudo.print(s, ret)
-	if s and type(s) == 'table' then
-		print('KITSU: Printing '..tostring(s))
-		PrintTable(s)
-	else
-		print('KITSU: '..tostring(s))
+-- Debug logging
+local function log(level, ...)
+	local str = ''
+	for _, v in ipairs {...} do
+		str = str..' '..tostring(v)
 	end
-	return ret or nil
+	lua.ReportScriptError(level..(level ~= '' and ':' or '')..str)
 end
-function sudo.printerr(s, ret) lua.ReportScriptError('KITSU: '..tostring(s)) return ret end
+function sudo.info(...)
+	log('INFO', ...)
+end
+function sudo.warn(level, ...)
+	local info = debug.getinfo((type(level) == 'number' and level or 2), 'Sln')
+	log(
+		'WARNING',
+		(type(level) == 'string' and level or '')..table.concat({...}, ' '),
+		'\n',
+		((info.what == 'Lua' and info.name..'()') or info.what),
+		'in', info.short_src,
+		'at line', info.currentline
+	)
+end
+function sudo.err(...)
+	log('ERROR', ...)
+	local level = 2
+	while true do
+		local info = debug.getinfo(level, 'Sln')
+		if not info then break end
+		log('', ((info.what == 'Lua' and info.name..'()') or info.what), 'in', info.short_src, 'at line', info.currentline)
+		level = level + 1
+	end
+end
+sudo.printerr = sudo.err -- for compatibility
 
 -- Library importer
 function sudo.import(lib)
@@ -72,7 +94,7 @@ function sudo.import(lib)
 	-- Make sure the file is there
 	local file = dir..'lib/'..lib..'.lua'
 	if not assert(loadfile(file)) then
-		sudo.printerr('Unable to import library "'..lib..'": No file found.')
+		sudo.err('Unable to import library "'..lib..'": No file found.')
 		return
 	end
 	-- Return our file in our environment
@@ -87,7 +109,7 @@ function sudo.run(path)
 	-- Make sure the file is there
 	local file = dir..'lua/'..path..'.lua'
 	if not assert(loadfile(file)) then
-		sudo.printerr('Unable to run file "'..path..'": No file found.')
+		sudo.err('Unable to run file "'..path..'": No file found.')
 		return
 	end
 	-- Return our file in our environment
@@ -102,7 +124,7 @@ function sudo.depend(lib, dependency, name)
 	end
 	-- If we still don't have it, throw an error.
 	if dependency == nil then
-		sudo.printerr('Error importing library "'..lib..'": Unable to load '..name..' dependency')
+		sudo.err('Error importing library "'..lib..'": Unable to load '..name..' dependency')
 	end
 end
 
@@ -136,11 +158,11 @@ function sudo.getfrom(ns, deep)
 	local target = env[ns] or sudo[ns]
 	return function(t)
 		if not target then
-			sudo.printerr('No table or environment "'..ns..'" found (Is table local?)')
+			sudo.err('No table or environment "'..ns..'" found (Is table local?)')
 		else
 			for _, v in ipairs(t) do
 				if not target[v] then
-					sudo.printerr('No variable "'..v..'" found (Is variable local?)')
+					sudo.err('No variable "'..v..'" found (Is variable local?)')
 				else
 					if deep and type(target[v]) == 'table' then
 						env[v] = DeepCopy(target[v])
@@ -156,13 +178,13 @@ end
 function sudo.switch(var)
 	local ret = nop
 	if not var then
-		return sudo.printerr('switch: given variable is nil')
+		return sudo.err('switch: given variable is nil')
 	else
 		return function(t)
 			ret = t['_'] or ret
 			for k, v in pairs(t) do
 				if type(v) ~= 'function' then
-					return sudo.printerr('switch: expected case argument of type function, got '..type(v))
+					return sudo.err('switch: expected case argument of type function, got '..type(v))
 				elseif tostring(var) == k then
 					ret = v or ret
 				end
