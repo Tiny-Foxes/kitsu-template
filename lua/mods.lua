@@ -91,15 +91,16 @@ Mods
 	:Insert(0, 1, Tweens.outexpo, {
 		{100, 'Invert'}
 	})
-	--:Define()
-	--:Exsch()
-	--:Mirin {}
+	-- :Define('hidden', function(p, pn) PL[pn].Player:visible(math.abs(p) > 0) end)
+	-- :Exsch(2, 1, 100, 0, 'invert', 'len', Tweens.outexpo)
+	-- :Mirin {4, 1, Tweens.outexpo, 100, 'flip'}
 
 -- Mirin functions
 using 'mirin' (function()
 	
 	-- You can use Mirin modifiers here if you have the 'mirin-syntax' library imported.
-	--ease {0, 1, Tweens.outexpo, 100, 'invert'}
+	-- ease {0, 1, Tweens.outexpo, 100, 'invert'}
+	-- definemod {'rotationz', function(p, pn) PL[pn].Player:rotationz(p) end}
 
 end)
 
@@ -122,17 +123,17 @@ function ready()
 
 end
 
--- Called on UpdateCommand
+-- Called on frame update (Remove for better performance)
 function update(dt)
 
 end
 
--- Called on InputMessageCommand
+-- Called on input received (Remove for better performance)
 function input(event)
 
 end
 
--- Called on Actors.Mods:Draw()
+-- Called on drawing to screen (Remove for better performance)
 function draw()
 
 end
