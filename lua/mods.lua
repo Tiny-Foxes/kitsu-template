@@ -37,6 +37,25 @@ for pn = 1, #GAMESTATE:GetEnabledPlayers() do
 
 end
 
+--[[
+
+	How the Node library works:
+
+	1. Create a new Node.
+		local goodboy = Node.new('Quad')
+
+	2. Call Actor methods on Node.
+		goodboy:Center():SetSize(64, 64):spin()
+
+	3. Call special Node methods.
+		goodboy:SetUpdate(function(self, dt)
+			self:aux(self:getaux() + dt):y(SCY + sin(self:getaux() * 2) * 64)
+		end)
+
+	4. Add Node to tree.
+		goodboy:AddToTree()
+
+--]]
 
 --[[
 	Constants:

@@ -22,7 +22,7 @@ depend ('konko-node', std, 'stdlib')
 Node = {}
 
 -- Version and author
-local VERSION = '1.3'
+local VERSION = '1.4'
 local AUTHOR = 'Sudospective'
 
 local env = getfenv(2)
@@ -481,6 +481,24 @@ local function new(obj)
 	node_idx = node_idx + 1
 	t.IsNode = true
 	setmetatable(t, Node)
+	local actortable = env[t.Type] or Actor
+	if t.Type == 'Quad' or t.Type == 'Sprite' then
+		actortable = Actor
+		for k, v in pairs(Sprite) do
+			actortable[k] = v
+		end
+	end
+	for k, v in pairs(actortable) do
+		t[k] = function(self, ...)
+			local nodefunc = self.NodeCommand
+			local args = {...}
+			self.NodeCommand = function(subself)
+				if nodefunc then nodefunc(subself) end
+				v(subself, table.unpack(args))
+			end
+			return self
+		end
+	end
 	return t
 end
 local function FromFile(path)

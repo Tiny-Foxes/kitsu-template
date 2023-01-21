@@ -63,7 +63,7 @@ return subo(function()
 		}
 		subo.Actors.Mods = FG
 		table.insert(subo.Actors, FG)
-		table.insert(FG, run 'lua/mods')
+		table.insert(FG, run 'mods')
 	end)
 
 	-- This is our overarching ActorFrame which will hold everything on screen.
