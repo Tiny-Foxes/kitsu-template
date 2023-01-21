@@ -85,7 +85,7 @@ function sudo.run(path)
 	-- Catch in case we add .lua to our path.
 	if path:find('%.lua') then path = path:sub(1, path:find('%.lua') - 1) end
 	-- Make sure the file is there
-	local file = dir..path..'.lua'
+	local file = dir..'lua/'..path..'.lua'
 	if not assert(loadfile(file)) then
 		sudo.printerr('Unable to run file "'..path..'": No file found.')
 		return
