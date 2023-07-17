@@ -105,6 +105,7 @@ local function stable_sort(t, c)
 end
 
 local modlist = {}
+local notelist = {}
 local mod_percents = {}
 local note_percents = {}
 local custom_mods = {}
@@ -195,15 +196,23 @@ local function ApplyMods()
 		if modstring ~= '' then POptions[pn]:FromString(modstring) end
 	end
 end
-
-local function ApplyNotes(beat, col, mod, percent, pn)
+local function ApplyNoteMod(beat, col, mod, percent, pn)
 	-- Code to turn on notemods once will go here once function is implemented engine side
+	print(percent)
 	mod = mod:lower()
 	if pn then
-		std.PL[pn].Player:AddNoteMod(beat, col, mod, percent * 0.01)
+		std.PL[pn].NoteField:AddNoteMod(beat, col, mod, percent * 0.01)
 	else
 		for p = 1, plrcount do
-			std.PL[p].Player:AddNoteMod(beat, col, mod, percent * 0.01)
+			std.PL[p].NoteField:AddNoteMod(beat, col, mod, percent * 0.01)
+		end
+	end
+end
+local function ApplyNotes()
+	for pn = 1, plrcount do
+		for notemod, percent in pairs(note_percents[pn]) do
+			local t = split('|', notemod)
+			ApplyNoteMod(t[2], t[3], t[1], percent, pn)
 		end
 	end
 end
@@ -243,7 +252,8 @@ local function UpdateMods()
 					if m.Length == 0 then ease = m.Ease(1) end
 					local perc = ease * (v[1] - v[3]) + v[3]
 					mod_percents[pn][v[2]] = perc
-				elseif m.Type == 'Note' then
+				-- again, broken, fuck me man i dont know how xero does it this sucks
+				elseif m.Type == 'NoteBlend' then
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
 					v[5] = v[5] or note_percents[pn][notemod] or default_mods[pn][notemod] or 0
 					active[pn][notemod] = active[pn][notemod] or {}
@@ -263,6 +273,13 @@ local function UpdateMods()
 						end
 					end
 					note_percents[pn][notemod] = perc
+				elseif m.Type == 'Note' then
+					local notemod = v[4]..'|'..v[1]..'|'..v[2]
+					v[5] = v[5] or note_percents[pn][notemod] or default_mods[pn][notemod] or 0
+					local ease = m.Ease((BEAT - m.Start) * OFMath.oneoverx(m.Length))
+					if m.Length == 0 then ease = m.Ease(1) end
+					local perc = ease * (v[3] - v[5]) + v[5]
+					note_percents[pn][notemod] = perc
 				end
 			elseif BEAT >= (m.Start + m.Length) then
 				if m.Type == 'Player' then
@@ -273,11 +290,12 @@ local function UpdateMods()
 						v[4] = v[4] - 1
 					end
 				elseif m.Type == 'Note' then
-					v[5] = v[5] or note_percents[pn][notemod] or 0
 					local notemod = v[4]..'|'..v[1]..'|'..v[2]
+					v[5] = v[5] or note_percents[pn][notemod] or 0
 					note_percents[pn][notemod] = m.Ease(1) * (v[3] - v[5]) + v[5]
 					if v[6] and active[pn][notemod] then
-						--active[pn][notemod][v[6]] = nil
+						table.remove(active[pn][notemod], v[6])
+						v[6] = v[6] - 1
 					end
 				end
 			end
@@ -491,6 +509,7 @@ FG[#FG + 1] = Def.Actor {
 		end
 		UpdateMods()
 		ApplyMods()
+		ApplyNotes()
 		for i = #modlist, 1, -1 do
 			local mod = modlist[i]
 			if std.BEAT > mod.Start + mod.Length then
@@ -508,7 +527,7 @@ Mods = {
 	FromFile = FromFile,
 	Define = Define,
 	Insert = Insert,
-	--Note = Note,
+	Note = Note,
 	Mirin = Mirin,
 	Exsch = Exsch,
 	Default = Default,
